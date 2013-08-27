@@ -5,6 +5,9 @@
  */
 package javafxapplication4;
 
+//import java.util.Locale;
+//import org.joda.time.DateTime;
+//import org.joda.time.Instant;
 import eu.hansolo.enzo.clock.Clock;
 import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
@@ -16,11 +19,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import static javafx.application.Application.launch;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -34,12 +37,15 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
+//import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraintsBuilder;
 import javafx.scene.layout.RowConstraintsBuilder;
+import java.util.Calendar;
+import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
+import org.joda.time.chrono.JulianChronology;
 
 /**
  *
@@ -672,8 +678,9 @@ public void buildData_calculate() throws Exception{
      Moon m = new Moon();
         int moonPhase =  m.illuminatedPercentage();
         System.out.println("The moon is " + moonPhase + "% full");
-
-
+        System.out.println("The next full moon is on: " + MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
+        System.out.println("The next new moon is on: " + MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance()));
+        
         }    
     
     
@@ -759,8 +766,7 @@ public void buildData_calculate() throws Exception{
           catch(SQLException e){
               System.out.println("Error on Database connection");
           }
-
-      }
+   }
 
     //checks for connection to the internet through dummy request
 //        public static boolean isInternetReachable()
