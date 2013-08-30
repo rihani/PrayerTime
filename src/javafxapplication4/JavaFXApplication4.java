@@ -6,8 +6,7 @@
 package javafxapplication4;
 
 //import java.util.Locale;
-//import org.joda.time.DateTime;
-//import org.joda.time.Instant;
+import org.joda.time.*;
 import eu.hansolo.enzo.clock.Clock;
 import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
@@ -37,7 +36,6 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 import javafx.geometry.Insets;
-//import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
@@ -45,7 +43,13 @@ import javafx.scene.layout.ColumnConstraintsBuilder;
 import javafx.scene.layout.RowConstraintsBuilder;
 import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
-import org.joda.time.chrono.JulianChronology;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+
+//import org.joda.time.chrono.JulianChronology;
 
 /**
  *
@@ -61,7 +65,8 @@ import org.joda.time.chrono.JulianChronology;
     private Clock clock5;
     private LcdClock clock3;
     private ObservableList data;
- 
+    private Label Phase_Label, Moon_Date_Label;
+    private Integer moonPhase;
     private static final String[] WEEK_DAYS = {
         "SUN","MON","TUE","WED","THU","FRI","SAT"
     };
@@ -114,15 +119,15 @@ import org.joda.time.chrono.JulianChronology;
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Oldoutsh.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/BJadidBd.ttf").toExternalForm(),30);
         
+        Phase_Label = new Label();
+        Moon_Date_Label = new Label();
         clock = new Clock();
-//        clock5 = new Clock();
         clock = ClockBuilder.create()
                              .prefSize(200, 200)
                              .design(Clock.Design.IOS6)
                              .discreteSecond(true)
                              .build();
-        
-        
+
 //        clock5 = ClockBuilder.create()
 //                             .prefSize(200, 200)
 //                             .design(Clock.Design.BRAUN)
@@ -319,8 +324,7 @@ import org.joda.time.chrono.JulianChronology;
 
     @Override public void start(Stage stage) {
         
-        timer.start();
-        buildData_timer.start();
+        
         
         Group root = new Group();
         Scene scene = new Scene(root, 1180, 650);
@@ -585,20 +589,38 @@ import org.joda.time.chrono.JulianChronology;
         prayertime_pane.getChildren().add(isha_jamma_Box);
         
  //============================= 
-              
+          
+        
+        BorderPane Moonpane = new BorderPane();
+        Moonpane.setId("prayertime_pane");
+        Moonpane.setPadding(new Insets(10, 10, 10, 10));
+        Moonpane.setMaxSize(450,70);
+        Moonpane.setMinSize(450,70);
+        
+//        Node appContent = new AppContentNode();
+//        borderpane.setTop(toolbar);
+//        borderpane.setCenter(appContent);
+//        borderpane.setBottom(statusbar);
+
+        Phase_Label.setId("moon-text-english");
+        Moonpane.setRight(Phase_Label);
+//        myLabel.textProperty().bind(valueProperty);
        
-        Mainpane.add(clock1Box, 12, 1,4,4);
-//        Mainpane.setConstraints(clock1Box, 5, 1);
-//        Mainpane.getChildren().add(clock1Box);
+        ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Full_Moon.png")));      
+        Moon_img.setFitWidth(100);
+        Moon_img.setFitHeight(100);
+        Moonpane.setCenter(Moon_img);   
         
-//        Mainpane.setConstraints(prayertime_pane, 2, 3);
+        Moon_Date_Label.setId("moon-text-english");
+        Moonpane.setLeft(Moon_Date_Label);
+
+        Mainpane.add(Moonpane, 6, 1,3,2);
+        Mainpane.add(clock1Box, 12, 1,4,4);    
         Mainpane.add(prayertime_pane, 1, 6,7,7);
-//        Mainpane.getChildren().add(prayertime_pane);
         
-        
-     
         stage.show();
-        
+        timer.start();
+        buildData_timer.start();
 
 //        stage.setFullScreen(true);
     }
@@ -676,11 +698,17 @@ public void buildData_calculate() throws Exception{
 
 //             if (isInternetReachable()){ System.out.println("connected"); control.setIndicatorStyle(SimpleIndicator.IndicatorStyle.GREEN);} else {System.out.println("not connected");control.setIndicatorStyle(SimpleIndicator.IndicatorStyle.RED);}
      Moon m = new Moon();
-        int moonPhase =  m.illuminatedPercentage();
-        System.out.println("The moon is " + moonPhase + "% full");
+        
+        System.out.println("The moon is " + m.illuminatedPercentage() + "% full");
         System.out.println("The next full moon is on: " + MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
         System.out.println("The next new moon is on: " + MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance()));
+                
+        String date = new SimpleDateFormat("EEEE dd'th' MMM").format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
+//        System.out.println("The next new moon is on: " + date);
         
+        Phase_Label.setText("\n" + m.illuminatedPercentage() + "% Full");
+        Moon_Date_Label.setText("Next Full Moon\n" + date);
+         
         }    
     
     
