@@ -368,7 +368,7 @@ import javafx.scene.layout.BorderPane;
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build()
         );
-//        Mainpane.setGridLinesVisible(true);
+        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         
         GridPane prayertime_pane = new GridPane();
@@ -594,8 +594,8 @@ import javafx.scene.layout.BorderPane;
         BorderPane Moonpane = new BorderPane();
         Moonpane.setId("prayertime_pane");
         Moonpane.setPadding(new Insets(10, 10, 10, 10));
-        Moonpane.setMaxSize(450,70);
-        Moonpane.setMinSize(450,70);
+        Moonpane.setMaxSize(380,70);
+        Moonpane.setMinSize(380,70);
         
 //        Node appContent = new AppContentNode();
 //        borderpane.setTop(toolbar);
@@ -614,9 +614,9 @@ import javafx.scene.layout.BorderPane;
         Moon_Date_Label.setId("moon-text-english");
         Moonpane.setLeft(Moon_Date_Label);
 
-        Mainpane.add(Moonpane, 6, 1,3,2);
-        Mainpane.add(clock1Box, 12, 1,4,4);    
-        Mainpane.add(prayertime_pane, 1, 6,7,7);
+        Mainpane.add(Moonpane, 9, 1,3,2);
+        Mainpane.add(clock1Box, 1, 1,4,4);    
+        Mainpane.add(prayertime_pane, 7, 6,7,7);
         
         stage.show();
         timer.start();
@@ -699,14 +699,14 @@ public void buildData_calculate() throws Exception{
 //             if (isInternetReachable()){ System.out.println("connected"); control.setIndicatorStyle(SimpleIndicator.IndicatorStyle.GREEN);} else {System.out.println("not connected");control.setIndicatorStyle(SimpleIndicator.IndicatorStyle.RED);}
      Moon m = new Moon();
         
-        System.out.println("The moon is " + m.illuminatedPercentage() + "% full");
+        System.out.println("The moon is " + m.illuminatedPercentage() + "% full and " + (m.isWaning() ? "waning" : "waxing"));
         System.out.println("The next full moon is on: " + MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
         System.out.println("The next new moon is on: " + MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance()));
                 
         String date = new SimpleDateFormat("EEEE dd'th' MMM").format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
 //        System.out.println("The next new moon is on: " + date);
         
-        Phase_Label.setText("\n" + m.illuminatedPercentage() + "% Full");
+//        Phase_Label.setText("The Moon" + m.illuminatedPercentage() + "% is Full\n and " + (m.isWaning() ? "waning" : "waxing"));
         Moon_Date_Label.setText("Next Full Moon\n" + date);
          
         }    

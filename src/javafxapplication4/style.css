@@ -15,7 +15,8 @@ and open the template in the editor.
 
 
     #Mainpane{
-        -fx-background-image: url("background_image.png");
+        /*-fx-background-image: url("background_image.png");*/
+        -fx-background-image: url("moon_background.jpg");
         -fx-background-repeat: stretch;   
         -fx-background-size: 1180 650;
         -fx-background-position: center center;
@@ -24,12 +25,12 @@ and open the template in the editor.
     }
 
     #prayertime_pane{
-        -fx-background-color: rgba(255, 255, 255, 0.2); 
-        -fx-background-radius: 10;
+        -fx-background-color: rgba(255, 255, 255, 0.1); 
+        -fx-background-radius: 20;
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-effect: dropshadow( one-pass-box , black , 8 , 0.0 , 2 , 0 );
-        -fx-border-color: rgb(49, 89, 23);
-        -fx-border-radius: 5;
+        -fx-border-color: rgb(0, 0, 0);
+        -fx-border-radius: 20;
          
     }
 
