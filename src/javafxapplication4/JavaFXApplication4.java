@@ -44,7 +44,7 @@ import javafx.scene.layout.RowConstraintsBuilder;
 import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
+//import java.util.Locale;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -65,7 +65,7 @@ import javafx.scene.layout.BorderPane;
     private Clock clock5;
     private LcdClock clock3;
     private ObservableList data;
-    private Label Phase_Label, Moon_Date_Label;
+    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
     private Integer moonPhase;
     private static final String[] WEEK_DAYS = {
         "SUN","MON","TUE","WED","THU","FRI","SAT"
@@ -118,7 +118,11 @@ import javafx.scene.layout.BorderPane;
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/BMajidSh.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Oldoutsh.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/BJadidBd.ttf").toExternalForm(),30);
+        Font.loadFont(JavaFXApplication4.class.getResource("Fonts/wlm_carton.ttf").toExternalForm(),30);
+        Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Arial_Black.ttf").toExternalForm(),30);
+        Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Arial_Bold.ttf").toExternalForm(),30);
         
+        Moon_Image_Label = new Label();
         Phase_Label = new Label();
         Moon_Date_Label = new Label();
         clock = new Clock();
@@ -606,10 +610,16 @@ import javafx.scene.layout.BorderPane;
         Moonpane.setRight(Phase_Label);
 //        myLabel.textProperty().bind(valueProperty);
        
-        ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Full_Moon.png")));      
+        
+        
+        ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
         Moon_img.setFitWidth(100);
         Moon_img.setFitHeight(100);
-        Moonpane.setCenter(Moon_img);   
+        Moon_img.setPreserveRatio(true);
+        Moon_img.setSmooth(true);
+        
+        Moon_Image_Label.setGraphic(Moon_img);
+        Moonpane.setCenter(Moon_Image_Label);   
         
         Moon_Date_Label.setId("moon-text-english");
         Moonpane.setLeft(Moon_Date_Label);
@@ -707,8 +717,246 @@ public void buildData_calculate() throws Exception{
 //        System.out.println("The next new moon is on: " + date);
         
 //        Phase_Label.setText("The Moon" + m.illuminatedPercentage() + "% is Full\n and " + (m.isWaning() ? "waning" : "waxing"));
-        Moon_Date_Label.setText("Next Full Moon\n" + date);
-         
+        Moon_Date_Label.setText("Next Full Moon is on\n" + date);
+        
+        if (m.illuminatedPercentage()== 0)
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>3 && m.illuminatedPercentage()<10 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/3%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>10 && m.illuminatedPercentage()<17 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/12%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>17 && m.illuminatedPercentage()<32 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/21%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        if (m.illuminatedPercentage()>32 && m.illuminatedPercentage()<43 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/38%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>43 && m.illuminatedPercentage()<52 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/47%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>52 && m.illuminatedPercentage()<61 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>61 && m.illuminatedPercentage()<70 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/65%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>70 && m.illuminatedPercentage()<78 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/74%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>78 && m.illuminatedPercentage()<87 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/82%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>87 && m.illuminatedPercentage()<96 && m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/91%WA.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()== 100)
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/100%.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>4 && m.illuminatedPercentage()<12 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/8%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>12 && m.illuminatedPercentage()<20 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/16%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>20 && m.illuminatedPercentage()<28 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/24%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>28 && m.illuminatedPercentage()<36 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/32%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>36 && m.illuminatedPercentage()<44 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/40%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>44 && m.illuminatedPercentage()<52 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/48%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>52 && m.illuminatedPercentage()<59 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>59 && m.illuminatedPercentage()<67 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/63%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>67 && m.illuminatedPercentage()<74 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/71%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>74 && m.illuminatedPercentage()<82 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/78%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>82 && m.illuminatedPercentage()<90 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/86%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
+        
+        if (m.illuminatedPercentage()>90 && m.illuminatedPercentage()<98 && !m.isWaning())
+        {
+            ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/94%WX.png")));      
+            Moon_img.setFitWidth(100);
+            Moon_img.setFitHeight(100);
+            Moon_img.setPreserveRatio(true);
+            Moon_img.setSmooth(true);        
+            Moon_Image_Label.setGraphic(Moon_img);
+        }
         }    
     
     
