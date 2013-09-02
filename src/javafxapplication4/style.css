@@ -16,9 +16,11 @@ and open the template in the editor.
 
     #Mainpane{
         /*-fx-background-image: url("background_image.png");*/
-        -fx-background-image: url("moon_background.jpg");
+        /*-fx-background-image: url("moon_background.jpg");*/
+        -fx-background-image: url("../Images/wallpaper2.jpg");
         -fx-background-repeat: stretch;   
-        -fx-background-size: 1180 650;
+/*        -fx-background-size: 1180 650;*/
+        -fx-background-size: 720 1230;
         -fx-background-position: center center;
         -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0); 
         
@@ -81,3 +83,18 @@ and open the template in the editor.
         
    }
 
+      #moon-text-arabic{
+        
+        -fx-font-size: 18px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+        /*-fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Arial Bold';
+        /*-fx-fill: white;*/
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
+        -fx-text-alignment: right;
+        -fx-text-fill:whitesmoke;
+        
+   }

@@ -6,14 +6,15 @@
 package javafxapplication4;
 
 //import java.util.Locale;
-import org.joda.time.*;
-import eu.hansolo.enzo.clock.Clock;
-import eu.hansolo.enzo.clock.ClockBuilder;
+//import org.joda.time.*;
+//import eu.hansolo.enzo.clock.Clock;
+//import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
 import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
+import eu.hansolo.enzo.lcdclock.LcdClockBuilder;
 import eu.hansolo.enzo.lcdclock.LcdClock;
 import java.sql.Connection;
-import java.sql.Date;
+//import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -43,11 +44,17 @@ import javafx.scene.layout.ColumnConstraintsBuilder;
 import javafx.scene.layout.RowConstraintsBuilder;
 import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
+//import java.text.SimpleDateFormat;
+import java.util.Locale;
+//import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-//import java.util.Locale;
+import java.time.LocalTime;
+import java.util.Date;
+import javafx.animation.FadeTransition;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Duration;
 
 //import org.joda.time.chrono.JulianChronology;
 
@@ -61,9 +68,7 @@ import javafx.scene.layout.BorderPane;
 //    private SimpleIndicator control;
 //    private boolean toggle;    
 
-    private Clock clock;
-    private Clock clock5;
-    private LcdClock clock3;
+    private LcdClock clock;
     private ObservableList data;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
     private Integer moonPhase;
@@ -107,8 +112,8 @@ import javafx.scene.layout.BorderPane;
     private int hours;
     private int minutes;
     private int seconds;
-    private long lastTimerCall,buildData_lastTimerCall;
-    private AnimationTimer timer, buildData_timer;
+    private long moonPhase_lastTimerCall,prayerTime_lastTimerCall;
+    private AnimationTimer moonPhase_timer, prayerTime_timer;
     
 
     @Override public void init() {
@@ -125,14 +130,15 @@ import javafx.scene.layout.BorderPane;
         Moon_Image_Label = new Label();
         Phase_Label = new Label();
         Moon_Date_Label = new Label();
-        clock = new Clock();
-        clock = ClockBuilder.create()
-                             .prefSize(200, 200)
-                             .design(Clock.Design.IOS6)
-                             .discreteSecond(true)
-                             .build();
+        clock = new LcdClock();
+//        clock = ClockBuilder.create()
+//                             .prefSize(200, 200)
+//                             .design(Clock.Design.IOS6)
+//                             .discreteSecond(true)
+//                             .secondPointerVisible(false)
+//                             .build();
 
-//        clock5 = ClockBuilder.create()
+//        clock = ClockBuilder.create()
 //                             .prefSize(200, 200)
 //                             .design(Clock.Design.BRAUN)
 //                             .discreteSecond(false)
@@ -141,17 +147,17 @@ import javafx.scene.layout.BorderPane;
 //                             .build();
 //        
 //        
-//        clock3 = LcdClockBuilder.create()
-//                               //.color(Color.CYAN)
-//                               //.hourColor(Color.LIME)
-//                               .minuteColor(Color.AQUA)
-//                               //.secondColor(Color.MAGENTA)
-//                               //.textColor(Color.DARKOLIVEGREEN)
-//                               .alarmVisible(true)
-//                               .alarmOn(true)
-//                               .alarm(LocalTime.now().plusSeconds(20))
-//                               .dateVisible(true)
-//                               .build();
+        clock = LcdClockBuilder.create()
+                               .color(Color.CYAN)
+                               .hourColor(Color.LIME)
+                               .minuteColor(Color.AQUA)
+                               .secondColor(Color.MAGENTA)
+//                               .textColor(Color.DARKOLIVEGREEN)
+                               .alarmVisible(true)
+                               .alarmOn(true)
+                               .alarm(LocalTime.now().plusSeconds(20))
+                               .dateVisible(true)
+                               .build();
      
         time_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
         time_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
@@ -236,81 +242,13 @@ import javafx.scene.layout.BorderPane;
         isha_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         isha_jamma_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
-        lastTimerCall = System.nanoTime();
+//        moonPhase_lastTimerCall = System.nanoTime();
+//        prayerTime_lastTimerCall = System.nanoTime();
         
-        timer = new AnimationTimer() {
-            @Override public void handle(long now) {
-                if (now > lastTimerCall + 500_000_000l) {
-                    String day = WEEK_DAYS[Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1];
-                    if (day.equals("SAT") || day.equals("SUN")) {
-                        if (!dayLeft.getTextColor().equals(Color.CRIMSON)) {
-                            dayLeft.setTextColor(Color.CRIMSON);
-                            dayMid.setTextColor(Color.CRIMSON);
-                            dayRight.setTextColor(Color.CRIMSON);
-                        }
-                    } else {
-                        if (!dayLeft.getText().equals(Color.WHITESMOKE)) {
-                            dayLeft.setTextColor(Color.WHITESMOKE);
-                            dayMid.setTextColor(Color.WHITESMOKE);
-                            dayRight.setTextColor(Color.WHITESMOKE);
-                        }
-                    }
-                    dayLeft.setText(day.substring(0, 1));
-                    dayMid.setText(day.substring(1, 2));
-                    dayRight.setText(day.substring(2));
-
-                    date = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
-                    String dateString = Integer.toString(date);
-                    if (date < 10) {
-                        dateLeft.setText("0");
-                        dateRight.setText(dateString.substring(0, 1));
-                    } else {
-                        dateLeft.setText(dateString.substring(0, 1));
-                        dateRight.setText(dateString.substring(1));
-                    }
-
-                    String month = MONTHS[Calendar.getInstance().get(Calendar.MONTH)];
-                    monthLeft.setText(month.substring(0, 1));
-                    monthMid.setText(month.substring(1, 2));
-                    monthRight.setText(month.substring(2));
-
-                    hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                    String hourString = Integer.toString(hours);
-                    if (hours < 10) {
-                        hourLeft.setText("0");
-                        hourRight.setText(hourString.substring(0, 1));
-                    } else {
-                        hourLeft.setText(hourString.substring(0, 1));
-                        hourRight.setText(hourString.substring(1));
-                    }
-
-                    minutes = Calendar.getInstance().get(Calendar.MINUTE);
-                    String minutesString = Integer.toString(minutes);
-                    if (minutes < 10) {
-                        minLeft.setText("0");
-                        minRight.setText(minutesString.substring(0, 1));
-                    } else {
-                        minLeft.setText(minutesString.substring(0, 1));
-                        minRight.setText(minutesString.substring(1));
-                    }
-
-                    seconds = Calendar.getInstance().get(Calendar.SECOND);
-                    String secondsString = Integer.toString(seconds);
-                    if (seconds < 10) {
-                        secLeft.setText("0");
-                        secRight.setText(secondsString.substring(0, 1));
-                    } else {
-                        secLeft.setText(secondsString.substring(0, 1));
-                        secRight.setText(secondsString.substring(1));
-                    }
-                    lastTimerCall = now;
-                }
-            }
-        };
         
-        buildData_timer = new AnimationTimer() {
+        prayerTime_timer = new AnimationTimer() {
             @Override public void handle(long now) {
-                if (now > buildData_lastTimerCall + 1000000_000_000l) {
+                if (now > prayerTime_lastTimerCall + 1000000_000_000l) {
                     
                     try {
 //                      buildData_database();
@@ -319,7 +257,23 @@ import javafx.scene.layout.BorderPane;
                         Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
                     }
  
-                    buildData_lastTimerCall = now;
+                    prayerTime_lastTimerCall = now;
+                }
+            }
+        };
+        
+        moonPhase_timer = new AnimationTimer() {
+            @Override public void handle(long now) {
+                if (now >moonPhase_lastTimerCall + 1000000_000_000l) {
+                    
+                    try {
+//                      buildData_database();
+                        buildData_calculate();
+                    } catch (Exception ex) {
+                        Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+ 
+                    moonPhase_lastTimerCall = now;
                 }
             }
         };
@@ -331,30 +285,46 @@ import javafx.scene.layout.BorderPane;
         
         
         Group root = new Group();
-        Scene scene = new Scene(root, 1180, 650);
+        Scene scene = new Scene(root, 720, 1230); //1180, 650
         stage.setScene(scene);
         stage.setTitle("Prayer Time Display");
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         
         GridPane Mainpane = new GridPane();
         scene.setRoot(Mainpane);
+//        Mainpane.getColumnConstraints().setAll(
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
+//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build()
+//        );
+        
         Mainpane.getColumnConstraints().setAll(
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build()
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
+                ColumnConstraintsBuilder.create().percentWidth(100/10.0).build()
+                
         );
+        
+        
         Mainpane.getRowConstraints().setAll(
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
@@ -377,6 +347,7 @@ import javafx.scene.layout.BorderPane;
         
         GridPane prayertime_pane = new GridPane();
         prayertime_pane.setId("prayertime_pane");
+        prayertime_pane.setCache(true);
 //        prayertime_pane.setGridLinesVisible(true);
         prayertime_pane.setPadding(new Insets(20, 20, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
@@ -624,13 +595,13 @@ import javafx.scene.layout.BorderPane;
         Moon_Date_Label.setId("moon-text-english");
         Moonpane.setLeft(Moon_Date_Label);
 
-        Mainpane.add(Moonpane, 9, 1,3,2);
+        Mainpane.add(Moonpane, 4, 1,3,3);
         Mainpane.add(clock1Box, 1, 1,4,4);    
-        Mainpane.add(prayertime_pane, 7, 6,7,7);
-        
+        Mainpane.add(prayertime_pane, 1, 5,8,5);
+        Mainpane.setCache(true);
         stage.show();
-        timer.start();
-        buildData_timer.start();
+        prayerTime_timer.start();
+        
 
 //        stage.setFullScreen(true);
     }
@@ -713,11 +684,24 @@ public void buildData_calculate() throws Exception{
         System.out.println("The next full moon is on: " + MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
         System.out.println("The next new moon is on: " + MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance()));
                 
-        String date = new SimpleDateFormat("EEEE dd'th' MMM").format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
-//        System.out.println("The next new moon is on: " + date);
+//        String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMM").format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
+//        Moon_Date_Label.setId("moon-text-english");
+//        Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
         
-//        Phase_Label.setText("The Moon" + m.illuminatedPercentage() + "% is Full\n and " + (m.isWaning() ? "waning" : "waxing"));
-        Moon_Date_Label.setText("Next Full Moon is on\n" + date);
+        
+        String FullMoon_date_ar = new SimpleDateFormat(" EEEE' '  dd  MMMM", new Locale("ar")).format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
+        Moon_Date_Label.setId("moon-text-arabic");
+        Moon_Date_Label.setText("سيكون القمر كاملا يوم\n" + FullMoon_date_ar);
+        
+        
+        FadeTransition ft = new FadeTransition(Duration.millis(16000), Moon_Date_Label);
+     ft.setFromValue(0.3);
+     ft.setToValue(1);
+     ft.setCycleCount(1);
+     ft.setAutoReverse(false);
+ 
+     ft.play();
+        
         
         if (m.illuminatedPercentage()== 0)
         {
@@ -729,7 +713,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>3 && m.illuminatedPercentage()<10 && m.isWaning())
+        if (m.illuminatedPercentage()>3 && m.illuminatedPercentage()<=10 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/3%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -739,7 +723,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>10 && m.illuminatedPercentage()<17 && m.isWaning())
+        if (m.illuminatedPercentage()>10 && m.illuminatedPercentage()<=17 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/12%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -749,7 +733,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>17 && m.illuminatedPercentage()<32 && m.isWaning())
+        if (m.illuminatedPercentage()>17 && m.illuminatedPercentage()<=32 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/21%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -758,7 +742,7 @@ public void buildData_calculate() throws Exception{
             Moon_img.setSmooth(true);        
             Moon_Image_Label.setGraphic(Moon_img);
         }
-        if (m.illuminatedPercentage()>32 && m.illuminatedPercentage()<43 && m.isWaning())
+        if (m.illuminatedPercentage()>32 && m.illuminatedPercentage()<=43 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/38%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -768,7 +752,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>43 && m.illuminatedPercentage()<52 && m.isWaning())
+        if (m.illuminatedPercentage()>43 && m.illuminatedPercentage()<=52 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/47%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -778,7 +762,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>52 && m.illuminatedPercentage()<61 && m.isWaning())
+        if (m.illuminatedPercentage()>52 && m.illuminatedPercentage()<=61 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -788,7 +772,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>61 && m.illuminatedPercentage()<70 && m.isWaning())
+        if (m.illuminatedPercentage()>61 && m.illuminatedPercentage()<=70 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/65%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -798,7 +782,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>70 && m.illuminatedPercentage()<78 && m.isWaning())
+        if (m.illuminatedPercentage()>70 && m.illuminatedPercentage()<=78 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/74%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -808,7 +792,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>78 && m.illuminatedPercentage()<87 && m.isWaning())
+        if (m.illuminatedPercentage()>78 && m.illuminatedPercentage()<=87 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/82%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -818,7 +802,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>87 && m.illuminatedPercentage()<96 && m.isWaning())
+        if (m.illuminatedPercentage()>87 && m.illuminatedPercentage()<=96 && m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/91%WA.png")));      
             Moon_img.setFitWidth(100);
@@ -838,7 +822,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>4 && m.illuminatedPercentage()<12 && !m.isWaning())
+        if (m.illuminatedPercentage()>4 && m.illuminatedPercentage()<=12 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/8%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -848,7 +832,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>12 && m.illuminatedPercentage()<20 && !m.isWaning())
+        if (m.illuminatedPercentage()>12 && m.illuminatedPercentage()<=20 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/16%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -858,7 +842,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>20 && m.illuminatedPercentage()<28 && !m.isWaning())
+        if (m.illuminatedPercentage()>20 && m.illuminatedPercentage()<=28 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/24%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -868,7 +852,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>28 && m.illuminatedPercentage()<36 && !m.isWaning())
+        if (m.illuminatedPercentage()>28 && m.illuminatedPercentage()<=36 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/32%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -878,7 +862,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>36 && m.illuminatedPercentage()<44 && !m.isWaning())
+        if (m.illuminatedPercentage()>36 && m.illuminatedPercentage()<=44 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/40%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -888,7 +872,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>44 && m.illuminatedPercentage()<52 && !m.isWaning())
+        if (m.illuminatedPercentage()>44 && m.illuminatedPercentage()<=52 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/48%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -898,7 +882,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>52 && m.illuminatedPercentage()<59 && !m.isWaning())
+        if (m.illuminatedPercentage()>52 && m.illuminatedPercentage()<=59 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -908,7 +892,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>59 && m.illuminatedPercentage()<67 && !m.isWaning())
+        if (m.illuminatedPercentage()>59 && m.illuminatedPercentage()<=67 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/63%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -918,7 +902,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>67 && m.illuminatedPercentage()<74 && !m.isWaning())
+        if (m.illuminatedPercentage()>67 && m.illuminatedPercentage()<=74 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/71%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -928,7 +912,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>74 && m.illuminatedPercentage()<82 && !m.isWaning())
+        if (m.illuminatedPercentage()>74 && m.illuminatedPercentage()<=82 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/78%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -938,7 +922,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>82 && m.illuminatedPercentage()<90 && !m.isWaning())
+        if (m.illuminatedPercentage()>82 && m.illuminatedPercentage()<=90 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/86%WX.png")));      
             Moon_img.setFitWidth(100);
@@ -948,7 +932,7 @@ public void buildData_calculate() throws Exception{
             Moon_Image_Label.setGraphic(Moon_img);
         }
         
-        if (m.illuminatedPercentage()>90 && m.illuminatedPercentage()<98 && !m.isWaning())
+        if (m.illuminatedPercentage()>90 && m.illuminatedPercentage()<=98 && !m.isWaning())
         {
             ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/94%WX.png")));      
             Moon_img.setFitWidth(100);
