@@ -7,14 +7,11 @@ package javafxapplication4;
 
 //import java.util.Locale;
 //import org.joda.time.*;
-//import eu.hansolo.enzo.clock.Clock;
-//import eu.hansolo.enzo.clock.ClockBuilder;
+import eu.hansolo.enzo.clock.Clock;
+import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
 import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
-import eu.hansolo.enzo.lcdclock.LcdClockBuilder;
-import eu.hansolo.enzo.lcdclock.LcdClock;
 import java.sql.Connection;
-//import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -48,9 +45,13 @@ import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
 import java.util.Locale;
 //import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
+//import java.time.LocalTime;
 import java.util.Date;
 import javafx.animation.FadeTransition;
+import javafx.scene.Node;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.InnerShadow;
+import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -64,11 +65,8 @@ import javafx.util.Duration;
  */
    
     public class JavaFXApplication4 extends Application {
-    
-//    private SimpleIndicator control;
-//    private boolean toggle;    
 
-    private LcdClock clock;
+    private Clock clock;
     private ObservableList data;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
     private Integer moonPhase;
@@ -78,40 +76,15 @@ import javafx.util.Duration;
     private static final String[] MONTHS = {
         "JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"
     };
-
     private int id;
     private Date prayer_date;
     private Time fajr_begins,fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_begins, maghrib_jamaat,isha_begins, isha_jamaat;
-
-    private SplitFlap dayLeft;
-    private SplitFlap dayMid;
-    private SplitFlap dayRight;
-
-    private SplitFlap dateLeft;
-    private SplitFlap dateRight;
-
-    private SplitFlap monthLeft;
-    private SplitFlap monthMid;
-    private SplitFlap monthRight;
-
-    private SplitFlap hourLeft;
-    private SplitFlap hourRight;
-    private SplitFlap minLeft;
-    private SplitFlap minRight;
-    private SplitFlap secLeft;
-    private SplitFlap secRight;
-    
     private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4 ,time_Separator5, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
     private SplitFlap zuhr_hourLeft, zuhr_hourRight, zuhr_minLeft, zuhr_minRight, zuhr_jamma_hourLeft, zuhr_jamma_hourRight, zuhr_jamma_minLeft, zuhr_jamma_minRight;
     private SplitFlap asr_hourLeft, asr_hourRight, asr_minLeft, asr_minRight, asr_jamma_hourLeft, asr_jamma_hourRight, asr_jamma_minLeft, asr_jamma_minRight;
     private SplitFlap maghrib_hourLeft, maghrib_hourRight, maghrib_minLeft, maghrib_minRight, maghrib_jamma_hourLeft, maghrib_jamma_hourRight, maghrib_jamma_minLeft, maghrib_jamma_minRight;
     private SplitFlap isha_hourLeft, isha_hourRight, isha_minLeft, isha_minRight, isha_jamma_hourLeft, isha_jamma_hourRight, isha_jamma_minLeft, isha_jamma_minRight;
-
-    private int date;
-    private int hours;
-    private int minutes;
-    private int seconds;
     private long moonPhase_lastTimerCall,prayerTime_lastTimerCall;
     private AnimationTimer moonPhase_timer, prayerTime_timer;
     
@@ -130,35 +103,15 @@ import javafx.util.Duration;
         Moon_Image_Label = new Label();
         Phase_Label = new Label();
         Moon_Date_Label = new Label();
-        clock = new LcdClock();
-//        clock = ClockBuilder.create()
-//                             .prefSize(200, 200)
-//                             .design(Clock.Design.IOS6)
-//                             .discreteSecond(true)
-//                             .secondPointerVisible(false)
-//                             .build();
+        clock = new Clock();
+        clock = ClockBuilder.create()
+                             .prefSize(200, 200)
+                             .design(Clock.Design.IOS6)
+                             .discreteSecond(true)
+                             .secondPointerVisible(true)
+                             .build();
+        clock.setCache(true);
 
-//        clock = ClockBuilder.create()
-//                             .prefSize(200, 200)
-//                             .design(Clock.Design.BRAUN)
-//                             .discreteSecond(false)
-//                             .secondPointerVisible(false)
-//                
-//                             .build();
-//        
-//        
-        clock = LcdClockBuilder.create()
-                               .color(Color.CYAN)
-                               .hourColor(Color.LIME)
-                               .minuteColor(Color.AQUA)
-                               .secondColor(Color.MAGENTA)
-//                               .textColor(Color.DARKOLIVEGREEN)
-                               .alarmVisible(true)
-                               .alarmOn(true)
-                               .alarm(LocalTime.now().plusSeconds(20))
-                               .dateVisible(true)
-                               .build();
-     
         time_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
         time_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
         time_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
@@ -171,25 +124,6 @@ import javafx.util.Duration;
         time_jamma_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
         time_jamma_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
         
-        dayLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.ALPHA).textColor(Color.WHITESMOKE).build();
-        dayMid = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.ALPHA).textColor(Color.WHITESMOKE).build();
-        dayRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.ALPHA).textColor(Color.WHITESMOKE).build();
-
-        dateLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        dateRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-
-        monthLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.ALPHA).textColor(Color.WHITESMOKE).build();
-        monthMid = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.ALPHA).textColor(Color.WHITESMOKE).build();
-        monthRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(0).selection(SplitFlap.ALPHA).textColor(Color.WHITESMOKE).build();
-
-        hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(60).selection(SplitFlap.TIME_0_TO_5).textColor(Color.WHITESMOKE).build();
-        hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(60).selection(SplitFlap.TIME_0_TO_9).textColor(Color.WHITESMOKE).build();
-        minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(60).selection(SplitFlap.TIME_0_TO_5).textColor(Color.WHITESMOKE).build();
-        minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(60).selection(SplitFlap.TIME_0_TO_9).textColor(Color.WHITESMOKE).build();
-        secLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(60).selection(SplitFlap.TIME_0_TO_5).textColor(Color.ORANGERED).build();
-        secRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(60).flipTime(60).selection(SplitFlap.TIME_0_TO_9).textColor(Color.ORANGERED).build();
-        
-            
         fajr_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         fajr_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         fajr_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -200,7 +134,6 @@ import javafx.util.Duration;
         fajr_jamma_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         fajr_jamma_minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
-        
         zuhr_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         zuhr_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         zuhr_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -216,7 +149,6 @@ import javafx.util.Duration;
         asr_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         asr_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
-        
         asr_jamma_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         asr_jamma_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         asr_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -242,7 +174,7 @@ import javafx.util.Duration;
         isha_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         isha_jamma_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
-//        moonPhase_lastTimerCall = System.nanoTime();
+        moonPhase_lastTimerCall = System.nanoTime();
 //        prayerTime_lastTimerCall = System.nanoTime();
         
         
@@ -282,33 +214,13 @@ import javafx.util.Duration;
 
     @Override public void start(Stage stage) {
         
-        
-        
         Group root = new Group();
         Scene scene = new Scene(root, 720, 1230); //1180, 650
         stage.setScene(scene);
         stage.setTitle("Prayer Time Display");
-        scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
-        
+                
         GridPane Mainpane = new GridPane();
         scene.setRoot(Mainpane);
-//        Mainpane.getColumnConstraints().setAll(
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build(),
-//                ColumnConstraintsBuilder.create().percentWidth(100/15.0).build()
-//        );
         
         Mainpane.getColumnConstraints().setAll(
                 ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
@@ -323,7 +235,6 @@ import javafx.util.Duration;
                 ColumnConstraintsBuilder.create().percentWidth(100/10.0).build()
                 
         );
-        
         
         Mainpane.getRowConstraints().setAll(
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
@@ -342,43 +253,18 @@ import javafx.util.Duration;
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build()
         );
-        Mainpane.setGridLinesVisible(true);
+//        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         
         GridPane prayertime_pane = new GridPane();
         prayertime_pane.setId("prayertime_pane");
-        prayertime_pane.setCache(true);
+        prayertime_pane.setCache(true);       
 //        prayertime_pane.setGridLinesVisible(true);
         prayertime_pane.setPadding(new Insets(20, 20, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
         prayertime_pane.setVgap(7);
         prayertime_pane.setHgap(35);
 
-//        HBox dayBox = new HBox();
-//        dayBox.setSpacing(0);
-//        dayBox.getChildren().addAll(dayLeft, dayMid, dayRight);
-//        dayBox.setLayoutX(12);
-//        dayBox.setLayoutY(76);
-//
-//        HBox dateBox = new HBox();
-//        dateBox.setSpacing(0);
-//        dateBox.getChildren().addAll(dateLeft, dateRight);
-//        dateBox.setLayoutX(134);
-//        dateBox.setLayoutY(76);
-//
-//        HBox monthBox = new HBox();
-//        monthBox.setSpacing(0);
-//        monthBox.getChildren().addAll(monthLeft, monthMid, monthRight);
-//        monthBox.setLayoutX(217);
-//        monthBox.setLayoutY(76);
-//
-//        HBox clockBox = new HBox();
-//        clockBox.setSpacing(0);
-//        HBox.setMargin(hourRight, new Insets(0, 40, 0, 0));
-//        HBox.setMargin(minRight, new Insets(0, 40, 0, 0));
-//        clockBox.getChildren().addAll(hourLeft, hourRight, minLeft, minRight, secLeft, secRight);
-//        clockBox.setLayoutY(175);
-//        
         HBox clock1Box = new HBox();
         clock1Box.setSpacing(0);
         clock1Box.getChildren().addAll(clock);
@@ -395,7 +281,7 @@ import javafx.util.Duration;
         Text text1 = new Text("الفجر\n");
         text1.setId("prayer-text-arabic");
         Text text10 = new Text("Fajr");
-        text10.setId("prayer-text-english");
+        text10.setId("prayer-text-english");       
         prayertime_pane.setHalignment(text1,HPos.RIGHT);
         prayertime_pane.setValignment(text1,VPos.TOP);
         prayertime_pane.setConstraints(text1, 2, 1);
@@ -563,42 +449,42 @@ import javafx.util.Duration;
         prayertime_pane.setConstraints(isha_jamma_Box, 0, 9);
         prayertime_pane.getChildren().add(isha_jamma_Box);
         
- //============================= 
-          
+ //===MOON PANE==========================         
         
         BorderPane Moonpane = new BorderPane();
-        Moonpane.setId("prayertime_pane");
+        Moonpane.setId("moonpane");
         Moonpane.setPadding(new Insets(10, 10, 10, 10));
         Moonpane.setMaxSize(380,70);
-        Moonpane.setMinSize(380,70);
-        
-//        Node appContent = new AppContentNode();
-//        borderpane.setTop(toolbar);
-//        borderpane.setCenter(appContent);
-//        borderpane.setBottom(statusbar);
-
+        Moonpane.setMinSize(300,70);
         Phase_Label.setId("moon-text-english");
         Moonpane.setRight(Phase_Label);
 //        myLabel.textProperty().bind(valueProperty);
-       
-        
-        
         ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
         Moon_img.setFitWidth(100);
         Moon_img.setFitHeight(100);
         Moon_img.setPreserveRatio(true);
         Moon_img.setSmooth(true);
-        
         Moon_Image_Label.setGraphic(Moon_img);
         Moonpane.setCenter(Moon_Image_Label);   
-        
         Moon_Date_Label.setId("moon-text-english");
         Moonpane.setLeft(Moon_Date_Label);
-
-        Mainpane.add(Moonpane, 4, 1,3,3);
-        Mainpane.add(clock1Box, 1, 1,4,4);    
-        Mainpane.add(prayertime_pane, 1, 5,8,5);
+        Reflection r = new Reflection();
+        r.setFraction(0.15f);
+        Moonpane.setEffect(r);
+        
+  //============================================
+        
+        DropShadow ds = new DropShadow();
+        ds.setOffsetY(10.0);
+        ds.setOffsetX(10.0);
+        ds.setColor(Color.BLACK);
+        prayertime_pane.setEffect(ds);
+        
+        Mainpane.add(Moonpane, 4, 1,3,3);                       
+        Mainpane.add(clock, 1, 1,2,2);    
+        Mainpane.add(prayertime_pane, 1, 5,8,5);                     
         Mainpane.setCache(true);
+        scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         stage.show();
         prayerTime_timer.start();
         
