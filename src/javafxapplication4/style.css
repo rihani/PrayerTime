@@ -17,7 +17,7 @@ and open the template in the editor.
     #Mainpane{
         /*-fx-background-image: url("background_image.png");*/
         /*-fx-background-image: url("moon_background.jpg");*/
-        -fx-background-image: url("../Images/sunset.jpg");
+        -fx-background-image: url("../Images/wallpaper3.jpg");
         -fx-background-repeat: stretch;   
 /*        -fx-background-size: 1180 650;*/
         -fx-background-size: 720 1230;
@@ -33,7 +33,7 @@ and open the template in the editor.
         -fx-effect: dropshadow( one-pass-box , black , 8 , 0.0 , 2 , 0 );
         -fx-border-color: rgb(0, 0, 0);
         -fx-border-radius: 20;*/
-         -fx-background-color: rgba(0, 0, 0, 0.1); 
+         -fx-background-color: rgba(255, 255, 255, 0.1); 
 	 -fx-border-color: black;
 	 -fx-border-radius: 20;
 	 -fx-padding: 10 10 10 10;
@@ -105,10 +105,10 @@ and open the template in the editor.
    
    
 #moonpane{
-	 -fx-background-color: rgba(0, 0, 0, 0.2); 
+	 
+         -fx-background-color: rgba(255, 255, 255, 0.1); 
 	 -fx-border-color: black;
 	 -fx-border-radius: 20;
 	 -fx-padding: 10 10 10 10;
 	 -fx-background-radius: 20;
-
 	}

@@ -50,11 +50,11 @@ import java.util.Date;
 import javafx.animation.FadeTransition;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.InnerShadow;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import static javafx.scene.paint.Color.RED;
 import javafx.util.Duration;
 
 //import org.joda.time.chrono.JulianChronology;
@@ -106,6 +106,8 @@ import javafx.util.Duration;
         clock = new Clock();
         clock = ClockBuilder.create()
                              .prefSize(200, 200)
+                             .minHeight(200)
+                             .minWidth(200)
                              .design(Clock.Design.IOS6)
                              .discreteSecond(true)
                              .secondPointerVisible(true)
@@ -154,10 +156,12 @@ import javafx.util.Duration;
         asr_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         asr_jamma_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         
-        maghrib_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        maghrib_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        maghrib_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        maghrib_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        maghrib_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.RED).build();
+        maghrib_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.RED).build();
+        maghrib_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.RED).build();
+        maghrib_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.RED).build();
+        
+        maghrib_minRight = SplitFlapBuilder.create().textColor(Color.WHITE).build();
         
         maghrib_jamma_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         maghrib_jamma_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -480,9 +484,12 @@ import javafx.util.Duration;
         ds.setColor(Color.BLACK);
         prayertime_pane.setEffect(ds);
         
-        Mainpane.add(Moonpane, 4, 1,3,3);                       
-        Mainpane.add(clock, 1, 1,2,2);    
-        Mainpane.add(prayertime_pane, 1, 5,8,5);                     
+        Mainpane.add(Moonpane, 5, 1,2,1);
+        clock.setEffect(ds);
+        Moonpane.setEffect(ds);
+        
+        Mainpane.add(clock, 1, 1,1,1);    
+        Mainpane.add(prayertime_pane, 1, 3,8,5);                     
         Mainpane.setCache(true);
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         stage.show();
@@ -577,7 +584,7 @@ public void buildData_calculate() throws Exception{
         
         String FullMoon_date_ar = new SimpleDateFormat(" EEEE' '  dd  MMMM", new Locale("ar")).format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
         Moon_Date_Label.setId("moon-text-arabic");
-        Moon_Date_Label.setText("سيكون القمر كاملا يوم\n" + FullMoon_date_ar);
+        Moon_Date_Label.setText("سيكون القمر بدرا يوم\n" + FullMoon_date_ar);
         
         
         FadeTransition ft = new FadeTransition(Duration.millis(16000), Moon_Date_Label);
