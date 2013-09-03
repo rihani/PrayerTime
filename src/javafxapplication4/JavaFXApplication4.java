@@ -237,8 +237,6 @@ import javafx.util.Duration;
                                 FadeTransition ft = new FadeTransition(Duration.millis(3000), Moon_Date_Label);
                                 ft.setFromValue(1);
                                 ft.setToValue(0);
-                                ft.setCycleCount(1);
-                                ft.setAutoReverse(false);
                                 ft.play();
                                 
                                 String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMM").format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
@@ -253,8 +251,6 @@ import javafx.util.Duration;
                                 FadeTransition ft = new FadeTransition(Duration.millis(3000), Moon_Date_Label);
                                 ft.setFromValue(1);
                                 ft.setToValue(0);
-                                ft.setCycleCount(1);
-                                ft.setAutoReverse(false);
                                 ft.play();
                                 
                                 String FullMoon_date_ar = new SimpleDateFormat(" EEEE' '  dd  MMMM", new Locale("ar")).format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
@@ -274,7 +270,7 @@ import javafx.util.Duration;
                         }
                     });
                 }
-            }, 0, 7000);
+            }, 0, 10000);
 
     }
 
