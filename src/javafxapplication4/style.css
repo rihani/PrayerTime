@@ -17,7 +17,7 @@ and open the template in the editor.
     #Mainpane{
         /*-fx-background-image: url("background_image.png");*/
         /*-fx-background-image: url("moon_background.jpg");*/
-        -fx-background-image: url("../Images/wallpaper3.jpg");
+        -fx-background-image: url("../Images/wallpaper4.jpg");
         -fx-background-repeat: stretch;   
 /*        -fx-background-size: 1180 650;*/
         -fx-background-size: 720 1230;
