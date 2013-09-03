@@ -47,14 +47,17 @@ import java.util.Locale;
 import java.text.SimpleDateFormat;
 //import java.time.LocalTime;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import static javafx.scene.paint.Color.RED;
+//import static javafx.scene.paint.Color.RED;
 import javafx.util.Duration;
 
 //import org.joda.time.chrono.JulianChronology;
@@ -87,7 +90,8 @@ import javafx.util.Duration;
     private SplitFlap isha_hourLeft, isha_hourRight, isha_minLeft, isha_minRight, isha_jamma_hourLeft, isha_jamma_hourRight, isha_jamma_minLeft, isha_jamma_minRight;
     private long moonPhase_lastTimerCall,prayerTime_lastTimerCall;
     private AnimationTimer moonPhase_timer, prayerTime_timer;
-    
+    boolean arabic = true;
+    boolean english = false;
 
     @Override public void init() {
         
@@ -197,7 +201,7 @@ import javafx.util.Duration;
                 }
             }
         };
-        
+                
         moonPhase_timer = new AnimationTimer() {
             @Override public void handle(long now) {
                 if (now >moonPhase_lastTimerCall + 1000000_000_000l) {
@@ -214,6 +218,64 @@ import javafx.util.Duration;
             }
         };
         
+        
+        Timer timer = new Timer();
+                
+            timer.scheduleAtFixedRate(new TimerTask() 
+            {
+                
+                @Override
+                public void run() 
+                {
+                    Platform.runLater(new Runnable()
+                    {
+                        @Override
+                        public void run() 
+                        {
+                            if (arabic)
+                            {
+                                FadeTransition ft = new FadeTransition(Duration.millis(3000), Moon_Date_Label);
+                                ft.setFromValue(1);
+                                ft.setToValue(0);
+                                ft.setCycleCount(1);
+                                ft.setAutoReverse(false);
+                                ft.play();
+                                
+                                String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMM").format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
+                                Moon_Date_Label.setId("moon-text-english");
+                                Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
+                                english = true;
+                                arabic = false;
+                            }
+                            
+                            else
+                            {
+                                FadeTransition ft = new FadeTransition(Duration.millis(3000), Moon_Date_Label);
+                                ft.setFromValue(1);
+                                ft.setToValue(0);
+                                ft.setCycleCount(1);
+                                ft.setAutoReverse(false);
+                                ft.play();
+                                
+                                String FullMoon_date_ar = new SimpleDateFormat(" EEEE' '  dd  MMMM", new Locale("ar")).format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
+                                Moon_Date_Label.setId("moon-text-arabic");
+                                Moon_Date_Label.setText("سيكون القمر بدرا يوم\n" + FullMoon_date_ar);
+                                english = false;
+                                arabic = true;
+                            }
+                                                       
+                            FadeTransition ft = new FadeTransition(Duration.millis(3000), Moon_Date_Label);
+                            ft.setFromValue(0);
+                            ft.setToValue(1);
+                            ft.setCycleCount(1);
+                            ft.setAutoReverse(false);
+                            ft.play();
+
+                        }
+                    });
+                }
+            }, 0, 7000);
+
     }
 
     @Override public void start(Stage stage) {
@@ -457,11 +519,11 @@ import javafx.util.Duration;
         
         BorderPane Moonpane = new BorderPane();
         Moonpane.setId("moonpane");
-        Moonpane.setPadding(new Insets(10, 10, 10, 10));
+        Moonpane.setPadding(new Insets(10, 0, 10, 10));
         Moonpane.setMaxSize(380,70);
-        Moonpane.setMinSize(300,70);
-        Phase_Label.setId("moon-text-english");
-        Moonpane.setRight(Phase_Label);
+        Moonpane.setMinSize(330,70);
+//        Phase_Label.setId("moon-text-english");
+//        Moonpane.setRight(Phase_Label);
 //        myLabel.textProperty().bind(valueProperty);
         ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
         Moon_img.setFitWidth(100);
@@ -573,28 +635,10 @@ public void buildData_calculate() throws Exception{
 //             if (isInternetReachable()){ System.out.println("connected"); control.setIndicatorStyle(SimpleIndicator.IndicatorStyle.GREEN);} else {System.out.println("not connected");control.setIndicatorStyle(SimpleIndicator.IndicatorStyle.RED);}
      Moon m = new Moon();
         
-        System.out.println("The moon is " + m.illuminatedPercentage() + "% full and " + (m.isWaning() ? "waning" : "waxing"));
-        System.out.println("The next full moon is on: " + MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
-        System.out.println("The next new moon is on: " + MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance()));
-                
-//        String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMM").format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
-//        Moon_Date_Label.setId("moon-text-english");
-//        Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
-        
-        
-        String FullMoon_date_ar = new SimpleDateFormat(" EEEE' '  dd  MMMM", new Locale("ar")).format(MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
-        Moon_Date_Label.setId("moon-text-arabic");
-        Moon_Date_Label.setText("سيكون القمر بدرا يوم\n" + FullMoon_date_ar);
-        
-        
-        FadeTransition ft = new FadeTransition(Duration.millis(16000), Moon_Date_Label);
-     ft.setFromValue(0.3);
-     ft.setToValue(1);
-     ft.setCycleCount(1);
-     ft.setAutoReverse(false);
- 
-     ft.play();
-        
+//        System.out.println("The moon is " + m.illuminatedPercentage() + "% full and " + (m.isWaning() ? "waning" : "waxing"));
+//        System.out.println("The next full moon is on: " + MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance()));
+//        System.out.println("The next new moon is on: " + MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance()));
+                     
         
         if (m.illuminatedPercentage()== 0)
         {
