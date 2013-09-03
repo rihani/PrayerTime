@@ -41,6 +41,8 @@ import javafx.scene.layout.ColumnConstraintsBuilder;
 import javafx.scene.layout.RowConstraintsBuilder;
 import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
+import java.text.DateFormat;
+import java.text.ParseException;
 //import java.text.SimpleDateFormat;
 import java.util.Locale;
 //import java.text.DateFormat;
@@ -83,7 +85,7 @@ import javafx.util.Duration;
     };
     private int id;
     private Date prayer_date;
-    private Time fajr_begins,fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_begins, maghrib_jamaat,isha_begins, isha_jamaat;
+    private Date fajr_begins,fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_begins, maghrib_jamaat,isha_begins, isha_jamaat;
     private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4 ,time_Separator5, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
     private SplitFlap zuhr_hourLeft, zuhr_hourRight, zuhr_minLeft, zuhr_minRight, zuhr_jamma_hourLeft, zuhr_jamma_hourRight, zuhr_jamma_minLeft, zuhr_jamma_minRight;
@@ -230,29 +232,47 @@ import javafx.util.Duration;
                             fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
                             newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
                             System.out.println("moon date calculation exit");
+                            
+                            PrayTime getprayertime = new PrayTime();
+             
+                            // Bankstown NSW Location
+                            double latitude = -33.9172891;
+                            double longitude = 151.035882;
+                            double timezone = 10;
+
+                            getprayertime.setTimeFormat(0);
+                            getprayertime.setCalcMethod(3);
+                            getprayertime.setAsrJuristic(0);
+                            getprayertime.setAdjustHighLats(0);
+                            int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
+                            getprayertime.tune(offsets);
+
+                            Date now = new Date();
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(now);
+
+                            ArrayList<String> prayerTimes = getprayertime.getPrayerTimes(cal, latitude, longitude, timezone);
+                            ArrayList<String> prayerNames = getprayertime.getTimeNames();
+
+                            for (int i = 0; i < prayerTimes.size(); i++) {
+                               System.out.println(prayerNames.get(i) + " - " + prayerTimes.get(i));
+                            }                            
+                            
+                            String fajr_prayertime  =       prayerTimes.get(0);
+                            String sunrise =                prayerTimes.get(1);
+                            String zuhr_prayertime =        prayerTimes.get(2);
+                            String asr_prayertime =         prayerTimes.get(3);
+                            String maghrib_prayertime =     prayerTimes.get(5);
+                            String isha_prayertime =        prayerTimes.get(6);
+                            
+                            DateFormat formatter = new SimpleDateFormat("hh:mm:ss");
+                            fajr_begins = (Date)formatter.parse(fajr_prayertime);
+                            System.out.println(" fajr time " + fajr_begins);
+            
         }
     }, 0, 6000000);   
              
-             
-//            translate.scheduleAtFixedRate(new TimerTask() 
-//            {
-//                
-//                @Override
-//                public void run() 
-//                {
-//                    Platform.runLater(new Runnable()
-//                    {
-//                        @Override
-//                        public void run() 
-//                        {
-//                            System.out.println("moon date calculation entry");
-//                            fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
-//                            newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
-//                            System.out.println("moon date calculation exit");
-//                        }      
-//                    });
-//                }
-//            }, 0, 60000);
+
 
     }
 
@@ -573,37 +593,7 @@ public void buildData_calculate() throws Exception{
                             System.out.println("exiting");
     
     
-//             PrayTime getprayertime = new PrayTime();
-//             
-//             // Bankstown NSW Location
-//             double latitude = -33.9172891;
-//             double longitude = 151.035882;
-//             double timezone = 10;
-//             
-//             getprayertime.setTimeFormat(0);
-//             getprayertime.setCalcMethod(3);
-//             getprayertime.setAsrJuristic(0);
-//             getprayertime.setAdjustHighLats(0);
-//             int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
-//             getprayertime.tune(offsets);
-//
-//             java.util.Date now = new java.util.Date();
-//             Calendar cal = Calendar.getInstance();
-//             cal.setTime(now);
-//
-//             ArrayList<String> prayerTimes = getprayertime.getPrayerTimes(cal, latitude, longitude, timezone);
-//             ArrayList<String> prayerNames = getprayertime.getTimeNames();
-//
-//             for (int i = 0; i < prayerTimes.size(); i++) {
-//                System.out.println(prayerNames.get(i) + " - " + prayerTimes.get(i));
-//             }
-//            
-//             String fajr_prayertime  =       prayerTimes.get(0);
-////                sunrise =           prayerTimes.get(1);
-//             String zuhr_prayertime =       prayerTimes.get(2);
-//             String asr_prayertime =        prayerTimes.get(3);
-//             String maghrib_prayertime =    prayerTimes.get(5);
-//             String isha_prayertime =       prayerTimes.get(6);
+
 //              
 //             fajr_hourLeft.setText(fajr_prayertime.substring(0, 1));
 //             fajr_hourRight.setText(fajr_prayertime.substring(1, 2));
@@ -889,84 +879,84 @@ public void buildData_calculate() throws Exception{
         //CONNECTION DATABASE SAVING DATA
     public void buildData_database(){
         
-          Connection c ;
-           ObservableList<String> names = FXCollections.observableArrayList();
-          data = FXCollections.observableArrayList();
-          try{
-            c = DBConnect.connect();
-            System.out.println("connected");
-            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-            String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW())";
-
-            ResultSet rs = c.createStatement().executeQuery(SQL);
-            System.out.println("query");
-             while (rs.next()) {
-
-                id =                rs.getInt("id");
-                prayer_date =       rs.getDate("date");
-                fajr_begins =       rs.getTime("fajr_begins");
-                fajr_jamaat =       rs.getTime("fajr_jamaat");
-                sunrise =           rs.getTime("sunrise");
-                zuhr_begins =       rs.getTime("zuhr_begins");
-                zuhr_jamaat =       rs.getTime("zuhr_jamaat");
-                asr_begins =        rs.getTime("asr_begins");
-                asr_jamaat =        rs.getTime("asr_jamaat");
-                maghrib_jamaat =    rs.getTime("maghrib_jamaat");
-                isha_begins =       rs.getTime("isha_begins");
-                isha_jamaat =       rs.getTime("isha_jamaat");
-                
-//        String lastName = rs.getString("last_name");
-//        boolean  isAdmin = rs.getBoolean("is_admin");             
-             }
-             
-             c.close();
-             System.out.println("disconnected");
-             
-             String fajr_prayertime = fajr_begins.toString();
-             String zuhr_prayertime = zuhr_begins.toString();
-             String asr_prayertime = asr_begins.toString();
-             String maghrib_prayertime = maghrib_jamaat.toString();
-             String isha_prayertime = isha_begins.toString();
-             
-           // print the results
-             System.out.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s \n", id, prayer_date, fajr_begins, fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_jamaat, isha_begins, isha_jamaat );
-             
-             fajr_hourLeft.setText(fajr_prayertime.substring(0, 1));
-             fajr_hourRight.setText(fajr_prayertime.substring(1, 2));
-             fajr_minLeft.setText(fajr_prayertime.substring(3, 4));
-             fajr_minRight.setText(fajr_prayertime.substring(4, 5));
-             
-             zuhr_hourLeft.setText(zuhr_prayertime.substring(0, 1));
-             zuhr_hourRight.setText(zuhr_prayertime.substring(1, 2));
-             zuhr_minLeft.setText(zuhr_prayertime.substring(3, 4));
-             zuhr_minRight.setText(zuhr_prayertime.substring(4, 5));
-             
-             asr_hourLeft.setText(asr_prayertime.substring(0, 1));
-             asr_hourRight.setText(asr_prayertime.substring(1, 2));
-             asr_minLeft.setText(asr_prayertime.substring(3, 4));
-             asr_minRight.setText(asr_prayertime.substring(4, 5));
-             
-             maghrib_hourLeft.setText(maghrib_prayertime.substring(0, 1));
-             maghrib_hourRight.setText(maghrib_prayertime.substring(1, 2));
-             maghrib_minLeft.setText(maghrib_prayertime.substring(3, 4));
-             maghrib_minRight.setText(maghrib_prayertime.substring(4, 5));
-             
-             isha_hourLeft.setText(isha_prayertime.substring(0, 1));
-             isha_hourRight.setText(isha_prayertime.substring(1, 2));
-             isha_minLeft.setText(isha_prayertime.substring(3, 4));
-             isha_minRight.setText(isha_prayertime.substring(4, 5));
-             
-             time_Separator1.setText(":");
-             time_Separator2.setText(":");
-             time_Separator3.setText(":");
-             time_Separator4.setText(":");
-             time_Separator5.setText(":");
- 
-            }
-          
-          catch(SQLException e){
-              System.out.println("Error on Database connection");
-          }
+//          Connection c ;
+//           ObservableList<String> names = FXCollections.observableArrayList();
+//          data = FXCollections.observableArrayList();
+//          try{
+//            c = DBConnect.connect();
+//            System.out.println("connected");
+//            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
+//            String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW())";
+//
+//            ResultSet rs = c.createStatement().executeQuery(SQL);
+//            System.out.println("query");
+//             while (rs.next()) {
+//
+//                id =                rs.getInt("id");
+//                prayer_date =       rs.getDate("date");
+//                fajr_begins =       rs.getTime("fajr_begins");
+//                fajr_jamaat =       rs.getTime("fajr_jamaat");
+//                sunrise =           rs.getTime("sunrise");
+//                zuhr_begins =       rs.getTime("zuhr_begins");
+//                zuhr_jamaat =       rs.getTime("zuhr_jamaat");
+//                asr_begins =        rs.getTime("asr_begins");
+//                asr_jamaat =        rs.getTime("asr_jamaat");
+//                maghrib_jamaat =    rs.getTime("maghrib_jamaat");
+//                isha_begins =       rs.getTime("isha_begins");
+//                isha_jamaat =       rs.getTime("isha_jamaat");
+//                
+////        String lastName = rs.getString("last_name");
+////        boolean  isAdmin = rs.getBoolean("is_admin");             
+//             }
+//             
+//             c.close();
+//             System.out.println("disconnected");
+//             
+//             String fajr_prayertime = fajr_begins.toString();
+//             String zuhr_prayertime = zuhr_begins.toString();
+//             String asr_prayertime = asr_begins.toString();
+//             String maghrib_prayertime = maghrib_jamaat.toString();
+//             String isha_prayertime = isha_begins.toString();
+//             
+//           // print the results
+//             System.out.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s \n", id, prayer_date, fajr_begins, fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_jamaat, isha_begins, isha_jamaat );
+//             
+//             fajr_hourLeft.setText(fajr_prayertime.substring(0, 1));
+//             fajr_hourRight.setText(fajr_prayertime.substring(1, 2));
+//             fajr_minLeft.setText(fajr_prayertime.substring(3, 4));
+//             fajr_minRight.setText(fajr_prayertime.substring(4, 5));
+//             
+//             zuhr_hourLeft.setText(zuhr_prayertime.substring(0, 1));
+//             zuhr_hourRight.setText(zuhr_prayertime.substring(1, 2));
+//             zuhr_minLeft.setText(zuhr_prayertime.substring(3, 4));
+//             zuhr_minRight.setText(zuhr_prayertime.substring(4, 5));
+//             
+//             asr_hourLeft.setText(asr_prayertime.substring(0, 1));
+//             asr_hourRight.setText(asr_prayertime.substring(1, 2));
+//             asr_minLeft.setText(asr_prayertime.substring(3, 4));
+//             asr_minRight.setText(asr_prayertime.substring(4, 5));
+//             
+//             maghrib_hourLeft.setText(maghrib_prayertime.substring(0, 1));
+//             maghrib_hourRight.setText(maghrib_prayertime.substring(1, 2));
+//             maghrib_minLeft.setText(maghrib_prayertime.substring(3, 4));
+//             maghrib_minRight.setText(maghrib_prayertime.substring(4, 5));
+//             
+//             isha_hourLeft.setText(isha_prayertime.substring(0, 1));
+//             isha_hourRight.setText(isha_prayertime.substring(1, 2));
+//             isha_minLeft.setText(isha_prayertime.substring(3, 4));
+//             isha_minRight.setText(isha_prayertime.substring(4, 5));
+//             
+//             time_Separator1.setText(":");
+//             time_Separator2.setText(":");
+//             time_Separator3.setText(":");
+//             time_Separator4.setText(":");
+//             time_Separator5.setText(":");
+// 
+//            }
+//          
+//          catch(SQLException e){
+//              System.out.println("Error on Database connection");
+//          }
    }
 
     //checks for connection to the internet through dummy request
