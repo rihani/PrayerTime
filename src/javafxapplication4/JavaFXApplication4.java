@@ -37,6 +37,11 @@ import javafx.scene.layout.ColumnConstraintsBuilder;
 import javafx.scene.layout.RowConstraintsBuilder;
 import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.Time;
 import java.text.ParseException;
 import java.util.Locale;
@@ -50,6 +55,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import static javafx.scene.paint.Color.RED;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
+
 
 //import org.joda.time.chrono.JulianChronology;
 
@@ -59,7 +69,7 @@ import static javafx.scene.paint.Color.RED;
  */
    
     public class JavaFXApplication4 extends Application {
-   
+   private Process p;
     Date fullMoon= null;;
     Date newMoon= null;;
     private Clock clock;
@@ -69,8 +79,6 @@ import static javafx.scene.paint.Color.RED;
     private Boolean isWaning;
     private Boolean update_prayer_labels  = false;
     private Boolean update_moon_image = false;
-    private static final String[] WEEK_DAYS = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
-    private static final String[] MONTHS = {"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
     private int id;
     private Date prayer_date;
     private Date fajr_begins,fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_begins, maghrib_jamaat,isha_begins, isha_jamaat;
@@ -110,17 +118,17 @@ import static javafx.scene.paint.Color.RED;
                              .build();
         clock.setCache(true);
 
-        time_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
         
-        time_jamma_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
         
         fajr_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         fajr_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -228,6 +236,13 @@ import static javafx.scene.paint.Color.RED;
                         isWaning = m.isWaning();
                         update_moon_image = true;
                         System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
+                        
+                        URL url = this.getClass().getClassLoader().getResource("Audio/police_s.wav");
+//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+                        Clip clip = AudioSystem.getClip();
+                        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+                        clip.open(ais);
+                        clip.start();
                      } 
 
                 catch (ParseException ex) 

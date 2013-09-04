@@ -21,7 +21,7 @@ and open the template in the editor.
         -fx-background-repeat: stretch;   
 /*        -fx-background-size: 1180 650;*/
         -fx-background-size: 720 1230;
-        -fx-background-position: center center;
+        -fx-background-position: top left;
         -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0); 
         
     }
