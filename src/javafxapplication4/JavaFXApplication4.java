@@ -11,17 +11,13 @@ import eu.hansolo.enzo.clock.Clock;
 import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
 import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
+//import java.sql.Time;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.scene.Scene;
@@ -41,26 +37,19 @@ import javafx.scene.layout.ColumnConstraintsBuilder;
 import javafx.scene.layout.RowConstraintsBuilder;
 import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
-import java.text.DateFormat;
+import java.sql.Time;
 import java.text.ParseException;
-//import java.text.SimpleDateFormat;
 import java.util.Locale;
-//import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-//import java.time.LocalTime;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import javafx.animation.FadeTransition;
-import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-//import static javafx.scene.paint.Color.RED;
-import javafx.util.Duration;
+import static javafx.scene.paint.Color.RED;
 
 //import org.joda.time.chrono.JulianChronology;
 
@@ -71,8 +60,8 @@ import javafx.util.Duration;
    
     public class JavaFXApplication4 extends Application {
    
-    Date fullMoon;
-    Date newMoon;
+    Date fullMoon= null;;
+    Date newMoon= null;;
     private Clock clock;
     private ObservableList data;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
@@ -185,11 +174,70 @@ import javafx.util.Duration;
         isha_jamma_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         isha_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         isha_jamma_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        
+        
+        Timer moonCalTimer = new Timer();
+        moonCalTimer.scheduleAtFixedRate(new TimerTask() 
+        {
+            @Override
+            public void run() 
+            {
+                try {
+                        System.out.println("moon date calculation entry");
+                        fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
+                        newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
+                        System.out.println("moon date calculation exit");
 
-        moonPhase_lastTimerCall = System.nanoTime();
+                        PrayTime getprayertime = new PrayTime();
+
+                        // Bankstown NSW Location
+                        double latitude = -33.9172891;
+                        double longitude = 151.035882;
+                        double timezone = 10;
+
+                        getprayertime.setTimeFormat(0);
+                        getprayertime.setCalcMethod(3);
+                        getprayertime.setAsrJuristic(0);
+                        getprayertime.setAdjustHighLats(0);
+                        int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
+                        getprayertime.tune(offsets);
+
+                        Date now = new Date();
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(now);
+
+                        ArrayList<String> prayerTimes = getprayertime.getPrayerTimes(cal, latitude, longitude, timezone);
+                        ArrayList<String> prayerNames = getprayertime.getTimeNames();
+
+                        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+                        fajr_begins = new Time(formatter.parse(prayerTimes.get(0)).getTime());
+                        sunrise = new Time(formatter.parse(prayerTimes.get(1)).getTime());
+                        zuhr_begins = new Time(formatter.parse(prayerTimes.get(2)).getTime());
+                        asr_begins = new Time(formatter.parse(prayerTimes.get(3)).getTime());
+                        maghrib_begins = new Time(formatter.parse(prayerTimes.get(5)).getTime());
+                        isha_begins = new Time(formatter.parse(prayerTimes.get(6)).getTime());
+
+                        System.out.println(" fajr time " + fajr_begins);
+                        System.out.println(" Sunrise time " + sunrise);
+                        System.out.println(" Zuhr time " + zuhr_begins);
+                        System.out.println(" Asr time " + asr_begins);
+                        System.out.println(" Maghrib time " + maghrib_begins);
+                        System.out.println(" Isha time " + isha_begins);
+                    } 
+
+                catch (ParseException ex) 
+                {
+                    Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        }, 0, 6000000);   
+        
+        
+        
+        
+        
 //        prayerTime_lastTimerCall = System.nanoTime();
-        
-        
         prayerTime_timer = new AnimationTimer() {
             @Override public void handle(long now) {
                 if (now > prayerTime_lastTimerCall + 10000_000_000l) {
@@ -205,7 +253,8 @@ import javafx.util.Duration;
                 }
             }
         };
-                
+        
+        moonPhase_lastTimerCall = System.nanoTime();
         moonPhase_timer = new AnimationTimer() {
             @Override public void handle(long now) {
                 if (now >moonPhase_lastTimerCall + 1000000_000_000l) {
@@ -223,54 +272,7 @@ import javafx.util.Duration;
         };
         
         
-        Timer moonCalTimer = new Timer();
-        
-             moonCalTimer.scheduleAtFixedRate(new TimerTask() {
-        @Override
-        public void run() {
-            System.out.println("moon date calculation entry");
-                            fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
-                            newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
-                            System.out.println("moon date calculation exit");
-                            
-                            PrayTime getprayertime = new PrayTime();
-             
-                            // Bankstown NSW Location
-                            double latitude = -33.9172891;
-                            double longitude = 151.035882;
-                            double timezone = 10;
 
-                            getprayertime.setTimeFormat(0);
-                            getprayertime.setCalcMethod(3);
-                            getprayertime.setAsrJuristic(0);
-                            getprayertime.setAdjustHighLats(0);
-                            int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
-                            getprayertime.tune(offsets);
-
-                            Date now = new Date();
-                            Calendar cal = Calendar.getInstance();
-                            cal.setTime(now);
-
-                            ArrayList<String> prayerTimes = getprayertime.getPrayerTimes(cal, latitude, longitude, timezone);
-                            ArrayList<String> prayerNames = getprayertime.getTimeNames();
-
-                            for (int i = 0; i < prayerTimes.size(); i++) {
-                               System.out.println(prayerNames.get(i) + " - " + prayerTimes.get(i));
-                            }                            
-                            
-                            String fajr_prayertime  =       prayerTimes.get(0);
-                            String sunrise =                prayerTimes.get(1);
-                            String zuhr_prayertime =        prayerTimes.get(2);
-                            String asr_prayertime =         prayerTimes.get(3);
-                            String maghrib_prayertime =     prayerTimes.get(5);
-                            String isha_prayertime =        prayerTimes.get(6);
-                            
-                            DateFormat formatter = new SimpleDateFormat("hh:mm:ss");
-                            fajr_begins = (Date)formatter.parse(fajr_prayertime);
-                            System.out.println(" fajr time " + fajr_begins);
-            
-        }
-    }, 0, 6000000);   
              
 
 
