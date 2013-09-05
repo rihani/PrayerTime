@@ -55,9 +55,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import static javafx.scene.paint.Color.RED;
+import javafx.util.Duration;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+
 
 
 
@@ -72,6 +77,7 @@ import javax.sound.sampled.Clip;
    private Process p;
     Date fullMoon= null;;
     Date newMoon= null;;
+    static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
     private Clock clock;
     private ObservableList data;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
@@ -80,7 +86,7 @@ import javax.sound.sampled.Clip;
     private Boolean update_prayer_labels  = false;
     private Boolean update_moon_image = false;
     private int id;
-    private Date prayer_date;
+    private Date prayer_date, now1;
     private Date fajr_begins,fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_begins, maghrib_jamaat,isha_begins, isha_jamaat;
     private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4 ,time_Separator5, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
@@ -254,7 +260,7 @@ import javax.sound.sampled.Clip;
                     Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }, 0, 6000000);   
+        }, 0, 3600000);   
         
         
         
@@ -591,7 +597,10 @@ import javax.sound.sampled.Clip;
     }
 
 public void update_labels() throws Exception{
-              
+        DateTime now = new DateTime();    
+        
+//==Translate labels============================================================  
+        
         if (arabic)
         {
             String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMM").format(fullMoon);
@@ -609,42 +618,67 @@ public void update_labels() throws Exception{
             english = false;
             arabic = true;
         }
-                                                       
+        
+//==Days left to full moon============================================================        
+        
+        if ( Days.daysBetween(new DateMidnight(now), new DateMidnight(fullMoon)).getDays() <5)
+        {
+        System.out.println(" Days left to " + Days.daysBetween(new DateMidnight(now), new DateMidnight(fullMoon)).getDays());
+        }
+
+//==Duha =================================================================================
+       
+        
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+//        Date preDefineTime=formatter.parse("10:00");
+        long additionMin=15*60*1000;
+        System.out.println(formatter.format(sunrise));
+        System.out.println(formatter.format(sunrise.getTime()+additionMin));
+
+        
+        
+
+        
+//==Update Prayer time Labels==========================================================        
+        
         if (update_prayer_labels) 
         {
             update_prayer_labels = false;
-             fajr_hourLeft.setText(fajr_begins.toString().substring(0, 1));
-             fajr_hourRight.setText(fajr_begins.toString().substring(1, 2));
-             fajr_minLeft.setText(fajr_begins.toString().substring(3, 4));
-             fajr_minRight.setText(fajr_begins.toString().substring(4, 5));
+            fajr_hourLeft.setText(fajr_begins.toString().substring(0, 1));
+            fajr_hourRight.setText(fajr_begins.toString().substring(1, 2));
+            fajr_minLeft.setText(fajr_begins.toString().substring(3, 4));
+            fajr_minRight.setText(fajr_begins.toString().substring(4, 5));
+            
+            zuhr_hourLeft.setText(zuhr_begins.toString().substring(0, 1));
+            zuhr_hourRight.setText(zuhr_begins.toString().substring(1, 2));
+            zuhr_minLeft.setText(zuhr_begins.toString().substring(3, 4));
+            zuhr_minRight.setText(zuhr_begins.toString().substring(4, 5));
              
-             zuhr_hourLeft.setText(zuhr_begins.toString().substring(0, 1));
-             zuhr_hourRight.setText(zuhr_begins.toString().substring(1, 2));
-             zuhr_minLeft.setText(zuhr_begins.toString().substring(3, 4));
-             zuhr_minRight.setText(zuhr_begins.toString().substring(4, 5));
+            asr_hourLeft.setText(asr_begins.toString().substring(0, 1));
+            asr_hourRight.setText(asr_begins.toString().substring(1, 2));
+            asr_minLeft.setText(asr_begins.toString().substring(3, 4));
+            asr_minRight.setText(asr_begins.toString().substring(4, 5));
              
-             asr_hourLeft.setText(asr_begins.toString().substring(0, 1));
-             asr_hourRight.setText(asr_begins.toString().substring(1, 2));
-             asr_minLeft.setText(asr_begins.toString().substring(3, 4));
-             asr_minRight.setText(asr_begins.toString().substring(4, 5));
+            maghrib_hourLeft.setText(maghrib_begins.toString().substring(0, 1));
+            maghrib_hourRight.setText(maghrib_begins.toString().substring(1, 2));
+            maghrib_minLeft.setText(maghrib_begins.toString().substring(3, 4));
+            maghrib_minRight.setText(maghrib_begins.toString().substring(4, 5));
              
-             maghrib_hourLeft.setText(maghrib_begins.toString().substring(0, 1));
-             maghrib_hourRight.setText(maghrib_begins.toString().substring(1, 2));
-             maghrib_minLeft.setText(maghrib_begins.toString().substring(3, 4));
-             maghrib_minRight.setText(maghrib_begins.toString().substring(4, 5));
+            isha_hourLeft.setText(isha_begins.toString().substring(0, 1));
+            isha_hourRight.setText(isha_begins.toString().substring(1, 2));
+            isha_minLeft.setText(isha_begins.toString().substring(3, 4));
+            isha_minRight.setText(isha_begins.toString().substring(4, 5));
              
-             isha_hourLeft.setText(isha_begins.toString().substring(0, 1));
-             isha_hourRight.setText(isha_begins.toString().substring(1, 2));
-             isha_minLeft.setText(isha_begins.toString().substring(3, 4));
-             isha_minRight.setText(isha_begins.toString().substring(4, 5));
-             
-             time_Separator1.setText(":");
-             time_Separator2.setText(":");
-             time_Separator3.setText(":");
-             time_Separator4.setText(":");
-             time_Separator5.setText(":");
+            time_Separator1.setText(":");
+            time_Separator2.setText(":");
+            time_Separator3.setText(":");
+            time_Separator4.setText(":");
+            time_Separator5.setText(":");
    
         }
+        
+//==Update Moon Images============================================================  
+        
         if (update_moon_image)
         {   
             update_moon_image = false;
