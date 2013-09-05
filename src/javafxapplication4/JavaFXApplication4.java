@@ -40,6 +40,7 @@ import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.Time;
@@ -74,9 +75,10 @@ import org.joda.time.Days;
  */
    
     public class JavaFXApplication4 extends Application {
-   private Process p;
-    Date fullMoon= null;;
-    Date newMoon= null;;
+    private Process p;
+    private Date fullMoon= null;
+    private Date newMoon= null;
+    private Calendar duhawatch;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
     private Clock clock;
     private ObservableList data;
@@ -86,7 +88,7 @@ import org.joda.time.Days;
     private Boolean update_prayer_labels  = false;
     private Boolean update_moon_image = false;
     private int id;
-    private Date prayer_date, now1;
+    private Date prayer_date;
     private Date fajr_begins,fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_begins, maghrib_jamaat,isha_begins, isha_jamaat;
     private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4 ,time_Separator5, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
@@ -196,10 +198,13 @@ import org.joda.time.Days;
             public void run() 
             {
                 try {
-                        System.out.println("moon date calculation entry");
+                        
+                        Date now = new Date();
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(now);
+                    
                         fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
                         newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
-                        System.out.println("moon date calculation exit");
 
                         PrayTime getprayertime = new PrayTime();
 
@@ -215,9 +220,7 @@ import org.joda.time.Days;
                         int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
                         getprayertime.tune(offsets);
 
-                        Date now = new Date();
-                        Calendar cal = Calendar.getInstance();
-                        cal.setTime(now);
+                        
 
                         ArrayList<String> prayerTimes = getprayertime.getPrayerTimes(cal, latitude, longitude, timezone);
                         ArrayList<String> prayerNames = getprayertime.getTimeNames();
@@ -237,18 +240,44 @@ import org.joda.time.Days;
 //                        System.out.println(" Maghrib time " + maghrib_begins);
 //                        System.out.println(" Isha time " + isha_begins);
                         
+                        
+                        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                        Date Duha_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + sunrise);
+
+                        cal.setTime(Duha_temp);
+                        cal.add(Calendar.MINUTE, 15);
+                        Date duha = cal.getTime();
+//                        System.out.println(duha);
+
+                        duhawatch = Calendar.getInstance();
+                        duhawatch.setTime(duha);
+                        duhawatch.set(Calendar.MILLISECOND, 0);
+                        duhawatch.set(Calendar.SECOND, 0);
+                        
+                        
+                        
+                        
                         Moon m = new Moon();
                         moonPhase = m.illuminatedPercentage();
                         isWaning = m.isWaning();
                         update_moon_image = true;
                         System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
                         
-                        URL url = this.getClass().getClassLoader().getResource("Audio/police_s.wav");
-//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+//                        URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+////                      URL url = new URL("http://pscode.org/media/leftright.wav");
+//                        Clip clip = AudioSystem.getClip();
+//                        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+//                        clip.open(ais);
+//                        clip.start();
+                        
+                        
+                        InputStream is = ClassLoader.getSystemResourceAsStream("/javafxapplication4/Audio/police.wav");
+                        AudioInputStream ais = AudioSystem.getAudioInputStream(is);
                         Clip clip = AudioSystem.getClip();
-                        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
                         clip.open(ais);
                         clip.start();
+                        
+                        
                      } 
 
                 catch (ParseException ex) 
@@ -597,7 +626,12 @@ import org.joda.time.Days;
     }
 
 public void update_labels() throws Exception{
-        DateTime now = new DateTime();    
+    
+        DateTime DateTime_now = new DateTime();    
+        Calendar Calendar_now = Calendar.getInstance();
+        Calendar_now.setTime(new Date());
+        Calendar_now.set(Calendar.MILLISECOND, 0);
+        Calendar_now.set(Calendar.SECOND, 0);
         
 //==Translate labels============================================================  
         
@@ -621,19 +655,23 @@ public void update_labels() throws Exception{
         
 //==Days left to full moon============================================================        
         
-        if ( Days.daysBetween(new DateMidnight(now), new DateMidnight(fullMoon)).getDays() <5)
+        if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <5)
         {
-        System.out.println(" Days left to " + Days.daysBetween(new DateMidnight(now), new DateMidnight(fullMoon)).getDays());
+        System.out.println(" Days left to " + Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays());
         }
 
 //==Duha =================================================================================
        
+
+        if (duhawatch.equals(Calendar_now)) {
+            System.out.println("Duha Time");
+        }
         
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-//        Date preDefineTime=formatter.parse("10:00");
-        long additionMin=15*60*1000;
-        System.out.println(formatter.format(sunrise));
-        System.out.println(formatter.format(sunrise.getTime()+additionMin));
+//        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+////        Date preDefineTime=formatter.parse("10:00");
+//        long additionMin=15*60*1000;
+//        System.out.println(formatter.format(sunrise));
+//        System.out.println(formatter.format(sunrise.getTime()+additionMin));
 
         
         
