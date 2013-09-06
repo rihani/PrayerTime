@@ -78,18 +78,20 @@ import org.joda.time.Days;
     private Process p;
     private Date fullMoon= null;
     private Date newMoon= null;
-    private Calendar duhawatch;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
     private Clock clock;
     private ObservableList data;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
     private Integer moonPhase;
     private Boolean isWaning;
-    private Boolean update_prayer_labels  = false;
-    private Boolean update_moon_image = false;
+    private Boolean new_day = true;
+    private Boolean fajr_athan_enable, duha_athan_enable, zuhr_athan_enable, asr_athan_enable, maghrib_athan_enable, isha_athan_enable = true ;
+    private Boolean update_prayer_labels, update_moon_image  = false;
     private int id;
+    int olddayofweek_int;
     private Date prayer_date;
-    private Date fajr_begins,fajr_jamaat, sunrise, zuhr_begins, zuhr_jamaat, asr_begins, asr_jamaat, maghrib_begins, maghrib_jamaat,isha_begins, isha_jamaat;
+    private Calendar fajr_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
+    private Date fajr_begins_time,fajr_jamaat_time_time, sunrise_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
     private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4 ,time_Separator5, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
     private SplitFlap zuhr_hourLeft, zuhr_hourRight, zuhr_minLeft, zuhr_minRight, zuhr_jamma_hourLeft, zuhr_jamma_hourRight, zuhr_jamma_minLeft, zuhr_jamma_minRight;
@@ -202,7 +204,8 @@ import org.joda.time.Days;
                         Date now = new Date();
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(now);
-                    
+                        int dayofweek_int = cal.DAY_OF_WEEK;
+                        
                         fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
                         newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
 
@@ -220,18 +223,16 @@ import org.joda.time.Days;
                         int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
                         getprayertime.tune(offsets);
 
-                        
-
                         ArrayList<String> prayerTimes = getprayertime.getPrayerTimes(cal, latitude, longitude, timezone);
                         ArrayList<String> prayerNames = getprayertime.getTimeNames();
 
                         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-                        fajr_begins = new Time(formatter.parse(prayerTimes.get(0)).getTime());
-                        sunrise = new Time(formatter.parse(prayerTimes.get(1)).getTime());
-                        zuhr_begins = new Time(formatter.parse(prayerTimes.get(2)).getTime());
-                        asr_begins = new Time(formatter.parse(prayerTimes.get(3)).getTime());
-                        maghrib_begins = new Time(formatter.parse(prayerTimes.get(5)).getTime());
-                        isha_begins = new Time(formatter.parse(prayerTimes.get(6)).getTime());
+                        fajr_begins_time = new Time(formatter.parse(prayerTimes.get(0)).getTime());
+                        sunrise_time = new Time(formatter.parse(prayerTimes.get(1)).getTime());
+                        zuhr_begins_time = new Time(formatter.parse(prayerTimes.get(2)).getTime());
+                        asr_begins_time = new Time(formatter.parse(prayerTimes.get(3)).getTime());
+                        maghrib_begins_time = new Time(formatter.parse(prayerTimes.get(5)).getTime());
+                        isha_begins_time = new Time(formatter.parse(prayerTimes.get(6)).getTime());
                         update_prayer_labels = true;
 //                        System.out.println(" fajr time " + fajr_begins);
 //                        System.out.println(" Sunrise time " + sunrise);
@@ -241,43 +242,81 @@ import org.joda.time.Days;
 //                        System.out.println(" Isha time " + isha_begins);
                         
                         
-                        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
-                        Date Duha_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + sunrise);
+                        
+                        if (dayofweek_int != olddayofweek_int)
+                        {    
+                            old_today = Calendar.getInstance();
+                            olddayofweek_int = old_today.DAY_OF_WEEK;                         
+                            System.out.println(" day of the week " + cal.DAY_OF_WEEK); 
+                            fajr_athan_enable = true;
+                            duha_athan_enable = true;
+                            zuhr_athan_enable = true;
+                            asr_athan_enable = true;
+                            maghrib_athan_enable = true;
+                            isha_athan_enable = true;
 
-                        cal.setTime(Duha_temp);
-                        cal.add(Calendar.MINUTE, 15);
-                        Date duha = cal.getTime();
-//                        System.out.println(duha);
 
-                        duhawatch = Calendar.getInstance();
-                        duhawatch.setTime(duha);
-                        duhawatch.set(Calendar.MILLISECOND, 0);
-                        duhawatch.set(Calendar.SECOND, 0);
-                        
-                        
-                        
+                            String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+
+                            Date Fajr_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_begins_time);
+                            cal.setTime(Fajr_temp);
+                            Date fajr = cal.getTime();
+                            fajr_cal = Calendar.getInstance();
+                            fajr_cal.setTime(fajr);
+                            fajr_cal.set(Calendar.MILLISECOND, 0);
+                            fajr_cal.set(Calendar.SECOND, 0);
+
+                            Date Duha_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + sunrise_time);
+                            cal.setTime(Duha_temp);
+///////////////////change                            
+                            cal.add(Calendar.MINUTE, 579);
+                            Date duha = cal.getTime();
+                            System.out.println(duha);
+                            duha_cal = Calendar.getInstance();
+                            duha_cal.setTime(duha);
+                            duha_cal.set(Calendar.MILLISECOND, 0);
+                            duha_cal.set(Calendar.SECOND, 0);
+                            
+                            Date zuhr_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + zuhr_begins_time);
+                            cal.setTime(zuhr_temp);
+                            Date zuhr = cal.getTime();
+                            zuhr_cal = Calendar.getInstance();
+                            zuhr_cal.setTime(zuhr);
+                            zuhr_cal.set(Calendar.MILLISECOND, 0);
+                            zuhr_cal.set(Calendar.SECOND, 0);
+                            
+                            Date asr_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_begins_time);
+                            cal.setTime(asr_temp);
+                            Date asr = cal.getTime();
+                            asr_cal = Calendar.getInstance();
+                            asr_cal.setTime(asr);
+                            asr_cal.set(Calendar.MILLISECOND, 0);
+                            asr_cal.set(Calendar.SECOND, 0);
+                            
+                            Date maghrib_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + maghrib_begins_time);
+                            cal.setTime(maghrib_temp);
+                            Date maghrib = cal.getTime();
+                            maghrib_cal = Calendar.getInstance();
+                            maghrib_cal.setTime(maghrib);
+                            maghrib_cal.set(Calendar.MILLISECOND, 0);
+                            maghrib_cal.set(Calendar.SECOND, 0);
+                            
+                            Date isha_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_begins_time);
+                            cal.setTime(isha_temp);
+                            Date isha = cal.getTime();
+                            isha_cal = Calendar.getInstance();
+                            isha_cal.setTime(isha);
+                            isha_cal.set(Calendar.MILLISECOND, 0);
+                            isha_cal.set(Calendar.SECOND, 0);
+        
+                        }
                         
                         Moon m = new Moon();
                         moonPhase = m.illuminatedPercentage();
                         isWaning = m.isWaning();
                         update_moon_image = true;
                         System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
-                        
-//                        URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
-////                      URL url = new URL("http://pscode.org/media/leftright.wav");
-//                        Clip clip = AudioSystem.getClip();
-//                        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
-//                        clip.open(ais);
-//                        clip.start();
-                        
-                        
-                        InputStream is = ClassLoader.getSystemResourceAsStream("/javafxapplication4/Audio/police.wav");
-                        AudioInputStream ais = AudioSystem.getAudioInputStream(is);
-                        Clip clip = AudioSystem.getClip();
-                        clip.open(ais);
-                        clip.start();
-                        
-                        
+                                             
                      } 
 
                 catch (ParseException ex) 
@@ -291,10 +330,7 @@ import org.joda.time.Days;
             }
         }, 0, 3600000);   
         
-        
-        
-        
-        
+               
 //        translate_lastTimerCall = System.nanoTime();
         translate_timer = new AnimationTimer() {
             @Override public void handle(long now) {
@@ -660,13 +696,80 @@ public void update_labels() throws Exception{
         System.out.println(" Days left to " + Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays());
         }
 
-//==Duha =================================================================================
+//==prayer alarms =================================================================================
        
 
-        if (duhawatch.equals(Calendar_now)) {
+        if (duha_cal.equals(Calendar_now) && duha_athan_enable) 
+        {
+            duha_athan_enable = false;
             System.out.println("Duha Time");
+            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+            clip.open(ais);
+            clip.start();
+        }
+
+        if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
+        {
+            fajr_athan_enable = false;
+            System.out.println("fajr Time");
+            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+            clip.open(ais);
+            clip.start();
         }
         
+        if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
+        {
+            zuhr_athan_enable = false;
+            System.out.println("zuhr Time");
+            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+            clip.open(ais);
+            clip.start();
+        }        
+
+        if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
+        {
+            asr_athan_enable = false;
+            System.out.println("asr Time");
+            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+            clip.open(ais);
+            clip.start();
+        } 
+        
+        if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
+        {
+            maghrib_athan_enable = false;
+            System.out.println("maghrib Time");
+            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+            clip.open(ais);
+            clip.start();
+        } 
+        
+        if (isha_cal.equals(Calendar_now) && isha_athan_enable) 
+        {
+            isha_athan_enable = false;
+            System.out.println("isha Time");
+            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+            clip.open(ais);
+            clip.start();
+        }        
 //        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 ////        Date preDefineTime=formatter.parse("10:00");
 //        long additionMin=15*60*1000;
@@ -682,30 +785,30 @@ public void update_labels() throws Exception{
         if (update_prayer_labels) 
         {
             update_prayer_labels = false;
-            fajr_hourLeft.setText(fajr_begins.toString().substring(0, 1));
-            fajr_hourRight.setText(fajr_begins.toString().substring(1, 2));
-            fajr_minLeft.setText(fajr_begins.toString().substring(3, 4));
-            fajr_minRight.setText(fajr_begins.toString().substring(4, 5));
+            fajr_hourLeft.setText(fajr_begins_time.toString().substring(0, 1));
+            fajr_hourRight.setText(fajr_begins_time.toString().substring(1, 2));
+            fajr_minLeft.setText(fajr_begins_time.toString().substring(3, 4));
+            fajr_minRight.setText(fajr_begins_time.toString().substring(4, 5));
             
-            zuhr_hourLeft.setText(zuhr_begins.toString().substring(0, 1));
-            zuhr_hourRight.setText(zuhr_begins.toString().substring(1, 2));
-            zuhr_minLeft.setText(zuhr_begins.toString().substring(3, 4));
-            zuhr_minRight.setText(zuhr_begins.toString().substring(4, 5));
+            zuhr_hourLeft.setText(zuhr_begins_time.toString().substring(0, 1));
+            zuhr_hourRight.setText(zuhr_begins_time.toString().substring(1, 2));
+            zuhr_minLeft.setText(zuhr_begins_time.toString().substring(3, 4));
+            zuhr_minRight.setText(zuhr_begins_time.toString().substring(4, 5));
              
-            asr_hourLeft.setText(asr_begins.toString().substring(0, 1));
-            asr_hourRight.setText(asr_begins.toString().substring(1, 2));
-            asr_minLeft.setText(asr_begins.toString().substring(3, 4));
-            asr_minRight.setText(asr_begins.toString().substring(4, 5));
+            asr_hourLeft.setText(asr_begins_time.toString().substring(0, 1));
+            asr_hourRight.setText(asr_begins_time.toString().substring(1, 2));
+            asr_minLeft.setText(asr_begins_time.toString().substring(3, 4));
+            asr_minRight.setText(asr_begins_time.toString().substring(4, 5));
              
-            maghrib_hourLeft.setText(maghrib_begins.toString().substring(0, 1));
-            maghrib_hourRight.setText(maghrib_begins.toString().substring(1, 2));
-            maghrib_minLeft.setText(maghrib_begins.toString().substring(3, 4));
-            maghrib_minRight.setText(maghrib_begins.toString().substring(4, 5));
+            maghrib_hourLeft.setText(maghrib_begins_time.toString().substring(0, 1));
+            maghrib_hourRight.setText(maghrib_begins_time.toString().substring(1, 2));
+            maghrib_minLeft.setText(maghrib_begins_time.toString().substring(3, 4));
+            maghrib_minRight.setText(maghrib_begins_time.toString().substring(4, 5));
              
-            isha_hourLeft.setText(isha_begins.toString().substring(0, 1));
-            isha_hourRight.setText(isha_begins.toString().substring(1, 2));
-            isha_minLeft.setText(isha_begins.toString().substring(3, 4));
-            isha_minRight.setText(isha_begins.toString().substring(4, 5));
+            isha_hourLeft.setText(isha_begins_time.toString().substring(0, 1));
+            isha_hourRight.setText(isha_begins_time.toString().substring(1, 2));
+            isha_minLeft.setText(isha_begins_time.toString().substring(3, 4));
+            isha_minRight.setText(isha_begins_time.toString().substring(4, 5));
              
             time_Separator1.setText(":");
             time_Separator2.setText(":");
