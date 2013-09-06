@@ -7,10 +7,6 @@ package javafxapplication4;
 
 //import java.util.Locale;
 //import org.joda.time.*;
-import eu.hansolo.enzo.clock.Clock;
-import eu.hansolo.enzo.clock.ClockBuilder;
-import eu.hansolo.enzo.imgsplitflap.SplitFlap;
-import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
 //import java.sql.Time;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -63,6 +59,10 @@ import javax.sound.sampled.Clip;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import eu.hansolo.enzo.clock.Clock;
+import eu.hansolo.enzo.clock.ClockBuilder;
+import eu.hansolo.enzo.imgsplitflap.SplitFlap;
+import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
 
 
 
@@ -268,8 +268,7 @@ import org.joda.time.Days;
 
                             Date Duha_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + sunrise_time);
                             cal.setTime(Duha_temp);
-///////////////////change                            
-                            cal.add(Calendar.MINUTE, 579);
+                            cal.add(Calendar.MINUTE, 15);
                             Date duha = cal.getTime();
                             System.out.println(duha);
                             duha_cal = Calendar.getInstance();
