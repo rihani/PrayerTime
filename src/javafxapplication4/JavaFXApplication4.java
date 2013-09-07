@@ -63,6 +63,9 @@ import eu.hansolo.enzo.clock.Clock;
 import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
 import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
+import java.text.DateFormat;
+import java.util.TimeZone;
+import javafx.scene.layout.Pane;
 
 
 
@@ -102,6 +105,7 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
     private AnimationTimer moonPhase_timer, translate_timer;
     boolean arabic = true;
     boolean english = false;
+    GridPane Mainpane;
 
     @Override public void init() {
         
@@ -113,7 +117,7 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/wlm_carton.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Arial_Black.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Arial_Bold.ttf").toExternalForm(),30);
-        
+        GridPane Mainpane = new GridPane();
         Moon_Image_Label = new Label();
         Phase_Label = new Label();
         Moon_Date_Label = new Label();
@@ -128,17 +132,17 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
                              .build();
         clock.setCache(true);
 
-        time_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
         
-        time_jamma_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(150).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator3 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
         
         fajr_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         fajr_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -200,11 +204,27 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
             public void run() 
             {
                 try {
-                        
+                        Locale.setDefault(new Locale("en", "AU"));
                         Date now = new Date();
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(now);
-                        int dayofweek_int = cal.DAY_OF_WEEK;
+//                        cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+                        cal.setFirstDayOfWeek(Calendar.MONDAY);
+                        int dayofweek_int = cal.get(Calendar.DAY_OF_WEEK);
+                        
+                        
+                       
+
+                        Locale locale = Locale.getDefault();
+        TimeZone localTimeZone = TimeZone.getDefault(); 
+        //TimeZone localTimeZone = TimeZone.getTimeZone("Australia/Sydney");
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, locale);
+        dateFormat.setTimeZone(localTimeZone);
+        Date rightNow = new Date();
+        System.out.println(locale.toString() + ": " + dateFormat.format(rightNow));
+                        
+                        
+                        
                         
                         fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
                         newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
@@ -245,9 +265,11 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
                         
                         if (dayofweek_int != olddayofweek_int)
                         {    
-                            old_today = Calendar.getInstance();
-                            olddayofweek_int = old_today.DAY_OF_WEEK;                         
-                            System.out.println(" day of the week " + cal.DAY_OF_WEEK); 
+//                            old_today = Calendar.getInstance();
+                            olddayofweek_int = dayofweek_int;                         
+                            System.out.println("current day of the week " + dayofweek_int ); 
+                            System.out.println("old day of the week " + olddayofweek_int ); 
+                            System.out.println(" cal:  " + cal ); 
                             fajr_athan_enable = true;
                             duha_athan_enable = true;
                             zuhr_athan_enable = true;
@@ -270,7 +292,7 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
                             cal.setTime(Duha_temp);
                             cal.add(Calendar.MINUTE, 15);
                             Date duha = cal.getTime();
-                            System.out.println(duha);
+//                            System.out.println(duha);
                             duha_cal = Calendar.getInstance();
                             duha_cal.setTime(duha);
                             duha_cal.set(Calendar.MILLISECOND, 0);
@@ -309,6 +331,7 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
                             isha_cal.set(Calendar.SECOND, 0);
         
                         }
+
                         
                         Moon m = new Moon();
                         moonPhase = m.illuminatedPercentage();
@@ -374,13 +397,18 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
 
     @Override public void start(Stage stage) {
         
-        Group root = new Group();
-        Scene scene = new Scene(root, 720, 1230); //1180, 650
+        Pane root = new Pane();
+        Scene scene = new Scene(root, 650, 1180); //1180, 650
+
         stage.setScene(scene);
         stage.setTitle("Prayer Time Display");
                 
-        GridPane Mainpane = new GridPane();
+        Mainpane = new GridPane();
         scene.setRoot(Mainpane);
+        
+        String image = JavaFXApplication4.class.getResource("/Images/wallpaper5.jpg").toExternalForm();
+        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: bottom left;");        
+        
         
         Mainpane.getColumnConstraints().setAll(
                 ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
@@ -638,12 +666,12 @@ import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
         ds.setOffsetY(10.0);
         ds.setOffsetX(10.0);
         ds.setColor(Color.BLACK);
+
+        clock.setEffect(ds);
+        Moonpane.setEffect(ds);
         prayertime_pane.setEffect(ds);
         
         Mainpane.add(Moonpane, 5, 1,2,1);
-        clock.setEffect(ds);
-        Moonpane.setEffect(ds);
-        
         Mainpane.add(clock, 1, 1,1,1);    
         Mainpane.add(prayertime_pane, 1, 3,8,5);                     
         Mainpane.setCache(true);
@@ -677,6 +705,10 @@ public void update_labels() throws Exception{
             Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
             english = true;
             arabic = false;
+            
+//            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
+//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+
         }
 
         else
@@ -686,6 +718,10 @@ public void update_labels() throws Exception{
             Moon_Date_Label.setText("سيكون القمر بدرا يوم   \n" + FullMoon_date_ar);
             english = false;
             arabic = true;
+            
+//            String image = JavaFXApplication4.class.getResource("wallpaper3.jpg").toExternalForm();
+//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+
         }
         
 //==Days left to full moon============================================================        
@@ -702,7 +738,7 @@ public void update_labels() throws Exception{
         {
             duha_athan_enable = false;
             System.out.println("Duha Time");
-            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+            URL url = this.getClass().getClassLoader().getResource("Audio/duha.wav");
 //                      URL url = new URL("http://pscode.org/media/leftright.wav");
             Clip clip = AudioSystem.getClip();
             AudioInputStream ais = AudioSystem.getAudioInputStream( url );
@@ -714,7 +750,7 @@ public void update_labels() throws Exception{
         {
             fajr_athan_enable = false;
             System.out.println("fajr Time");
-            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+            URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
 //                      URL url = new URL("http://pscode.org/media/leftright.wav");
             Clip clip = AudioSystem.getClip();
             AudioInputStream ais = AudioSystem.getAudioInputStream( url );
@@ -726,7 +762,7 @@ public void update_labels() throws Exception{
         {
             zuhr_athan_enable = false;
             System.out.println("zuhr Time");
-            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+            URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
 //                      URL url = new URL("http://pscode.org/media/leftright.wav");
             Clip clip = AudioSystem.getClip();
             AudioInputStream ais = AudioSystem.getAudioInputStream( url );
@@ -738,7 +774,7 @@ public void update_labels() throws Exception{
         {
             asr_athan_enable = false;
             System.out.println("asr Time");
-            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+            URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
 //                      URL url = new URL("http://pscode.org/media/leftright.wav");
             Clip clip = AudioSystem.getClip();
             AudioInputStream ais = AudioSystem.getAudioInputStream( url );
@@ -750,7 +786,7 @@ public void update_labels() throws Exception{
         {
             maghrib_athan_enable = false;
             System.out.println("maghrib Time");
-            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+            URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
 //                      URL url = new URL("http://pscode.org/media/leftright.wav");
             Clip clip = AudioSystem.getClip();
             AudioInputStream ais = AudioSystem.getAudioInputStream( url );
@@ -762,7 +798,7 @@ public void update_labels() throws Exception{
         {
             isha_athan_enable = false;
             System.out.println("isha Time");
-            URL url = this.getClass().getClassLoader().getResource("javafxapplication4/Audio/police.wav");
+            URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
 //                      URL url = new URL("http://pscode.org/media/leftright.wav");
             Clip clip = AudioSystem.getClip();
             AudioInputStream ais = AudioSystem.getAudioInputStream( url );

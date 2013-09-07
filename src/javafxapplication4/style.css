@@ -14,17 +14,16 @@ and open the template in the editor.
 }
 
 
-    #Mainpane{
-        /*-fx-background-image: url("background_image.png");*/
-        /*-fx-background-image: url("moon_background.jpg");*/
+/*    #Mainpane{
+        -fx-background-image: url("background_image.png");
+        -fx-background-image: url("moon_background.jpg");
         -fx-background-image: url("../Images/wallpaper4.jpg");
         -fx-background-repeat: stretch;   
-/*        -fx-background-size: 1180 650;*/
-        -fx-background-size: 720 1230;
+        -fx-background-size: 650 1180;
         -fx-background-position: top left;
-        -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0); 
-        
-    }
+        -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0); */
+/*        
+    }*/
 
     #prayertime_pane{
 /*        -fx-background-color: rgba(255, 255, 255, 0.2); 
