@@ -92,6 +92,7 @@ import javafx.scene.layout.Pane;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
     private Integer moonPhase;
     private Boolean isWaning;
+    private Boolean isStarting = true;
     private Boolean new_day = true;
     private Boolean fajr_athan_enable, duha_athan_enable, zuhr_athan_enable, asr_athan_enable, maghrib_athan_enable, isha_athan_enable = true ;
     private Boolean update_prayer_labels, update_moon_image  = false;
@@ -99,6 +100,7 @@ import javafx.scene.layout.Pane;
     int olddayofweek_int;
     private Date prayer_date;
     private Calendar fajr_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
+    private Calendar fajr_jamaat_update_cal, duha_jamaat_update_cal, zuhr_jamaat_update_cal, asr_jamaat_update_cal, maghrib_jamaat_update_cal, isha_jamaat_update_cal;
     String fajr_jamaat ,zuhr_jamaat ,asr_jamaat ,maghrib_jamaat ,isha_jamaat ;
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
     private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
@@ -238,24 +240,7 @@ import javafx.scene.layout.Pane;
 //                        cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
                         cal.setFirstDayOfWeek(Calendar.MONDAY);
                         int dayofweek_int = cal.get(Calendar.DAY_OF_WEEK);
-                        
-                        
-                       
-
-                        Locale locale = Locale.getDefault();
-        TimeZone localTimeZone = TimeZone.getDefault(); 
-        //TimeZone localTimeZone = TimeZone.getTimeZone("Australia/Sydney");
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, locale);
-        dateFormat.setTimeZone(localTimeZone);
-        Date rightNow = new Date();
-        System.out.println(locale.toString() + ": " + dateFormat.format(rightNow));
-                        
-                        
-                        
-                        
-                        fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
-                        newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
-
+                        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                         PrayTime getprayertime = new PrayTime();
 
                         // Bankstown NSW Location
@@ -288,10 +273,7 @@ import javafx.scene.layout.Pane;
 //                        System.out.println(" Asr time " + asr_begins);
 //                        System.out.println(" Maghrib time " + maghrib_begins);
 //                        System.out.println(" Isha time " + isha_begins);
-                        
-                        
-                        
-                        
+
                         if (dayofweek_int != olddayofweek_int)
                         {    
 //                            old_today = Calendar.getInstance();
@@ -306,8 +288,7 @@ import javafx.scene.layout.Pane;
                             maghrib_athan_enable = true;
                             isha_athan_enable = true;
 
-
-                            String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                            
 
                             Date Fajr_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_begins_time);
                             cal.setTime(Fajr_temp);
@@ -360,67 +341,113 @@ import javafx.scene.layout.Pane;
                             isha_cal.set(Calendar.SECOND, 0);
         
                         }
+                        
+                        if (isStarting)
+                        {
 
+                            c = DBConnect.connect();
+                            System.out.println("connected");
+                            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
+                            String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW())";
+
+                            ResultSet rs = c.createStatement().executeQuery(SQL);
+                            System.out.println("query");
+                            while (rs.next()) 
+                            {
+                                id =                rs.getInt("id");
+                                prayer_date =       rs.getDate("date");
+    //                            fajr_begins =       rs.getTime("fajr_begins");
+                                fajr_jamaat_time =       rs.getTime("fajr_jamaat");
+    //                            sunrise =           rs.getTime("sunrise");
+    //                            zuhr_begins =       rs.getTime("zuhr_begins");
+                                zuhr_jamaat_time =       rs.getTime("zuhr_jamaat");
+    //                            asr_begins =        rs.getTime("asr_begins");
+                                asr_jamaat_time =        rs.getTime("asr_jamaat");
+                                maghrib_jamaat_time =    rs.getTime("maghrib_jamaat");
+    //                            isha_begins =       rs.getTime("isha_begins");
+                                isha_jamaat_time =       rs.getTime("isha_jamaat");
+    //                            String lastName = rs.getString("last_name");
+    //                            boolean  isAdmin = rs.getBoolean("is_admin");             
+                            }
+                            c.close();
+                            System.out.println("disconnected");
+
+                            fajr_jamaat = fajr_jamaat_time.toString();
+                            zuhr_jamaat = zuhr_jamaat_time.toString();
+                            asr_jamaat = asr_jamaat_time.toString();
+                            maghrib_jamaat = maghrib_jamaat_time.toString();
+                            isha_jamaat = isha_jamaat_time.toString();
+                            // print the results
+                            System.out.format("%s,%s,%s,%s,%s,%s,%s \n", id, prayer_date, fajr_jamaat, zuhr_jamaat, asr_jamaat, maghrib_jamaat, isha_jamaat );
+                        
+                        
+                            
+                            Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
+                            cal.setTime(fajr_jamaat_temp);
+                            cal.add(Calendar.MINUTE, 15);
+                            Date fajr_jamaat = cal.getTime();
+                            fajr_jamaat_update_cal = Calendar.getInstance();
+                            fajr_jamaat_update_cal.setTime(fajr_jamaat);
+                            fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                            fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
+//                            System.out.println(fajr_jamaat_update_cal.getTime());
+
+                            Date zuhr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + zuhr_jamaat);
+                            cal.setTime(zuhr_jamaat_temp);
+                            cal.add(Calendar.MINUTE, 15);
+                            Date zuhr_jamaat = cal.getTime();
+                            zuhr_jamaat_update_cal = Calendar.getInstance();
+                            zuhr_jamaat_update_cal.setTime(zuhr_jamaat);
+                            zuhr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                            zuhr_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            
+                            Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_jamaat);
+                            cal.setTime(asr_jamaat_temp);
+                            cal.add(Calendar.MINUTE, 15);
+                            Date asr_jamaat = cal.getTime();
+                            asr_jamaat_update_cal = Calendar.getInstance();
+                            asr_jamaat_update_cal.setTime(asr_jamaat);
+                            asr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                            asr_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            
+                            Date maghrib_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + maghrib_jamaat);
+                            cal.setTime(maghrib_jamaat_temp);
+                            cal.add(Calendar.MINUTE, 15);
+                            Date maghrib_jamaat = cal.getTime();
+                            maghrib_jamaat_update_cal = Calendar.getInstance();
+                            maghrib_jamaat_update_cal.setTime(maghrib_jamaat);
+                            maghrib_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                            maghrib_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            
+                            Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
+                            cal.setTime(isha_jamaat_temp);
+                            cal.add(Calendar.MINUTE, 15);
+                            Date isha_jamaat = cal.getTime();
+                            isha_jamaat_update_cal = Calendar.getInstance();
+                            isha_jamaat_update_cal.setTime(isha_jamaat);
+                            isha_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                            isha_jamaat_update_cal.set(Calendar.SECOND, 0);
+                        
+                        
+                        
+                        
+                        }
+                        
+                        
+                        
+                        
                         
                         Moon m = new Moon();
                         moonPhase = m.illuminatedPercentage();
                         isWaning = m.isWaning();
                         update_moon_image = true;
                         System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
-                        
-                        
-                        
-                         
-
-            c = DBConnect.connect();
-            System.out.println("connected");
-            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-            String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW())";
-
-            ResultSet rs = c.createStatement().executeQuery(SQL);
-            System.out.println("query");
-             while (rs.next()) {
-
-                id =                rs.getInt("id");
-                prayer_date =       rs.getDate("date");
-//                fajr_begins =       rs.getTime("fajr_begins");
-                fajr_jamaat_time =       rs.getTime("fajr_jamaat");
-//                sunrise =           rs.getTime("sunrise");
-//                zuhr_begins =       rs.getTime("zuhr_begins");
-                zuhr_jamaat_time =       rs.getTime("zuhr_jamaat");
-//                asr_begins =        rs.getTime("asr_begins");
-                asr_jamaat_time =        rs.getTime("asr_jamaat");
-                maghrib_jamaat_time =    rs.getTime("maghrib_jamaat");
-//                isha_begins =       rs.getTime("isha_begins");
-                isha_jamaat_time =       rs.getTime("isha_jamaat");
-                
-//        String lastName = rs.getString("last_name");
-//        boolean  isAdmin = rs.getBoolean("is_admin");             
-             }
-             
-             c.close();
-             System.out.println("disconnected");
-             
-              fajr_jamaat = fajr_jamaat_time.toString();
-              zuhr_jamaat = zuhr_jamaat_time.toString();
-              asr_jamaat = asr_jamaat_time.toString();
-              maghrib_jamaat = maghrib_jamaat_time.toString();
-              isha_jamaat = isha_jamaat_time.toString();
-             
-           // print the results
-             System.out.format("%s,%s,%s,%s,%s,%s,%s \n", id, prayer_date, fajr_jamaat, zuhr_jamaat, asr_jamaat, maghrib_jamaat, isha_jamaat );
-             
-
  
-            
-          
-                        
+                       fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
+                       newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
                         
                      } 
 
-                
-                
-                
                 catch(SQLException e)
                 {
                     System.out.println("Error on Database connection");
@@ -656,7 +683,50 @@ public void update_labels() throws Exception{
             System.out.println("isha Time");
             clip.open(ais);
             clip.start();
-        }        
+        }      
+        
+        
+        
+// Jammat update=========================================================== 
+        
+        Date now = new Date();
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        
+         if (fajr_jamaat_update_cal.equals(Calendar_now) && fajr_athan_enable) 
+        {
+            fajr_athan_enable = false;
+            update_prayer_labels = true;
+            System.out.println("fajr jamaat time updated");
+
+            c = DBConnect.connect();
+            System.out.println("connected");
+            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
+            String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW())";
+
+            ResultSet rs = c.createStatement().executeQuery(SQL);
+            System.out.println("query");
+            while (rs.next()) 
+            {
+                fajr_jamaat_time =       rs.getTime("fajr_jamaat");
+            }
+            c.close();
+            System.out.println("disconnected");
+
+            fajr_jamaat = fajr_jamaat_time.toString();
+            
+            Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
+            cal.setTime(fajr_jamaat_temp);
+            cal.add(Calendar.MINUTE, 15);
+            Date fajr_jamaat = cal.getTime();
+            fajr_jamaat_update_cal = Calendar.getInstance();
+            fajr_jamaat_update_cal.setTime(fajr_jamaat);
+            fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+            fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
+//                            System.out.println(fajr_jamaat_update_cal.getTime());
+        }
+ 
 //        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 ////        Date preDefineTime=formatter.parse("10:00");
 //        long additionMin=15*60*1000;
@@ -699,6 +769,13 @@ public void update_labels() throws Exception{
             isha_minLeft.setText(isha_begins_time.toString().substring(3, 4));
             isha_minRight.setText(isha_begins_time.toString().substring(4, 5));
             
+            time_Separator1.setText(":");
+            time_Separator2.setText(":");
+            time_Separator3.setText(":");
+            time_Separator4.setText(":");
+            time_Separator5.setText(":");
+            time_Separator6.setText(":");
+            
             fajr_jamma_hourLeft.setText(fajr_jamaat.substring(0, 1));
             fajr_jamma_hourRight.setText(fajr_jamaat.substring(1, 2));
             fajr_jamma_minLeft.setText(fajr_jamaat.substring(3, 4));
@@ -730,12 +807,7 @@ public void update_labels() throws Exception{
             time_jamma_Separator4.setText(":");
             time_jamma_Separator5.setText(":");
 
-            time_Separator1.setText(":");
-            time_Separator2.setText(":");
-            time_Separator3.setText(":");
-            time_Separator4.setText(":");
-            time_Separator5.setText(":");
-            time_Separator6.setText(":");
+            
             
         }
         
@@ -1278,3 +1350,20 @@ public void update_labels() throws Exception{
     
     
 }
+
+
+
+                        
+//                        
+//                       
+//
+//                        Locale locale = Locale.getDefault();
+//        TimeZone localTimeZone = TimeZone.getDefault(); 
+//        //TimeZone localTimeZone = TimeZone.getTimeZone("Australia/Sydney");
+//        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, locale);
+//        dateFormat.setTimeZone(localTimeZone);
+//        Date rightNow = new Date();
+//        System.out.println(locale.toString() + ": " + dateFormat.format(rightNow));
+//                        
+//                        
+//      
