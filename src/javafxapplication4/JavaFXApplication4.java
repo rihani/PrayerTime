@@ -95,7 +95,7 @@ import javafx.scene.layout.Pane;
     private Boolean isStarting = true;
     private Boolean new_day = true;
     private Boolean fajr_athan_enable, duha_athan_enable, zuhr_athan_enable, asr_athan_enable, maghrib_athan_enable, isha_athan_enable = true ;
-    private Boolean update_prayer_labels, update_moon_image  = false;
+    private Boolean update_prayer_labels, update_moon_image, fajr_jamaat_update_enable  = false;
     private int id;
     int olddayofweek_int;
     private Date prayer_date;
@@ -693,38 +693,55 @@ public void update_labels() throws Exception{
         String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
+//        System.out.println(fajr_jamaat_update_cal.getTime());
         
-         if (fajr_jamaat_update_cal.equals(Calendar_now) && fajr_athan_enable) 
+        if (fajr_jamaat_update_cal.equals(Calendar_now)  )         
+        //insert a bool here to enable update if initial fetch timin is pin the past, or elsejammat timing will not change and will wait indefinitly. 
+
         {
-            fajr_athan_enable = false;
-            update_prayer_labels = true;
-            System.out.println("fajr jamaat time updated");
-
-            c = DBConnect.connect();
-            System.out.println("connected");
-            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-            String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW())";
-
-            ResultSet rs = c.createStatement().executeQuery(SQL);
-            System.out.println("query");
-            while (rs.next()) 
+        
+        fajr_jamaat_update_enable = false;
+        new Thread(new Runnable() {
+            public void run() 
             {
-                fajr_jamaat_time =       rs.getTime("fajr_jamaat");
-            }
-            c.close();
-            System.out.println("disconnected");
-
-            fajr_jamaat = fajr_jamaat_time.toString();
-            
-            Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
-            cal.setTime(fajr_jamaat_temp);
-            cal.add(Calendar.MINUTE, 15);
-            Date fajr_jamaat = cal.getTime();
-            fajr_jamaat_update_cal = Calendar.getInstance();
-            fajr_jamaat_update_cal.setTime(fajr_jamaat);
-            fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
-            fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
+                try {
+                    System.out.println("fajr jamaat time updated");
+                    c = DBConnect.connect();
+                    System.out.println("connected");
+                    //SQL FOR SELECTING NATIONALITY OF CUSTOMER
+                    String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW()) + 1";
+                    
+                    ResultSet rs = c.createStatement().executeQuery(SQL);
+                    System.out.println("query");
+                    while (rs.next())
+                    {
+                        fajr_jamaat_time =       rs.getTime("fajr_jamaat");
+                    }
+                    c.close();
+                    System.out.println("disconnected");
+                    
+                    fajr_jamaat = fajr_jamaat_time.toString();
+                    
+                    Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
+                    cal.setTime(fajr_jamaat_temp);
+                    cal.add(Calendar.MINUTE, 15);
+                    Date fajr_jamaat = cal.getTime();
+                    fajr_jamaat_update_cal = Calendar.getInstance();
+                    fajr_jamaat_update_cal.setTime(fajr_jamaat);
+                    fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                    fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
 //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                    update_prayer_labels = true;
+                } catch (SQLException ex) {
+                    Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ParseException ex) {
+                    Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }).start();
+        
+         
+            
         }
  
 //        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
@@ -1366,4 +1383,5 @@ public void update_labels() throws Exception{
 //        System.out.println(locale.toString() + ": " + dateFormat.format(rightNow));
 //                        
 //                        
-//      
+// 
+
