@@ -1355,9 +1355,9 @@ public void update_labels() throws Exception{
         Moon_img.setPreserveRatio(true);
         Moon_img.setSmooth(true);
         Moon_Image_Label.setGraphic(Moon_img);
-        Moonpane.setRight(Moon_Image_Label);   
+        Moonpane.setCenter(Moon_Image_Label);   
         Moon_Date_Label.setId("moon-text-english");
-        Moonpane.setLeft(Moon_Date_Label);
+        Moonpane.setRight(Moon_Date_Label);
         Reflection r = new Reflection();
         r.setFraction(0.15f);
         Moonpane.setEffect(r);
