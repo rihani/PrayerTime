@@ -93,18 +93,18 @@ and open the template in the editor.
    
     #moonpane{
 	 
-         -fx-background-color: rgba(0, 0, 0, 0.13); 
+         -fx-background-color: rgba(0, 0, 0, 0.20); 
 	 -fx-border-color: black;
 	 -fx-border-radius: 20;
-	 -fx-padding: 10 10 10 10;
-	 -fx-background-radius: 20;
+	 -fx-padding: 30 10 10 10;
+	 -fx-background-radius: 12;
 	}
         
         
     #prayertime_pane{
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
 /*        -fx-effect: dropshadow( one-pass-box , black , 8 , 0.2 , 2 , 0 );*/
-         -fx-background-color: rgba(0, 0, 0, 0.15); 
+         -fx-background-color: rgba(0, 0, 0, 0.20); 
 	 -fx-border-color: black;
 	 -fx-border-radius: 20;
 	 -fx-padding: 10 10 10 10;

@@ -552,7 +552,7 @@ import javafx.scene.layout.Pane;
 //        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         GridPane prayertime_pane = prayertime_pane();    
-        BorderPane Moonpane =   moonpane();
+        GridPane Moonpane =   moonpane();
        
         
   //============================================
@@ -608,9 +608,9 @@ public void update_labels() throws Exception{
 
         else
         { 
-            String FullMoon_date_ar = new SimpleDateFormat(" EEEE' '  dd  MMMM", new Locale("ar")).format(fullMoon);
+            String FullMoon_date_ar = new SimpleDateFormat("EEEE' '  dd  MMMM", new Locale("ar")).format(fullMoon);
             Moon_Date_Label.setId("moon-text-arabic");
-            Moon_Date_Label.setText("سيكون القمر بدرا يوم   \n" + FullMoon_date_ar);
+            Moon_Date_Label.setText("سيكون القمر بدرا يوم\n" + FullMoon_date_ar);
             english = false;
             arabic = true;
             
@@ -1338,10 +1338,17 @@ public void update_labels() throws Exception{
     
     
     //===MOON PANE==========================  
-    public BorderPane moonpane() {
+    public GridPane moonpane() {
       
-        BorderPane Moonpane = new BorderPane();
+        GridPane Moonpane = new GridPane();
         Moonpane.setId("moonpane");
+        Moonpane.getColumnConstraints().setAll(
+                ColumnConstraintsBuilder.create().prefWidth(290).build(),
+                ColumnConstraintsBuilder.create().prefWidth(100).build()       
+        );
+        
+        
+        
         Moonpane.setPadding(new Insets(10, 0, 10, 10));
         Moonpane.setPrefSize(290,70);
         Moonpane.setMaxSize(290,70);
@@ -1355,13 +1362,21 @@ public void update_labels() throws Exception{
         Moon_img.setPreserveRatio(true);
         Moon_img.setSmooth(true);
         Moon_Image_Label.setGraphic(Moon_img);
-        Moonpane.setCenter(Moon_Image_Label);   
+        Moonpane.setConstraints(Moon_Image_Label, 1, 0);
+        Moonpane.getChildren().add(Moon_Image_Label);
+        
+//        Moon_Image_Label.setTranslateY(-25);
+//        Moonpane.setCenter(Moon_Image_Label);   
         Moon_Date_Label.setId("moon-text-english");
-        Moonpane.setRight(Moon_Date_Label);
+        Moonpane.setConstraints(Moon_Date_Label, 0, 0);
+        Moonpane.getChildren().add(Moon_Date_Label);
+        Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+        Moonpane.setValignment(Moon_Date_Label,VPos.CENTER);
+//        Moonpane.setLeft(Moon_Date_Label);
         Reflection r = new Reflection();
         r.setFraction(0.15f);
         Moonpane.setEffect(r);
-        
+        Moonpane.setGridLinesVisible(true);
         return Moonpane;
     }
     
