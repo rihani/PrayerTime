@@ -624,9 +624,21 @@ public void update_labels() throws Exception{
         
 //==Days left to full moon============================================================        
         
-        if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <5)
+        if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <7)
         {
-        System.out.println(" Days left to " + Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays());
+        String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
+        String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMM").format(fullMoon);
+        System.out.println("Full moon is on " + FullMoon_date_en + FullMoon_date_en1);
+        }
+        
+        
+        if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
+        {
+        
+        String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
+        String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMM").format(fullMoon);
+        System.out.println("Full moon is on " + FullMoon_date_en + " next week " + FullMoon_date_en1 );
+        
         }
 
 //==prayer alarms =================================================================================
