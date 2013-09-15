@@ -51,7 +51,7 @@ import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-//import static javafx.scene.paint.Color.RED;
+import static javafx.scene.paint.Color.RED;
 import javafx.util.Duration;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -71,6 +71,7 @@ import java.util.TimeZone;
 import javafx.collections.FXCollections;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.layout.Pane;
+import javax.sound.sampled.AudioFormat;
 
 
 
@@ -116,10 +117,20 @@ import javafx.scene.layout.Pane;
     boolean english = false;
     GridPane Mainpane;
     GridPane Moonpane;
+    char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     
     Connection c ;
            ObservableList<String> names = FXCollections.observableArrayList();
-          
+     
+           
+           private AudioFormat getAudioFormat() {
+        float sampleRate = 8000.0F;
+        int sampleInbits = 16;
+        int channels = 1;
+        boolean signed = true;
+        boolean bigEndian = false;
+        return new AudioFormat(sampleRate, sampleInbits, channels, signed, bigEndian);
+    }
 
     @Override public void init() {
         
@@ -596,26 +607,180 @@ public void update_labels() throws Exception{
         
         if (arabic)
         {
-            String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMM").format(fullMoon);
-            Moon_Date_Label.setId("moon-text-english");
-            Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
-            Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
-            english = true;
-            arabic = false;
+            
+                   
+            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
+            {
+                String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
+                String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMM").format(fullMoon);
+                
+                Moon_Date_Label.setId("moon-text-english");
+                Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " " + FullMoon_date_en1);
+                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                english = true;
+                arabic = false;
+            }
+            
+            
+            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
+            {
+
+                Moon_Date_Label.setId("moon-text-english");
+                Moon_Date_Label.setText("The moon is full today" );
+                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                english = true;
+                arabic = false;
+
+            }
+            
+            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
+            {
+
+                String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMM").format(fullMoon);
+                
+                Moon_Date_Label.setId("moon-text-english");
+                Moon_Date_Label.setText("Full moon is on\n"+ "tomorrow the "  + FullMoon_date_en1 );
+                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                english = true;
+                arabic = false;
+
+            }
+
+            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
+            {
+
+                String FullMoon_date_en = new SimpleDateFormat("EEE").format(fullMoon);
+                String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMM").format(fullMoon);
+                
+                Moon_Date_Label.setId("moon-text-english");
+                Moon_Date_Label.setText("Full moon is on " + FullMoon_date_en + "\nnext week " + FullMoon_date_en1);
+                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                english = true;
+                arabic = false;
+            }
+            
+            else 
+            {            
+                String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMM").format(fullMoon);
+                Moon_Date_Label.setId("moon-text-english");
+                Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
+                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                english = true;
+                arabic = false;
             
 //            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+            }
 
+            
         }
 
         else
         { 
-            String FullMoon_date_ar = new SimpleDateFormat("EEEE' '  dd  MMMM", new Locale("ar")).format(fullMoon);
-            Moon_Date_Label.setId("moon-text-arabic");
-            Moon_Date_Label.setText("سيكون القمر بدرا يوم\n" + FullMoon_date_ar);
-            Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
-            english = false;
-            arabic = true;
+            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
+            {
+                String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
+                String FullMoon_date_ar1 = new SimpleDateFormat("dd MMMM", new Locale("ar")).format(fullMoon);
+                String labeconv = "سيكون القمر بدرا\n" + FullMoon_date_ar + " القادم" +""+ FullMoon_date_ar1;
+                StringBuilder builder = new StringBuilder();
+                for(int i =0;i<labeconv.length();i++)
+                {
+                    if(Character.isDigit(labeconv.charAt(i)))
+                    {
+                        builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                    }
+                    else
+                    {
+                        builder.append(labeconv.charAt(i));
+                    }
+                }
+                              
+                Moon_Date_Label.setId("moon-text-arabic");
+                Moon_Date_Label.setText(builder.toString());
+                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                english = false;
+                arabic = true;
+                
+                
+            }
+            
+            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
+            {
+
+                Moon_Date_Label.setId("moon-text-arabic");
+                Moon_Date_Label.setText("سيكون القمر بدرا غدآ" );
+                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                english = false;
+                arabic = true;
+
+            }
+            
+            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
+            {
+
+                Moon_Date_Label.setId("moon-text-arabic");
+                Moon_Date_Label.setText("القمر بدر اليوم " );
+                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                english = false;
+                arabic = true;
+
+            }
+            
+            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
+            {
+                String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
+                String FullMoon_date_ar1 = new SimpleDateFormat("dd MMMM", new Locale("ar")).format(fullMoon);
+                                
+                
+                String labeconv = "سيكون القمر بدرا " + FullMoon_date_ar + "\n الأسبوع المقبل" + FullMoon_date_ar1;
+                StringBuilder builder = new StringBuilder();
+                for(int i =0;i<labeconv.length();i++)
+                {
+                    if(Character.isDigit(labeconv.charAt(i)))
+                    {
+                        builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                    }
+                    else
+                    {
+                        builder.append(labeconv.charAt(i));
+                    }
+                }
+                              
+                Moon_Date_Label.setId("moon-text-arabic");
+                Moon_Date_Label.setText(builder.toString());
+                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                english = false;
+                arabic = true;
+            }
+            
+            else 
+            {            
+                String FullMoon_date_ar = new SimpleDateFormat(" EEEE dd MMMM", new Locale("ar")).format(fullMoon);               
+                String labeconv = "سيكون القمر بدرا يوم\n" + FullMoon_date_ar;
+                StringBuilder builder = new StringBuilder();
+                for(int i =0;i<labeconv.length();i++)
+                {
+                    if(Character.isDigit(labeconv.charAt(i)))
+                    {
+                        builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                    }
+                    else
+                    {
+                        builder.append(labeconv.charAt(i));
+                    }
+                }
+                              
+                Moon_Date_Label.setId("moon-text-arabic");
+                Moon_Date_Label.setText(builder.toString());
+                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                english = false;
+                arabic = true;
+            
+//            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
+//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+            }
+  
+            
             
 //            String image = JavaFXApplication4.class.getResource("wallpaper3.jpg").toExternalForm();
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
@@ -623,30 +788,24 @@ public void update_labels() throws Exception{
         }
         
 //==Days left to full moon============================================================        
-        
-        if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <7)
-        {
-        String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
-        String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMM").format(fullMoon);
-        System.out.println("Full moon is on " + FullMoon_date_en + FullMoon_date_en1);
-        }
-        
-        
-        if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
-        {
-        
-        String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
-        String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMM").format(fullMoon);
-        System.out.println("Full moon is on " + FullMoon_date_en + " next week " + FullMoon_date_en1 );
-        
-        }
+ 
 
 //==prayer alarms =================================================================================
        
+//        URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
+//        AudioFormat adFormat = getAudioFormat();
+//        Clip clip = AudioSystem.getClip();
+//        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+        
+        
+        
         URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
+        AudioInputStream ais = AudioSystem.getAudioInputStream(url); 
+        AudioFormat littleEndianFormat = getAudioFormat();
+        AudioInputStream converted = AudioSystem.getAudioInputStream(littleEndianFormat, ais); 
         Clip clip = AudioSystem.getClip();
-        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
-
+//clip.open(converted);
+//            clip.start();
         
         if (duha_cal.equals(Calendar_now) && duha_athan_enable) 
         {
@@ -660,43 +819,43 @@ public void update_labels() throws Exception{
             clip1.start();
         }
 
-        if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
+        else if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
         {
             fajr_athan_enable = false;
             System.out.println("fajr Time");
-            clip.open(ais);
+            clip.open(converted);
             clip.start();
         }
         
-        if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
+        else if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
         {
             zuhr_athan_enable = false;
             System.out.println("zuhr Time");
-            clip.open(ais);
+            clip.open(converted);
             clip.start();
         }        
 
-        if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
+        else if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
         {
             asr_athan_enable = false;
             System.out.println("asr Time");
-            clip.open(ais);
+            clip.open(converted);
             clip.start();
         } 
         
-        if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
+        else if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
         {
             maghrib_athan_enable = false;
             System.out.println("maghrib Time");
-            clip.open(ais);
+            clip.open(converted);
             clip.start();
         } 
         
-        if (isha_cal.equals(Calendar_now) && isha_athan_enable) 
+        else if (isha_cal.equals(Calendar_now) && isha_athan_enable) 
         {
             isha_athan_enable = false;
             System.out.println("isha Time");
-            clip.open(ais);
+            clip.open(converted);
             clip.start();
         }      
         
@@ -858,7 +1017,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
         
-            if (moonPhase>3 && moonPhase<=10 && isWaning)
+            else if (moonPhase>3 && moonPhase<=10 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/3%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -868,7 +1027,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>10 && moonPhase<=17 && isWaning)
+            else if (moonPhase>10 && moonPhase<=17 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/12%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -878,7 +1037,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>17 && moonPhase<=32 && isWaning)
+            else if (moonPhase>17 && moonPhase<=32 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/21%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -887,7 +1046,7 @@ public void update_labels() throws Exception{
                 Moon_img.setSmooth(true);        
                 Moon_Image_Label.setGraphic(Moon_img);
             }
-            if (moonPhase>32 && moonPhase<=43 && isWaning)
+            else if (moonPhase>32 && moonPhase<=43 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/38%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -897,7 +1056,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>43 && moonPhase<=52 && isWaning)
+            else if (moonPhase>43 && moonPhase<=52 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/47%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -907,7 +1066,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>52 && moonPhase<=61 && isWaning)
+            else if (moonPhase>52 && moonPhase<=61 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -917,7 +1076,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>61 && moonPhase<=70 && isWaning)
+            else if (moonPhase>61 && moonPhase<=70 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/65%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -927,7 +1086,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>70 && moonPhase<=78 && isWaning)
+            else if (moonPhase>70 && moonPhase<=78 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/74%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -937,7 +1096,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>78 && moonPhase<=87 && isWaning)
+            else if (moonPhase>78 && moonPhase<=87 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/82%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -947,7 +1106,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>87 && moonPhase<=96 && isWaning)
+            else if (moonPhase>87 && moonPhase<=96 && isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/91%WA.png")));      
                 Moon_img.setFitWidth(100);
@@ -957,7 +1116,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase== 100)
+            else if (moonPhase== 100)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/100%.png")));      
                 Moon_img.setFitWidth(100);
@@ -967,7 +1126,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>4 && moonPhase<=12 && !isWaning)
+            else if (moonPhase>4 && moonPhase<=12 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/8%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -977,7 +1136,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>12 && moonPhase<=20 && !isWaning)
+            else if (moonPhase>12 && moonPhase<=20 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/16%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -987,7 +1146,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>20 && moonPhase<=28 && !isWaning)
+            else if (moonPhase>20 && moonPhase<=28 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/24%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -997,7 +1156,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>28 && moonPhase<=36 && !isWaning)
+            else if (moonPhase>28 && moonPhase<=36 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/32%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1007,7 +1166,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>36 && moonPhase<=44 && !isWaning)
+            else if (moonPhase>36 && moonPhase<=44 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/40%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1017,7 +1176,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>44 && moonPhase<=52 && !isWaning)
+            else if (moonPhase>44 && moonPhase<=52 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/48%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1027,7 +1186,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>52 && moonPhase<=59 && !isWaning)
+            else if (moonPhase>52 && moonPhase<=59 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1037,7 +1196,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>59 && moonPhase<=67 && !isWaning)
+            else if (moonPhase>59 && moonPhase<=67 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/63%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1047,7 +1206,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>67 && moonPhase<=74 && !isWaning)
+            else if (moonPhase>67 && moonPhase<=74 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/71%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1057,7 +1216,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>74 && moonPhase<=82 && !isWaning)
+            else if (moonPhase>74 && moonPhase<=82 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/78%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1067,7 +1226,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>82 && moonPhase<=90 && !isWaning)
+            else if (moonPhase>82 && moonPhase<=90 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/86%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1077,7 +1236,7 @@ public void update_labels() throws Exception{
                 Moon_Image_Label.setGraphic(Moon_img);
             }
 
-            if (moonPhase>90 && moonPhase<=98 && !isWaning)
+            else if (moonPhase>90 && moonPhase<=98 && !isWaning)
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/94%WX.png")));      
                 Moon_img.setFitWidth(100);
@@ -1358,11 +1517,13 @@ public void update_labels() throws Exception{
         GridPane Moonpane = new GridPane();
         Moonpane.setId("moonpane");
         Moonpane.getColumnConstraints().setAll(
-                ColumnConstraintsBuilder.create().prefWidth(160).minWidth(160).build(),
+                ColumnConstraintsBuilder.create().prefWidth(175).minWidth(175).build(),
                 ColumnConstraintsBuilder.create().prefWidth(100).minWidth(100).build()     
         );
         Moonpane.setHgap(10);
         Moonpane.setMaxHeight(50);
+//       Moonpane.setGridLinesVisible(true);
+
 //        Phase_Label.setId("moon-text-english");
 //        Moonpane.setRight(Phase_Label);
 //        myLabel.textProperty().bind(valueProperty);

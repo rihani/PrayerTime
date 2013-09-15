@@ -76,13 +76,13 @@ and open the template in the editor.
 
       #moon-text-arabic{
         
-        -fx-font-size: 18px;
+        -fx-font-size: 19px;
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
         -fx-font-family: 'Arial Bold';
         /*-fx-fill: white;*/
-        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
+        -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment: right;
