@@ -148,43 +148,43 @@ import javax.sound.sampled.AudioFormat;
                              .build();
         clock.setCache(true);
         
-        fajr_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        fajr_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        fajr_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        fajr_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        time_Separator1 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
+        fajr_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        fajr_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         
-        fajr_jamma_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_jamma_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator1 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        fajr_jamma_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_jamma_minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        fajr_jamma_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        fajr_jamma_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator1 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
+        fajr_jamma_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        fajr_jamma_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
         
-        sunrise_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        sunrise_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        sunrise_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        sunrise_minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        sunrise_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        sunrise_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        time_Separator2 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
+        sunrise_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        sunrise_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
-        duha_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        duha_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator7 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        duha_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        duha_minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        duha_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        duha_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        time_Separator7 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
+        duha_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        duha_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
         
-        zuhr_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator3 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        zuhr_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        time_Separator3 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
+        zuhr_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         
-        zuhr_jamma_hourLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_jamma_hourRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator2 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        zuhr_jamma_minLeft = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_jamma_minRight = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_jamma_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_jamma_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        time_jamma_Separator2 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
+        zuhr_jamma_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_jamma_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
 
         asr_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         asr_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -517,14 +517,14 @@ import javax.sound.sampled.AudioFormat;
     @Override public void start(Stage stage) {
         
         Pane root = new Pane();
-        Scene scene = new Scene(root, 650, 1180); //1180, 650
+        Scene scene = new Scene(root, 1080, 1920); //1180, 650
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Prayer Time Display");
                 
         Mainpane = new GridPane();        
-        String image = JavaFXApplication4.class.getResource("/Images/wallpaper7.jpg").toExternalForm();
-        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: bottom left;");        
+        String image = JavaFXApplication4.class.getResource("/Images/wallpaper8.jpg").toExternalForm();
+        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");        
         Mainpane.getColumnConstraints().setAll(
                 ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
                 ColumnConstraintsBuilder.create().percentWidth(100/10.0).build(),
@@ -554,7 +554,7 @@ import javax.sound.sampled.AudioFormat;
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build()
         );
-//        Mainpane.setGridLinesVisible(true);
+        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         GridPane prayertime_pane = prayertime_pane();    
         GridPane Moonpane =   moonpane();
@@ -574,7 +574,7 @@ import javax.sound.sampled.AudioFormat;
         
         Mainpane.add(Moonpane, 5, 1,2,1);
         Mainpane.add(clock, 1, 1,1,1);    
-        Mainpane.add(prayertime_pane, 1, 4,8,5);                     
+        Mainpane.add(prayertime_pane, 1, 4,7,6);                     
         Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -1289,7 +1289,7 @@ public void update_labels() throws Exception{
    GridPane prayertime_pane = new GridPane();
         prayertime_pane.setId("prayertime_pane");
         prayertime_pane.setCache(true);       
-//        prayertime_pane.setGridLinesVisible(true);
+        prayertime_pane.setGridLinesVisible(true);
         prayertime_pane.setPadding(new Insets(20, 20, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
         prayertime_pane.setVgap(7);
@@ -1298,7 +1298,9 @@ public void update_labels() throws Exception{
 //=============================  
         HBox fajrBox = new HBox();
         fajrBox.setSpacing(0);
-        fajrBox.setMaxSize(155, 54);
+        fajrBox.setMaxSize(200,70);
+        fajrBox.setMinSize(200,70);
+        fajrBox.setPrefSize(200,70);
         fajrBox.getChildren().addAll(fajr_hourLeft, fajr_hourRight, time_Separator1, fajr_minLeft, fajr_minRight);
         prayertime_pane.setConstraints(fajrBox, 1, 1);
         prayertime_pane.getChildren().add(fajrBox);
@@ -1325,7 +1327,9 @@ public void update_labels() throws Exception{
 //============================= 
         HBox zuhrBox = new HBox();
         zuhrBox.setSpacing(0);
-        zuhrBox.setMaxSize(155, 54);
+        zuhrBox.setMaxSize(200,70);
+        zuhrBox.setMinSize(200,70);
+        zuhrBox.setPrefSize(200,70);
         zuhrBox.getChildren().addAll(zuhr_hourLeft, zuhr_hourRight, time_Separator3, zuhr_minLeft, zuhr_minRight);
         prayertime_pane.setConstraints(zuhrBox, 1, 3);
         prayertime_pane.getChildren().add(zuhrBox);
@@ -1347,7 +1351,9 @@ public void update_labels() throws Exception{
 //============================= 
         HBox asrBox = new HBox();
         asrBox.setSpacing(0);
-        asrBox.setMaxSize(155, 54);
+        asrBox.setMaxSize(200,70);
+        asrBox.setMinSize(200,70);
+        asrBox.setPrefSize(200,70);
         asrBox.getChildren().addAll(asr_hourLeft, asr_hourRight, time_Separator4, asr_minLeft, asr_minRight);
         prayertime_pane.setConstraints(asrBox, 1, 5);
         prayertime_pane.getChildren().add(asrBox);
@@ -1370,7 +1376,9 @@ public void update_labels() throws Exception{
         
         HBox maghribBox = new HBox();
         maghribBox.setSpacing(0);
-        maghribBox.setMaxSize(155, 54);
+        maghribBox.setMaxSize(200,70);
+        maghribBox.setMinSize(200,70);
+        maghribBox.setPrefSize(200,70);
         maghribBox.getChildren().addAll(maghrib_hourLeft, maghrib_hourRight, time_Separator5, maghrib_minLeft, maghrib_minRight);
         prayertime_pane.setConstraints(maghribBox, 1, 7);
         prayertime_pane.getChildren().add(maghribBox);
@@ -1392,7 +1400,9 @@ public void update_labels() throws Exception{
         
         HBox ishaBox = new HBox();
         ishaBox.setSpacing(0);
-        ishaBox.setMaxSize(155, 54);
+        ishaBox.setMaxSize(200,70);
+        ishaBox.setMinSize(200,70);
+        ishaBox.setPrefSize(200,70);
         ishaBox.getChildren().addAll(isha_hourLeft, isha_hourRight, time_Separator6, isha_minLeft, isha_minRight);
         prayertime_pane.setConstraints(ishaBox, 1, 9);
         prayertime_pane.getChildren().add(ishaBox);
@@ -1414,8 +1424,8 @@ public void update_labels() throws Exception{
  //=============================  
         HBox gapBox = new HBox();
         gapBox.setSpacing(0);
-        gapBox.setMaxSize(155, 54);
-        gapBox.setMinSize(155, 54);
+        gapBox.setMaxSize(200,70);
+        gapBox.setMinSize(200,70);
         gapBox.getChildren().addAll();
         prayertime_pane.setConstraints(gapBox, 0, 11);
         prayertime_pane.getChildren().add(gapBox);       
@@ -1423,7 +1433,9 @@ public void update_labels() throws Exception{
 //=============================  
         HBox sunriseBox = new HBox();
         sunriseBox.setSpacing(0);
-        sunriseBox.setMaxSize(155, 54);
+        sunriseBox.setMaxSize(200,70);
+        sunriseBox.setMinSize(200,70);
+        sunriseBox.setPrefSize(200,70);
         sunriseBox.getChildren().addAll(sunrise_hourLeft, sunrise_hourRight, time_Separator2, sunrise_minLeft, sunrise_minRight);
         prayertime_pane.setConstraints(sunriseBox, 1, 12);
         prayertime_pane.getChildren().add(sunriseBox);
@@ -1446,7 +1458,9 @@ public void update_labels() throws Exception{
 //=============================  
         HBox duhaBox = new HBox();
         duhaBox.setSpacing(0);
-        duhaBox.setMaxSize(155, 54);
+        duhaBox.setMaxSize(200,70);
+        duhaBox.setMinSize(200,70);
+        duhaBox.setPrefSize(200,70);
         duhaBox.getChildren().addAll(duha_hourLeft, duha_hourRight, time_Separator7, duha_minLeft, duha_minRight);
         prayertime_pane.setConstraints(duhaBox, 0, 12);
         prayertime_pane.getChildren().add(duhaBox);
@@ -1456,7 +1470,9 @@ public void update_labels() throws Exception{
          
         HBox fridayBox = new HBox();
         fridayBox.setSpacing(0);
-        fridayBox.setMaxSize(155, 54);
+        fridayBox.setMaxSize(200,70);
+        fridayBox.setMinSize(200,70);
+        fridayBox.setPrefSize(200,70);
         fridayBox.getChildren().addAll(friday_hourLeft, friday_hourRight, time_Separator8, friday_minLeft, friday_minRight);
         prayertime_pane.setConstraints(fridayBox, 0, 14);
         prayertime_pane.getChildren().add(fridayBox);
@@ -1520,7 +1536,7 @@ public void update_labels() throws Exception{
 //=============================  
         HBox fajr_jamma_Box = new HBox();
         fajr_jamma_Box.setSpacing(0);
-        fajr_jamma_Box.setMaxSize(155, 54);
+        fajr_jamma_Box.setMaxSize(200,70);
         fajr_jamma_Box.getChildren().addAll(fajr_jamma_hourLeft, fajr_jamma_hourRight, time_jamma_Separator1, fajr_jamma_minLeft, fajr_jamma_minRight);
         prayertime_pane.setConstraints(fajr_jamma_Box, 0, 1);
         prayertime_pane.getChildren().add(fajr_jamma_Box);
@@ -1528,7 +1544,7 @@ public void update_labels() throws Exception{
 //============================= 
         HBox zuhr_jamma_Box = new HBox();
         zuhr_jamma_Box.setSpacing(0);
-        zuhr_jamma_Box.setMaxSize(155, 54);
+        zuhr_jamma_Box.setMaxSize(200,70);
         zuhr_jamma_Box.getChildren().addAll(zuhr_jamma_hourLeft, zuhr_jamma_hourRight, time_jamma_Separator2, zuhr_jamma_minLeft, zuhr_jamma_minRight);
         prayertime_pane.setConstraints(zuhr_jamma_Box, 0, 3);
         prayertime_pane.getChildren().add(zuhr_jamma_Box);
@@ -1536,7 +1552,7 @@ public void update_labels() throws Exception{
 //============================= 
         HBox asr_jamma_Box = new HBox();
         asr_jamma_Box.setSpacing(0);
-        asr_jamma_Box.setMaxSize(155, 54);
+        asr_jamma_Box.setMaxSize(200,70);
         asr_jamma_Box.getChildren().addAll(asr_jamma_hourLeft, asr_jamma_hourRight, time_jamma_Separator3, asr_jamma_minLeft, asr_jamma_minRight);
         prayertime_pane.setConstraints(asr_jamma_Box, 0, 5);
         prayertime_pane.getChildren().add(asr_jamma_Box);
@@ -1545,7 +1561,7 @@ public void update_labels() throws Exception{
         
         HBox maghrib_jamma_Box = new HBox();
         maghrib_jamma_Box.setSpacing(0);
-        maghrib_jamma_Box.setMaxSize(155, 54);
+        maghrib_jamma_Box.setMaxSize(200,70);
         maghrib_jamma_Box.getChildren().addAll(maghrib_jamma_hourLeft, maghrib_jamma_hourRight, time_jamma_Separator4, maghrib_jamma_minLeft, maghrib_jamma_minRight);
         prayertime_pane.setConstraints(maghrib_jamma_Box, 0, 7);
         prayertime_pane.getChildren().add(maghrib_jamma_Box);
@@ -1554,7 +1570,7 @@ public void update_labels() throws Exception{
         
         HBox isha_jamma_Box = new HBox();
         isha_jamma_Box.setSpacing(0);
-        isha_jamma_Box.setMaxSize(155, 54);
+        isha_jamma_Box.setMaxSize(200,70);
         isha_jamma_Box.getChildren().addAll(isha_jamma_hourLeft, isha_jamma_hourRight, time_jamma_Separator5, isha_jamma_minLeft, isha_jamma_minRight);
         prayertime_pane.setConstraints(isha_jamma_Box, 0, 9);
         prayertime_pane.getChildren().add(isha_jamma_Box);
