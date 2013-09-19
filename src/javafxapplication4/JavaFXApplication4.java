@@ -54,6 +54,8 @@ import eu.hansolo.enzo.clock.Clock;
 import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
 import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -601,7 +603,17 @@ public void update_labels() throws Exception{
         if (arabic)
         {
             
-                   
+                        ProcessBuilder processBuilder = 
+              new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
+            Process process = processBuilder.start();
+//            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//            String line = null;
+//            while ((line = br.readLine()) != null) {
+//               System.out.println(line);
+//            }    
+            
+            
+            
             if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
             {
                 String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
@@ -670,6 +682,15 @@ public void update_labels() throws Exception{
 
         else
         { 
+             ProcessBuilder processBuilder = 
+              new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+            Process process = processBuilder.start();
+//            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//            String line = null;
+//            while ((line = br.readLine()) != null) {
+//               System.out.println(line);
+//            } 
+            
             if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
             {
                 String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
