@@ -35,8 +35,8 @@ and open the template in the editor.
         -fx-font-family: 'B Jadid';
         /*-fx-font-family: 'Arial Bold';*/
         -fx-fill: white;
-        -fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );
-        -fx-text-outline: 2px 2px #ffffff;
+        /*-fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );*/
+        /*-fx-text-outline: 2px 2px #ffffff;*/
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment:right;
         
@@ -57,16 +57,45 @@ and open the template in the editor.
         -fx-text-alignment: left;
         
    }
+ 
    
+       #prayer-label-arabic {
+        
+        -fx-font-size: 35px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+/*        -fx-font-family: 'Old Antic Outline Shaded';*/
+        -fx-font-family: 'B Jadid';
+        /*-fx-font-family: 'Arial Bold';*/
+        -fx-text-fill: white;
+        
+        /*-fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );*/
+        /*-fx-text-outline: 2px 2px #ffffff;*/
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
+        -fx-text-alignment:right;
+        
+   }
+   
+    #prayer-label-english {
+        
+        -fx-font-size: 34px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+/*        -fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Arial Black';
+        /*-fx-font-family: 'WLM Carton';*/
+        -fx-text-fill: white;
+        -fx-text-alignment: left;
+        
+   }
    #moon-text-english{
         
         -fx-font-size: 16px;
         /*-fx-font-family: 'B Majid Shadow';*/
 /*        -fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
-        -fx-font-family: 'Arial Bold';
+        -fx-font-family: 'Arial Black';
         /*-fx-fill: white;*/
-        -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment: left;
@@ -82,7 +111,7 @@ and open the template in the editor.
         /*-fx-font-family: 'B Jadid';*/
         -fx-font-family: 'Arial Bold';
         /*-fx-fill: white;*/
-        -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment: right;

@@ -55,16 +55,30 @@ import eu.hansolo.enzo.clock.ClockBuilder;
 import eu.hansolo.enzo.imgsplitflap.SplitFlap;
 import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+//import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 import javax.sound.sampled.AudioFormat;
+import me.shanked.nicatronTg.jPushover.Pushover;
 
 
 
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 //import org.joda.time.chrono.JulianChronology;
 
@@ -80,7 +94,7 @@ import javax.sound.sampled.AudioFormat;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
     private Clock clock;
     private ObservableList data;
-    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label;
+    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng;
     private Integer moonPhase;
     private Boolean isWaning;
     private Boolean isStarting = true;
@@ -96,8 +110,7 @@ import javax.sound.sampled.AudioFormat;
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
     private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private SplitFlap sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
-    private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4, time_Separator5, time_Separator6,time_Separator7,time_Separator8, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
-    private SplitFlap duha_hourLeft, duha_hourRight, duha_minLeft, duha_minRight;
+    private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4, time_Separator5, time_Separator6,time_Separator8, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
     private SplitFlap zuhr_hourLeft, zuhr_hourRight, zuhr_minLeft, zuhr_minRight, zuhr_jamma_hourLeft, zuhr_jamma_hourRight, zuhr_jamma_minLeft, zuhr_jamma_minRight;
     private SplitFlap asr_hourLeft, asr_hourRight, asr_minLeft, asr_minRight, asr_jamma_hourLeft, asr_jamma_hourRight, asr_jamma_minLeft, asr_jamma_minRight;
     private SplitFlap maghrib_hourLeft, maghrib_hourRight, maghrib_minLeft, maghrib_minRight, maghrib_jamma_hourLeft, maghrib_jamma_hourRight, maghrib_jamma_minLeft, maghrib_jamma_minRight;
@@ -109,6 +122,7 @@ import javax.sound.sampled.AudioFormat;
     boolean english = false;
     GridPane Mainpane;
     GridPane Moonpane;
+    GridPane prayertime_pane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     
     Connection c ;
@@ -124,9 +138,42 @@ import javax.sound.sampled.AudioFormat;
         return new AudioFormat(sampleRate, sampleInbits, channels, signed, bigEndian);
     }
 
-    @Override public void init() {
+    @Override public void init() throws IOException {
         
 // load the font.
+        
+            // The factory instance is re-useable and thread safe.
+    
+        String Test = "This is a test message"; 
+        Twitter twitter = TwitterFactory.getSingleton();
+        Status status = null;
+        try {
+             status = twitter.updateStatus(Test);
+        } catch (TwitterException ex) {
+            Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("Successfully updated the status to [" + status.getText() + "].");
+        
+        
+        //https://github.com/nicatronTg/jPushover
+        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+        try 
+        {
+            p.sendMessage("Prayer Time Ibn Abass starting");
+        } catch (IOException e) 
+        {
+            e.printStackTrace();
+        }
+        
+        
+        ProcessBuilder processBuilder = 
+              new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+            Process process = processBuilder.start();
+//            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//            String line = null;
+//            while ((line = br.readLine()) != null) {
+//               System.out.println(line);
+//            } 
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/PTBLARC.TTF").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/BMajidSh.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Oldoutsh.ttf").toExternalForm(),30);
@@ -139,6 +186,11 @@ import javax.sound.sampled.AudioFormat;
         Moon_Image_Label = new Label();
         Phase_Label = new Label();
         Moon_Date_Label = new Label();
+        friday_Label_eng = new Label();
+        friday_Label_ar = new Label();
+        sunrise_Label_eng = new Label();
+        sunrise_Label_ar = new Label();
+        
         clock = new Clock();
         clock = ClockBuilder.create()
                              .prefSize(200, 200)
@@ -168,13 +220,6 @@ import javax.sound.sampled.AudioFormat;
         time_Separator2 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
         sunrise_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         sunrise_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-
-        duha_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        duha_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator7 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
-        duha_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        duha_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-
         
         zuhr_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         zuhr_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
@@ -229,7 +274,22 @@ import javax.sound.sampled.AudioFormat;
         time_Separator8 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
         friday_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
         friday_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-
+        
+    
+        
+        sunrise_Label_ar.setId("prayer-label-arabic");
+        sunrise_Label_ar.setText("الشروق");
+        prayertime_pane.setHalignment(sunrise_Label_ar,HPos.RIGHT) ;
+        sunrise_Label_eng.setId("prayer-label-english");
+        sunrise_Label_eng.setText("Sunrise");
+        prayertime_pane.setHalignment(sunrise_Label_eng,HPos.LEFT);
+        
+        friday_Label_ar.setId("prayer-label-arabic");
+        friday_Label_ar.setText("الجمعة");
+        prayertime_pane.setHalignment(friday_Label_ar,HPos.RIGHT) ;
+        friday_Label_eng.setId("prayer-label-english");
+        friday_Label_eng.setText("Friday");
+        prayertime_pane.setHalignment(friday_Label_eng,HPos.LEFT);
         
         Timer moonCalTimer = new Timer();
         moonCalTimer.scheduleAtFixedRate(new TimerTask() 
@@ -556,7 +616,7 @@ import javax.sound.sampled.AudioFormat;
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/15.0).build()
         );
-        Mainpane.setGridLinesVisible(true);
+//        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         GridPane prayertime_pane = prayertime_pane();    
         GridPane Moonpane =   moonpane();
@@ -576,7 +636,7 @@ import javax.sound.sampled.AudioFormat;
         
         Mainpane.add(Moonpane, 5, 1,2,1);
         Mainpane.add(clock, 1, 1,1,1);    
-        Mainpane.add(prayertime_pane, 1, 4,7,6);                     
+        Mainpane.add(prayertime_pane, 2, 4,7,6);                     
         Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -603,16 +663,20 @@ public void update_labels() throws Exception{
         if (arabic)
         {
             
-                        ProcessBuilder processBuilder = 
-              new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
-            Process process = processBuilder.start();
+//                        ProcessBuilder processBuilder = 
+//              new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
+//            Process process = processBuilder.start();
 //            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 //            String line = null;
 //            while ((line = br.readLine()) != null) {
 //               System.out.println(line);
 //            }    
-            
-            
+
+     
+            sunrise_Label_ar.setVisible(false);
+            sunrise_Label_eng.setVisible(true);
+            friday_Label_ar.setVisible(false);
+            friday_Label_eng.setVisible(true);
             
             if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
             {
@@ -624,6 +688,8 @@ public void update_labels() throws Exception{
                 Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
                 english = true;
                 arabic = false;
+                
+                
             }
             
             
@@ -682,15 +748,11 @@ public void update_labels() throws Exception{
 
         else
         { 
-             ProcessBuilder processBuilder = 
-              new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-            Process process = processBuilder.start();
-//            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-//            String line = null;
-//            while ((line = br.readLine()) != null) {
-//               System.out.println(line);
-//            } 
-            
+            sunrise_Label_eng.setVisible(false);
+            sunrise_Label_ar.setVisible(true);
+            friday_Label_eng.setVisible(false);
+            friday_Label_ar.setVisible(true);
+           
             if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
             {
                 String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
@@ -954,13 +1016,6 @@ public void update_labels() throws Exception{
             sunrise_minLeft.setText(sunrise_time.toString().substring(3, 4));
             sunrise_minRight.setText(sunrise_time.toString().substring(4, 5));
             
-            
-            duha_time = duha_cal.getTime();
-            System.out.println(duha_time);
-            duha_hourLeft.setText(duha_time.toString().substring(11, 12));
-            duha_hourRight.setText(duha_time.toString().substring(12, 13));
-            duha_minLeft.setText(duha_time.toString().substring(14, 15));
-            duha_minRight.setText(duha_time.toString().substring(15, 16));
 
             zuhr_hourLeft.setText(zuhr_begins_time.toString().substring(0, 1));
             zuhr_hourRight.setText(zuhr_begins_time.toString().substring(1, 2));
@@ -988,7 +1043,6 @@ public void update_labels() throws Exception{
             time_Separator4.setText(":");
             time_Separator5.setText(":");
             time_Separator6.setText(":");
-            time_Separator7.setText(":");
             time_Separator8.setText(":");
             
             fajr_jamma_hourLeft.setText(fajr_jamaat.substring(0, 1));
@@ -1310,7 +1364,7 @@ public void update_labels() throws Exception{
    GridPane prayertime_pane = new GridPane();
         prayertime_pane.setId("prayertime_pane");
         prayertime_pane.setCache(true);       
-        prayertime_pane.setGridLinesVisible(true);
+//        prayertime_pane.setGridLinesVisible(true);
         prayertime_pane.setPadding(new Insets(20, 20, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
         prayertime_pane.setVgap(7);
@@ -1461,30 +1515,13 @@ public void update_labels() throws Exception{
         prayertime_pane.setConstraints(sunriseBox, 1, 12);
         prayertime_pane.getChildren().add(sunriseBox);
         
-        TextFlow sunrisetextFlow = new TextFlow();
-        Text text6 = new Text("الشروق\n");
-        text6.setId("prayer-text-arabic");
-        Text text60 = new Text("Sunrise");
-        text60.setId("prayer-text-english");       
-        prayertime_pane.setHalignment(text6,HPos.RIGHT);
-        prayertime_pane.setValignment(text6,VPos.TOP);
-        prayertime_pane.setConstraints(text6, 2, 12);
-        prayertime_pane.getChildren().add(text6);
-        prayertime_pane.setHalignment(text60,HPos.LEFT);
-        prayertime_pane.setValignment(text60,VPos.BOTTOM);
-        prayertime_pane.setConstraints(text60, 2, 12);
-        prayertime_pane.getChildren().add(text60);
 
+        prayertime_pane.setConstraints(sunrise_Label_eng, 2, 12);
+        prayertime_pane.getChildren().add(sunrise_Label_eng);
+       
+        prayertime_pane.setConstraints(sunrise_Label_ar, 2, 12);
+        prayertime_pane.getChildren().add(sunrise_Label_ar);
 
-//=============================  
-        HBox duhaBox = new HBox();
-        duhaBox.setSpacing(0);
-        duhaBox.setMaxSize(200,70);
-        duhaBox.setMinSize(200,70);
-        duhaBox.setPrefSize(200,70);
-        duhaBox.getChildren().addAll(duha_hourLeft, duha_hourRight, time_Separator7, duha_minLeft, duha_minRight);
-        prayertime_pane.setConstraints(duhaBox, 0, 12);
-        prayertime_pane.getChildren().add(duhaBox);
 
                       
 //=============================  
@@ -1495,24 +1532,15 @@ public void update_labels() throws Exception{
         fridayBox.setMinSize(200,70);
         fridayBox.setPrefSize(200,70);
         fridayBox.getChildren().addAll(friday_hourLeft, friday_hourRight, time_Separator8, friday_minLeft, friday_minRight);
-        prayertime_pane.setConstraints(fridayBox, 0, 14);
+        prayertime_pane.setConstraints(fridayBox, 1, 14);
         prayertime_pane.getChildren().add(fridayBox);
         
-        TextFlow fridaytextFlow = new TextFlow();
-        Text text7 = new Text("الجمعة\n");
-        text7.setId("prayer-text-arabic");
-        Text text70 = new Text("Friday");
-        text70.setId("prayer-text-english");       
-        prayertime_pane.setHalignment(text7,HPos.RIGHT);
-        prayertime_pane.setValignment(text7,VPos.TOP);
-        prayertime_pane.setConstraints(text7, 2, 14);
-        prayertime_pane.getChildren().add(text7);
-        prayertime_pane.setHalignment(text70,HPos.LEFT);
-        prayertime_pane.setValignment(text70,VPos.BOTTOM);
-        prayertime_pane.setConstraints(text70, 2, 14);
-        prayertime_pane.getChildren().add(text70);
-       
         
+        prayertime_pane.setConstraints(friday_Label_eng, 2, 14);
+        prayertime_pane.getChildren().add(friday_Label_eng);
+       
+        prayertime_pane.setConstraints(friday_Label_ar, 2, 14);
+        prayertime_pane.getChildren().add(friday_Label_ar);
  //============================= 
         
         final Separator sepHor1 = new Separator();
@@ -1539,15 +1567,10 @@ public void update_labels() throws Exception{
         prayertime_pane.setColumnSpan(sepHor4, 3);
         prayertime_pane.getChildren().add(sepHor4);
         
-        final Separator sepHor5 = new Separator();
-        prayertime_pane.setValignment(sepHor5,VPos.CENTER);
-        prayertime_pane.setConstraints(sepHor5, 0, 10);
-        prayertime_pane.setColumnSpan(sepHor5, 3);
-        prayertime_pane.getChildren().add(sepHor5);
         
         final Separator sepHor6 = new Separator();
         prayertime_pane.setValignment(sepHor6,VPos.CENTER);
-        prayertime_pane.setConstraints(sepHor6, 0, 13);
+        prayertime_pane.setConstraints(sepHor6, 1, 13);
         prayertime_pane.setColumnSpan(sepHor6, 3);
         prayertime_pane.getChildren().add(sepHor6);
 
@@ -1608,7 +1631,7 @@ public void update_labels() throws Exception{
         GridPane Moonpane = new GridPane();
         Moonpane.setId("moonpane");
         Moonpane.getColumnConstraints().setAll(
-                ColumnConstraintsBuilder.create().prefWidth(175).minWidth(175).build(),
+                ColumnConstraintsBuilder.create().prefWidth(190).minWidth(190).build(),
                 ColumnConstraintsBuilder.create().prefWidth(100).minWidth(100).build()     
         );
         Moonpane.setHgap(10);
