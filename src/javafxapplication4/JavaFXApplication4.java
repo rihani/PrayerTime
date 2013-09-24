@@ -144,15 +144,15 @@ import java.io.InputStreamReader;
         
             // The factory instance is re-useable and thread safe.
     
-        String Test = "This is a test message"; 
-        Twitter twitter = TwitterFactory.getSingleton();
-        Status status = null;
-        try {
-             status = twitter.updateStatus(Test);
-        } catch (TwitterException ex) {
-            Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        System.out.println("Successfully updated the status to [" + status.getText() + "].");
+//        String Test = "This is a test message"; 
+//        Twitter twitter = TwitterFactory.getSingleton();
+//        Status status = null;
+//        try {
+//             status = twitter.updateStatus(Test);
+//        } catch (TwitterException ex) {
+//            Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        System.out.println("Successfully updated the status to [" + status.getText() + "].");
         
         
         //https://github.com/nicatronTg/jPushover
@@ -888,10 +888,11 @@ public void update_labels() throws Exception{
             duha_athan_enable = false;
             System.out.println("Duha Time");
             URL url1 = this.getClass().getClassLoader().getResource("Audio/duha.wav");
-//                      URL url = new URL("http://pscode.org/media/leftright.wav");
+            AudioInputStream ais1 = AudioSystem.getAudioInputStream(url1); 
+            AudioFormat littleEndianFormat1 = getAudioFormat();
+            AudioInputStream converted1 = AudioSystem.getAudioInputStream(littleEndianFormat1, ais1); 
             Clip clip1 = AudioSystem.getClip();
-            AudioInputStream ais1 = AudioSystem.getAudioInputStream( url1 );
-            clip1.open(ais1);
+            clip1.open(converted1);
             clip1.start();
         }
 
