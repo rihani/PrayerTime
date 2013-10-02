@@ -133,12 +133,13 @@ and open the template in the editor.
     #prayertime_pane{
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
 /*        -fx-effect: dropshadow( one-pass-box , black , 8 , 0.2 , 2 , 0 );*/
-         -fx-background-color: rgba(0, 0, 0, 0.20); 
-	 -fx-border-color: rgba(0,0,0,0.15);
+         -fx-background-color: rgba(0, 0, 0, 0.10); 
+         -fx-border-color: black;
+	 /*-fx-border-color: rgba(0,0,0,0.15);*/
 	 -fx-border-radius: 20;
 	 -fx-padding: 10 10 10 10;
 	 -fx-background-radius: 20;
-         -fx-border-width: 15 15 15 15;
+         /*-fx-border-width: 15 15 15 15;*/
 /*         -fx-border-image-source: url("../Images/Islamic.png");
          -fx-border-image-slice: 20 20 20 20 repeat;
          -fx-border-image-width: 20 20 20 20;
