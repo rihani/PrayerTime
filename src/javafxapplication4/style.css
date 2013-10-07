@@ -61,17 +61,17 @@ and open the template in the editor.
    
        #prayer-label-arabic {
         
-        -fx-font-size: 35px;
+        -fx-font-size: 42px;
         /*-fx-font-family: 'B Majid Shadow';*/
-/*        -fx-font-family: 'Old Antic Outline Shaded';*/
-        -fx-font-family: 'B Jadid';
+        -fx-font-family: 'Old Antic Outline Shaded';
+        /*-fx-font-family: 'B Jadid';*/
         /*-fx-font-family: 'Arial Bold';*/
         -fx-text-fill: white;
         
         /*-fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );*/
         /*-fx-text-outline: 2px 2px #ffffff;*/
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
-        -fx-text-alignment:right;
+        /*-fx-text-alignment:right;*/
         
    }
    
@@ -84,7 +84,7 @@ and open the template in the editor.
         -fx-font-family: 'Arial Black';
         /*-fx-font-family: 'WLM Carton';*/
         -fx-text-fill: white;
-        -fx-text-alignment: left;
+        /*-fx-text-alignment: left;*/
         
    }
    #moon-text-english{
@@ -105,7 +105,7 @@ and open the template in the editor.
 
       #moon-text-arabic{
         
-        -fx-font-size: 19px;
+        -fx-font-size: 23px;
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -118,11 +118,28 @@ and open the template in the editor.
         -fx-text-fill:whitesmoke;
         
    }
+  
    
+      #hadith-text-arabic{
+        
+        -fx-font-size: 30px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+        /*-fx-font-family: 'Old Antic Outline Shaded';*/
+        -fx-font-family: 'B Jadid';
+        /*-fx-font-family: 'PT Bold Arch';*/
+        /*-fx-font-family: 'Arial Bold';*/
+        /*-fx-fill: white;*/
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
+        -fx-text-alignment: right;
+        -fx-text-fill:whitesmoke;
+        
+   }
    
     #moonpane{
 	 
-         -fx-background-color: rgba(0, 0, 0, 0.20); 
+         -fx-background-color: rgba(0, 0, 0, 0.30); 
 	 -fx-border-color: black;
 	 -fx-border-radius: 20;
 	 -fx-padding: -20 0 -20 20;
@@ -130,14 +147,24 @@ and open the template in the editor.
 	}
         
         
+        #hadithpane{
+	 
+         -fx-background-color: rgba(0, 0, 0, 0.30); 
+	 -fx-border-color: black;
+	 -fx-border-radius: 20;
+	 -fx-padding: 30 30 30 30;
+	 -fx-background-radius: 12;
+	}
+        
+        
     #prayertime_pane{
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
 /*        -fx-effect: dropshadow( one-pass-box , black , 8 , 0.2 , 2 , 0 );*/
-         -fx-background-color: rgba(0, 0, 0, 0.10); 
+         -fx-background-color: rgba(0, 0, 0, 0.30); 
          -fx-border-color: black;
 	 /*-fx-border-color: rgba(0,0,0,0.15);*/
 	 -fx-border-radius: 20;
-	 -fx-padding: 10 10 10 10;
+	 /*-fx-padding: 20 0 20 10;*/
 	 -fx-background-radius: 20;
          /*-fx-border-width: 15 15 15 15;*/
 /*         -fx-border-image-source: url("../Images/Islamic.png");
