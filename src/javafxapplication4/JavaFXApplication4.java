@@ -20,8 +20,8 @@ import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+//import javafx.scene.text.Text;
+//import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 import javafx.geometry.Insets;
@@ -32,7 +32,7 @@ import javafx.scene.layout.ColumnConstraintsBuilder;
 import javafx.scene.layout.RowConstraintsBuilder;
 import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
-import java.net.URL;
+//import java.net.URL;
 import java.sql.Time;
 import java.text.ParseException;
 import java.util.Locale;
@@ -44,26 +44,26 @@ import javafx.scene.effect.DropShadow;
 //import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+//import javax.sound.sampled.AudioInputStream;
+//import javax.sound.sampled.AudioSystem;
+//import javax.sound.sampled.Clip;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import eu.hansolo.enzo.clock.Clock;
-import eu.hansolo.enzo.clock.ClockBuilder;
-import eu.hansolo.enzo.imgsplitflap.SplitFlap;
-import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
-import java.io.BufferedReader;
+//import eu.hansolo.enzo.clock.Clock;
+//import eu.hansolo.enzo.clock.ClockBuilder;
+//import eu.hansolo.enzo.imgsplitflap.SplitFlap;
+//import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
+//import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+//import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 //import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;
 import javafx.scene.layout.Pane;
-import javafx.util.Duration;
+//import javafx.util.Duration;
 import javax.sound.sampled.AudioFormat;
 import me.shanked.nicatronTg.jPushover.Pushover;
 
@@ -76,12 +76,6 @@ import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-
-
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
@@ -92,6 +86,11 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 
 import java.io.InputStream;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+import javafx.animation.FadeTransition;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -107,18 +106,32 @@ import org.joda.time.format.DateTimeFormatter;
     private Date fullMoon= null;
     private Date newMoon= null;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
-    private Clock clock;
+//    private Clock clock;
     private ObservableList data;
-    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label;
+    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label, hour_Label, minute_Label, date_Label;
     private Integer moonPhase;
     private Boolean isWaning;
-    private Boolean sensorLow;
+    private Boolean sensorLow = false;
+    private Boolean hdmiOn = true;
     private Boolean isStarting = true;
     private Boolean new_day = true;
-    private Boolean fajr_athan_enable, duha_athan_enable, zuhr_athan_enable, asr_athan_enable, maghrib_athan_enable, isha_athan_enable = true ;
-    private Boolean update_prayer_labels, update_moon_image, fajr_jamaat_update_enable  = false;
+    private Boolean fajr_athan_enable = true ;
+    private Boolean duha_athan_enable = true ;
+    private Boolean zuhr_athan_enable  = true ;
+    private Boolean asr_athan_enable  = true ;
+    private Boolean maghrib_athan_enable  = true ;
+    private Boolean isha_athan_enable = true ;
+    
+    private Boolean update_prayer_labels  = false;
+    private Boolean update_moon_image  = false;
     private Boolean getHadith = true;
-    private String hadith;
+    private Boolean fajr_jamaat_update_enable = true;
+    private Boolean zuhr_jamaat_update_enable = true;
+    private Boolean asr_jamaat_update_enable = true;
+    private Boolean maghrib_jamaat_update_enable = true;
+    private Boolean isha_jamaat_update_enable = true;
+            
+    private String hadith, announcement;
     private int id;
     int olddayofweek_int;
     private Date prayer_date;
@@ -126,14 +139,14 @@ import org.joda.time.format.DateTimeFormatter;
     private Calendar fajr_jamaat_update_cal, duha_jamaat_update_cal, zuhr_jamaat_update_cal, asr_jamaat_update_cal, maghrib_jamaat_update_cal, isha_jamaat_update_cal;
     String fajr_jamaat ,zuhr_jamaat ,asr_jamaat ,maghrib_jamaat ,isha_jamaat ;
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
-    private SplitFlap fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
-    private SplitFlap sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
-    private SplitFlap time_Separator1, time_Separator2, time_Separator3, time_Separator4, time_Separator5, time_Separator6,time_Separator8, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
-    private SplitFlap zuhr_hourLeft, zuhr_hourRight, zuhr_minLeft, zuhr_minRight, zuhr_jamma_hourLeft, zuhr_jamma_hourRight, zuhr_jamma_minLeft, zuhr_jamma_minRight;
-    private SplitFlap asr_hourLeft, asr_hourRight, asr_minLeft, asr_minRight, asr_jamma_hourLeft, asr_jamma_hourRight, asr_jamma_minLeft, asr_jamma_minRight;
-    private SplitFlap maghrib_hourLeft, maghrib_hourRight, maghrib_minLeft, maghrib_minRight, maghrib_jamma_hourLeft, maghrib_jamma_hourRight, maghrib_jamma_minLeft, maghrib_jamma_minRight;
-    private SplitFlap isha_hourLeft, isha_hourRight, isha_minLeft, isha_minRight, isha_jamma_hourLeft, isha_jamma_hourRight, isha_jamma_minLeft, isha_jamma_minRight;
-    private SplitFlap friday_hourLeft, friday_hourRight, friday_minLeft, friday_minRight;
+    private Label fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
+    private Label sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
+    private Label time_Separator1, time_Separator2, time_Separator3, time_Separator4, time_Separator5, time_Separator6,time_Separator8, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
+    private Label zuhr_hourLeft, zuhr_hourRight, zuhr_minLeft, zuhr_minRight, zuhr_jamma_hourLeft, zuhr_jamma_hourRight, zuhr_jamma_minLeft, zuhr_jamma_minRight;
+    private Label asr_hourLeft, asr_hourRight, asr_minLeft, asr_minRight, asr_jamma_hourLeft, asr_jamma_hourRight, asr_jamma_minLeft, asr_jamma_minRight;
+    private Label maghrib_hourLeft, maghrib_hourRight, maghrib_minLeft, maghrib_minRight, maghrib_jamma_hourLeft, maghrib_jamma_hourRight, maghrib_jamma_minLeft, maghrib_jamma_minRight;
+    private Label isha_hourLeft, isha_hourRight, isha_minLeft, isha_minRight, isha_jamma_hourLeft, isha_jamma_hourRight, isha_jamma_minLeft, isha_jamma_minRight;
+    private Label friday_hourLeft, friday_hourRight, friday_minLeft, friday_minRight;
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall;
     private AnimationTimer moonPhase_timer, translate_timer;
     boolean arabic = true;
@@ -141,20 +154,14 @@ import org.joda.time.format.DateTimeFormatter;
     GridPane Mainpane;
     GridPane Moonpane;
     GridPane prayertime_pane;
+    GridPane clockPane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     
     Connection c ;
            ObservableList<String> names = FXCollections.observableArrayList();
      
            
-           private AudioFormat getAudioFormat() {
-        float sampleRate = 8000.0F;
-        int sampleInbits = 16;
-        int channels = 1;
-        boolean signed = true;
-        boolean bigEndian = false;
-        return new AudioFormat(sampleRate, sampleInbits, channels, signed, bigEndian);
-    }
+        
 
     @Override public void init() throws IOException {
         
@@ -171,6 +178,7 @@ import org.joda.time.format.DateTimeFormatter;
 //            Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //        System.out.println("Successfully updated the status to [" + status.getText() + "].");
+        moonPhase = 200;
         
         
         //https://github.com/nicatronTg/jPushover
@@ -200,6 +208,8 @@ import org.joda.time.format.DateTimeFormatter;
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/wlm_carton.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Arial_Black.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Arial_Bold.ttf").toExternalForm(),30);
+        Font.loadFont(JavaFXApplication4.class.getResource("Fonts/timeburner_regular.ttf").toExternalForm(),30);
+        Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Pinstripe_Limo.ttf").toExternalForm(),30);
         data = FXCollections.observableArrayList();
         GridPane Mainpane = new GridPane();
         Moon_Image_Label = new Label();
@@ -224,89 +234,94 @@ import org.joda.time.format.DateTimeFormatter;
         isha_Label_ar = new Label();
         isha_Label_eng = new Label();
         hadith_Label = new Label();
-        clock = new Clock();
-        clock = ClockBuilder.create()
-                             .prefSize(300, 300)
-                             .minHeight(300)
-                             .minWidth(300)
-                             .design(Clock.Design.IOS6)
-                             .discreteSecond(true)
-                             .secondPointerVisible(true)
-                             .build();
-        clock.setCache(true);
+        announcement_Label = new Label();
+        hour_Label = new Label();
+        minute_Label = new Label();
+        date_Label = new Label();
         
-        fajr_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator1 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
-        fajr_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+//        clock = new Clock();
+//        clock = ClockBuilder.create()
+//                             .prefSize(300, 300)
+//                             .minHeight(300)
+//                             .minWidth(300)
+//                             .design(Clock.Design.IOS6)
+//                             .discreteSecond(true)
+//                             .secondPointerVisible(true)
+//                             .build();
+//        clock.setCache(false);
         
-        fajr_jamma_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_jamma_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator1 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
-        fajr_jamma_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        fajr_jamma_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        fajr_hourLeft = new Label();
+        fajr_hourRight = new Label();
+        time_Separator1 = new Label();
+        fajr_minLeft = new Label();
+        fajr_minRight = new Label();
+        
+        fajr_jamma_hourLeft = new Label();
+        fajr_jamma_hourRight = new Label();
+        time_jamma_Separator1 = new Label();
+        fajr_jamma_minLeft = new Label();
+        fajr_jamma_minRight = new Label();
 
         
-        sunrise_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        sunrise_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator2 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
-        sunrise_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        sunrise_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        sunrise_hourLeft = new Label();
+        sunrise_hourRight = new Label();
+        time_Separator2 = new Label();
+        sunrise_minLeft = new Label();
+        sunrise_minRight = new Label();
         
-        zuhr_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator3 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
-        zuhr_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_hourLeft = new Label();
+        zuhr_hourRight = new Label();
+        time_Separator3 = new Label();
+        zuhr_minLeft = new Label();
+        zuhr_minRight = new Label();
         
-        zuhr_jamma_hourLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_jamma_hourRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator2 = SplitFlapBuilder.create().flipTime(0).textColor(Color.WHITESMOKE).build();
-        zuhr_jamma_minLeft = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        zuhr_jamma_minRight = SplitFlapBuilder.create().flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        zuhr_jamma_hourLeft = new Label();
+        zuhr_jamma_hourRight = new Label();
+        time_jamma_Separator2 = new Label();
+        zuhr_jamma_minLeft = new Label();
+        zuhr_jamma_minRight = new Label();
 
-        asr_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        asr_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        asr_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        asr_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        asr_hourLeft = new Label();
+        asr_hourRight = new Label();
+        time_Separator4 = new Label();
+        asr_minLeft = new Label();
+        asr_minRight = new Label();
 
-        asr_jamma_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        asr_jamma_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator3 = SplitFlapBuilder.create().prefWidth(32).prefHeight(62).flipTime(0).textColor(Color.WHITESMOKE).build();
-        asr_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        asr_jamma_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        asr_jamma_hourLeft = new Label();
+        asr_jamma_hourRight = new Label();
+        time_jamma_Separator3 = new Label();
+        asr_jamma_minLeft = new Label();
+        asr_jamma_minRight = new Label();
         
-        maghrib_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        maghrib_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        maghrib_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        maghrib_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        maghrib_hourLeft = new Label();
+        maghrib_hourRight = new Label();
+        time_Separator5 = new Label();
+        maghrib_minLeft = new Label();
+        maghrib_minRight = new Label();
                 
-        maghrib_jamma_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        maghrib_jamma_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator4 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        maghrib_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        maghrib_jamma_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        maghrib_jamma_hourLeft = new Label();
+        maghrib_jamma_hourRight = new Label();
+        time_jamma_Separator4 = new Label();
+        maghrib_jamma_minLeft = new Label();
+        maghrib_jamma_minRight = new Label();
 
-        isha_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        isha_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator6 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        isha_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        isha_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        isha_hourLeft = new Label();
+        isha_hourRight = new Label();
+        time_Separator6 = new Label();
+        isha_minLeft = new Label();
+        isha_minRight = new Label();
         
-        isha_jamma_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        isha_jamma_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_jamma_Separator5 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        isha_jamma_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        isha_jamma_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        isha_jamma_hourLeft = new Label();
+        isha_jamma_hourRight = new Label();
+        time_jamma_Separator5 = new Label();
+        isha_jamma_minLeft = new Label();
+        isha_jamma_minRight = new Label();
         
-        friday_hourLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        friday_hourRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        time_Separator8 = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).textColor(Color.WHITESMOKE).build();
-        friday_minLeft = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
-        friday_minRight = SplitFlapBuilder.create().scaleX(1).scaleY(1).flipTime(0).selection(SplitFlap.NUMERIC).textColor(Color.WHITESMOKE).build();
+        friday_hourLeft = new Label();
+        friday_hourRight = new Label();
+        time_Separator8 = new Label();
+        friday_minLeft = new Label();
+        friday_minRight = new Label();
         
     
         athan_Label_ar.setId("prayer-label-arabic");
@@ -317,10 +332,10 @@ import org.joda.time.format.DateTimeFormatter;
         prayertime_pane.setHalignment(athan_Label_eng,HPos.CENTER);
         
         jamaat_Label_ar.setId("prayer-label-arabic");
-        jamaat_Label_ar.setText("صلاة الجماعة");
+        jamaat_Label_ar.setText("إقامة");
         prayertime_pane.setHalignment(jamaat_Label_ar,HPos.CENTER) ;
         jamaat_Label_eng.setId("prayer-label-english");
-        jamaat_Label_eng.setText("Jamaat");
+        jamaat_Label_eng.setText("Iqamat");
         prayertime_pane.setHalignment(jamaat_Label_eng,HPos.CENTER);
         
         
@@ -409,7 +424,6 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         Date time = cal.getTime();
                         System.out.println(" daylight saving? " + TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time ));
-                        
                         
 //                        The following calculate the next daylight saving date
                         DateTimeZone zone = DateTimeZone.forID("Australia/Sydney");        
@@ -515,19 +529,12 @@ import org.joda.time.format.DateTimeFormatter;
                             asr_athan_enable = true;
                             maghrib_athan_enable = true;
                             isha_athan_enable = true;
-
-                        }
-                        
-                        if (isStarting)
-                        {
-                            isStarting = false;
+                            getHadith = true;
+                            
                             c = DBConnect.connect();
-                            System.out.println("connected");
-                            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
+//                            System.out.println("connected");
                             String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW())";
-
                             ResultSet rs = c.createStatement().executeQuery(SQL);
-                            System.out.println("query");
                             while (rs.next()) 
                             {
                                 id =                rs.getInt("id");
@@ -546,8 +553,6 @@ import org.joda.time.format.DateTimeFormatter;
     //                            boolean  isAdmin = rs.getBoolean("is_admin");             
                             }
                             c.close();
-                            System.out.println("disconnected");
-
                             fajr_jamaat = fajr_jamaat_time.toString();
                             zuhr_jamaat = zuhr_jamaat_time.toString();
                             asr_jamaat = asr_jamaat_time.toString();
@@ -566,7 +571,7 @@ import org.joda.time.format.DateTimeFormatter;
                             fajr_jamaat_update_cal.setTime(fajr_jamaat);
                             fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
-//                            System.out.println(fajr_jamaat_update_cal.getTime());
+                            System.out.println("fajr Jamaat update scheduled at:" + fajr_jamaat_update_cal.getTime());
 
                             Date zuhr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + zuhr_jamaat);
                             cal.setTime(zuhr_jamaat_temp);
@@ -576,6 +581,7 @@ import org.joda.time.format.DateTimeFormatter;
                             zuhr_jamaat_update_cal.setTime(zuhr_jamaat);
                             zuhr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             zuhr_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            System.out.println("Zuhr Jamaat update scheduled at:" + zuhr_jamaat_update_cal.getTime());
                             
                             Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_jamaat);
                             cal.setTime(asr_jamaat_temp);
@@ -585,6 +591,7 @@ import org.joda.time.format.DateTimeFormatter;
                             asr_jamaat_update_cal.setTime(asr_jamaat);
                             asr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             asr_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            System.out.println("asr Jamaat update scheduled at:" + asr_jamaat_update_cal.getTime());
                             
                             Date maghrib_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + maghrib_jamaat);
                             cal.setTime(maghrib_jamaat_temp);
@@ -594,6 +601,7 @@ import org.joda.time.format.DateTimeFormatter;
                             maghrib_jamaat_update_cal.setTime(maghrib_jamaat);
                             maghrib_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             maghrib_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            System.out.println("Maghrib Jamaat update scheduled at:" + maghrib_jamaat_update_cal.getTime());
                             
                             Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
                             cal.setTime(isha_jamaat_temp);
@@ -603,6 +611,14 @@ import org.joda.time.format.DateTimeFormatter;
                             isha_jamaat_update_cal.setTime(isha_jamaat);
                             isha_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             isha_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            System.out.println("Isha Jamaat update scheduled at:" + isha_jamaat_update_cal.getTime());
+
+                        }
+                        
+                        if (isStarting)
+                        {
+                            isStarting = false;
+                            
                         
 
                         }
@@ -612,21 +628,18 @@ import org.joda.time.format.DateTimeFormatter;
                         {
                             getHadith = false;
                             c = DBConnect.connect();
-                            System.out.println("connected");
                             //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-                            String SQL = "select hadith from hadith where id = 2";
-
+                            String SQL = "select hadith from hadith order by rand() limit 1";
                             ResultSet rs = c.createStatement().executeQuery(SQL);
-                            System.out.println("query");
                             while (rs.next()) 
                             {
 //                                id =                rs.getInt("id");
                                 hadith = rs.getString("hadith");
                             }
+                            announcement = "No Announcement";
                             c.close();
-                            System.out.println("disconnected");
                             // print the results
-                            System.out.format("%s\n", hadith );
+                            System.out.format("hadith: %s\n", hadith );
 
                         }
                     
@@ -641,6 +654,8 @@ import org.joda.time.format.DateTimeFormatter;
  
                        fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
                        newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
+                       System.out.println("The moon is full on " + fullMoon );
+                       
                         
                      } 
                 
@@ -704,54 +719,62 @@ import org.joda.time.format.DateTimeFormatter;
         };
         
         
-               new Thread(() -> {
-                   final GpioController gpioSensor = GpioFactory.getInstance();
-                    sensor_lastTimerCall = System.currentTimeMillis();
-                    final GpioPinDigitalInput sensor = gpioSensor.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
-                    sensor.addListener(new GpioPinListenerDigital() {
-                @Override
-                public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-                    if (event.getState().isHigh()) {
-                        sensor_lastTimerCall = System.currentTimeMillis();
-                        ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-                        try {
-                            Process process1 = processBuilder1.start();
-                        }catch (IOException ex) {
-                            Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
-                        }   
-                    }
-                    if(event.getState().isLow()){sensorLow = true;}
-                }
-            });
-            System.out.println(" ... Motion Detection Starting.....");
-            
-            for (;;) 
-            {
-                try 
-                {
-                    Thread.sleep(1000);
-                    long now = System.currentTimeMillis();
-                    if (System.currentTimeMillis() > sensor_lastTimerCall + 360000 && sensorLow) 
-                    {
-                        System.out.println("All is quiet...");
-                        ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
-                        try {
-                            Process process2 = processBuilder2.start();
-                        }catch (IOException ex) {
-                            Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        sensor_lastTimerCall = now;
-                        sensorLow = false;
-                    }
-                }
-                catch(InterruptedException ex) 
-                {
-                    gpioSensor.shutdown();
-                    Thread.currentThread().interrupt();
-                }
-            }
-            
-        }).start();
+        new Thread(() -> 
+        {
+             final GpioController gpioSensor = GpioFactory.getInstance();
+             sensor_lastTimerCall = System.currentTimeMillis();
+             final GpioPinDigitalInput sensor = gpioSensor.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
+             
+             sensor.addListener(new GpioPinListenerDigital() 
+             {
+                 @Override
+                 public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) 
+                 {
+
+                     if (event.getState().isHigh()) 
+                     {
+                         sensor_lastTimerCall = System.currentTimeMillis();
+                         if(!hdmiOn)
+                         {
+                            ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+                            hdmiOn = true;
+                            System.out.println("Tv turned on");
+                            try {Process process1 = processBuilder1.start();}
+                            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}   
+                         }
+                     }
+                     
+                     if(event.getState().isLow()){sensorLow = true;}
+                 }
+             });
+             
+             System.out.println(" ... Motion Detection Starting.....");
+
+             for (;;) 
+             {
+                 try 
+                 {
+                     long now = System.currentTimeMillis();
+                     if (System.currentTimeMillis() > sensor_lastTimerCall + 360000 && sensorLow) 
+                     {
+                         System.out.println("All is quiet...");
+                         ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
+                         hdmiOn = false;
+                         try {Process process2 = processBuilder2.start();}
+                         catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                         sensor_lastTimerCall = now;
+                         sensorLow = false;
+                     }
+                     Thread.sleep(1000);
+                 }
+                 catch(InterruptedException ex) 
+                 {
+                     gpioSensor.shutdown();
+                     Thread.currentThread().interrupt();
+                 }
+             }
+
+         }).start();
 
     }
 
@@ -763,7 +786,7 @@ import org.joda.time.format.DateTimeFormatter;
         stage.setScene(scene);
                 
         Mainpane = new GridPane();        
-        String image = JavaFXApplication4.class.getResource("/Images/wallpaper4.jpg").toExternalForm();
+        String image = JavaFXApplication4.class.getResource("/Images/wallpaper5.png").toExternalForm();
 //        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: repeat; ");  
         Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");        
         Mainpane.getColumnConstraints().setAll(
@@ -803,6 +826,7 @@ import org.joda.time.format.DateTimeFormatter;
         GridPane prayertime_pane = prayertime_pane();    
         GridPane Moonpane =   moonpane();
         GridPane hadithPane = hadithPane();
+        GridPane clockPane =   clockPane();
        
         
   //============================================
@@ -812,14 +836,15 @@ import org.joda.time.format.DateTimeFormatter;
         ds.setOffsetX(10.0);
         ds.setColor(Color.BLACK);
 
-        clock.setEffect(ds);
+//        clock.setEffect(ds);
         Moonpane.setEffect(ds);
         prayertime_pane.setEffect(ds);
         hadithPane.setEffect(ds);
+        clockPane.setEffect(ds);
   //============================================
-        
+        Mainpane.add(clockPane, 2, 1);
         Mainpane.add(Moonpane, 7, 1);
-        Mainpane.add(clock, 1, 1,1,1);    
+//        Mainpane.add(clock, 1, 1,1,1);    
         Mainpane.add(prayertime_pane, 2, 4,9,6);  
         Mainpane.add(hadithPane, 2, 11,9,3);
 //        Mainpane.setCache(true);
@@ -855,8 +880,37 @@ public void update_labels() throws Exception{
 //            String line = null;
 //            while ((line = br.readLine()) != null) {
 //               System.out.println(line);
-//            }    
+//            }  
 
+//            FadeTransition fadeout1 = new FadeTransition(Duration.millis(3000), athan_Label_ar);
+//            fadeout1.setFromValue(1.0);
+//            fadeout1.setToValue(0.0);
+//            fadeout1.play();
+//            
+//            FadeTransition fadein1 = new FadeTransition(Duration.millis(3000), athan_Label_eng);
+//            fadein1.setFromValue(0.0);
+//            fadein1.setToValue(1.0);
+//            fadein1.play();
+//
+//            FadeTransition fadeout2 = new FadeTransition(Duration.millis(3000), jamaat_Label_ar);
+//            fadeout2.setFromValue(1.0);
+//            fadeout2.setToValue(0.0);
+//            fadeout2.play();
+//            
+//            FadeTransition fadein2 = new FadeTransition(Duration.millis(3000), jamaat_Label_eng);
+//            fadein2.setFromValue(0.0);
+//            fadein2.setToValue(1.0);
+//            fadein2.play();
+//            
+//            FadeTransition fadeout3 = new FadeTransition(Duration.millis(3000), sunrise_Label_ar);
+//            fadeout3.setFromValue(1.0);
+//            fadeout3.setToValue(0.0);
+//            fadeout3.play();
+//            
+//            FadeTransition fadein3 = new FadeTransition(Duration.millis(3000), sunrise_Label_eng);
+//            fadein3.setFromValue(0.0);
+//            fadein3.setToValue(1.0);
+//            fadein3.play();
             athan_Label_ar.setVisible(false);
             athan_Label_eng.setVisible(true);
             jamaat_Label_ar.setVisible(false);
@@ -877,6 +931,14 @@ public void update_labels() throws Exception{
             isha_Label_eng.setVisible(true);
             
             hadith_Label.setText(hadith);
+            announcement_Label.setText(announcement);
+            
+            String hour = new SimpleDateFormat("k").format(Calendar_now.getTime());
+            hour_Label.setText(hour);
+            String minute = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
+            minute_Label.setText(minute);
+            String date = new SimpleDateFormat("EEEE, dd MMMM").format(Calendar_now.getTime());
+            date_Label.setText(date);
             
             if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
             {
@@ -948,6 +1010,38 @@ public void update_labels() throws Exception{
 
         else
         { 
+            
+            
+//            FadeTransition fadeout1 = new FadeTransition(Duration.millis(3000), athan_Label_eng);
+//            fadeout1.setFromValue(1.0);
+//            fadeout1.setToValue(0.0);
+//            fadeout1.play();
+//            
+//            FadeTransition fadein1 = new FadeTransition(Duration.millis(3000), athan_Label_ar);
+//            fadein1.setFromValue(0.0);
+//            fadein1.setToValue(1.0);
+//            fadein1.play();
+//
+//            FadeTransition fadeout2 = new FadeTransition(Duration.millis(3000), jamaat_Label_eng);
+//            fadeout2.setFromValue(1.0);
+//            fadeout2.setToValue(0.0);
+//            fadeout2.play();
+//            
+//            FadeTransition fadein2 = new FadeTransition(Duration.millis(3000), jamaat_Label_ar);
+//            fadein2.setFromValue(0.0);
+//            fadein2.setToValue(1.0);
+//            fadein2.play();
+//            
+//            FadeTransition fadeout3 = new FadeTransition(Duration.millis(3000), sunrise_Label_eng);
+//            fadeout3.setFromValue(1.0);
+//            fadeout3.setToValue(0.0);
+//            fadeout3.play();
+//            
+//            FadeTransition fadein3 = new FadeTransition(Duration.millis(3000), sunrise_Label_ar);
+//            fadein3.setFromValue(0.0);
+//            fadein3.setToValue(1.0);
+//            fadein3.play();
+            
             athan_Label_eng.setVisible(false);
             athan_Label_ar.setVisible(true);
             jamaat_Label_eng.setVisible(false);
@@ -966,6 +1060,10 @@ public void update_labels() throws Exception{
             maghrib_Label_eng.setVisible(false);
             isha_Label_ar.setVisible(true);
             isha_Label_eng.setVisible(false);
+            
+            
+            
+            
            
             if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
             {
@@ -1089,6 +1187,7 @@ public void update_labels() throws Exception{
         
         
         ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/athan1.wav");
+        ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/duha.wav");
 //                            try {
 //                                Process process = processBuilder.start();                                
 //                            } catch (IOException ex) {
@@ -1111,22 +1210,14 @@ public void update_labels() throws Exception{
         {
             duha_athan_enable = false;
             System.out.println("Duha Time");
-            URL url1 = this.getClass().getClassLoader().getResource("Audio/duha.wav");
-            AudioInputStream ais1 = AudioSystem.getAudioInputStream(url1); 
-            AudioFormat littleEndianFormat1 = getAudioFormat();
-            AudioInputStream converted1 = AudioSystem.getAudioInputStream(littleEndianFormat1, ais1); 
-            Clip clip1 = AudioSystem.getClip();
-            clip1.open(converted1);
-            clip1.start();
 //            String image = JavaFXApplication4.class.getResource("/Images/sunrise.png").toExternalForm();
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
-            try {
-                Process process = processBuilder2.start();
-            } catch (IOException ex) {
-                Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            try {Process process = processBuilder.start();} 
+            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            try {Process process = processBuilder1.start();} 
+            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
 
         }
 
@@ -1163,23 +1254,18 @@ public void update_labels() throws Exception{
         {
             asr_athan_enable = false;
             System.out.println("asr Time");
-//            clip.open(converted);
-//            clip.start();
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
             try {Process process = processBuilder2.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-            maghrib_minRight = SplitFlapBuilder.create().textColor(Color.YELLOW).build();
         } 
         
         else if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
         {
             maghrib_athan_enable = false;
             System.out.println("maghrib Time");
-//            clip.open(converted);
-//            clip.start();
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder.start();} 
@@ -1194,8 +1280,6 @@ public void update_labels() throws Exception{
         {
             isha_athan_enable = false;
             System.out.println("isha Time");
-//            clip.open(converted);
-//            clip.start();
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder.start();} 
@@ -1214,54 +1298,213 @@ public void update_labels() throws Exception{
         cal.setTime(now);
 //        System.out.println(fajr_jamaat_update_cal.getTime());
         
-        if (fajr_jamaat_update_cal.equals(Calendar_now)  )         
-        //insert a bool here to enable update if initial fetch timin is pin the past, or elsejammat timing will not change and will wait indefinitly. 
-
-        {
-        
-        fajr_jamaat_update_enable = false;
-        new Thread(new Runnable() {
-            public void run() 
+        if (fajr_jamaat_update_cal.equals(Calendar_now) && fajr_jamaat_update_enable )         
+        {       
+            fajr_jamaat_update_enable = false;
+            new Thread(new Runnable() 
             {
-                try {
-                    System.out.println("fajr jamaat time updated");
-                    c = DBConnect.connect();
-                    System.out.println("connected");
-                    //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-                    String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW()) + 1";
-                    
-                    ResultSet rs = c.createStatement().executeQuery(SQL);
-                    System.out.println("query");
-                    while (rs.next())
-                    {
-                        fajr_jamaat_time =       rs.getTime("fajr_jamaat");
-                    }
-                    c.close();
-                    System.out.println("disconnected");
-                    
-                    fajr_jamaat = fajr_jamaat_time.toString();
-                    
-                    Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
-                    cal.setTime(fajr_jamaat_temp);
-                    cal.add(Calendar.MINUTE, 15);
-                    Date fajr_jamaat = cal.getTime();
-                    fajr_jamaat_update_cal = Calendar.getInstance();
-                    fajr_jamaat_update_cal.setTime(fajr_jamaat);
-                    fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
-                    fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
-//                            System.out.println(fajr_jamaat_update_cal.getTime());
-                    update_prayer_labels = true;
-                } catch (SQLException ex) {
-                    Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ParseException ex) {
-                    Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }).start();
-        
-         
-            
+                public void run() 
+                {
+                    try {
+                        c = DBConnect.connect();
+                        String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        while (rs.next())
+                        {
+                            fajr_jamaat_time =       rs.getTime("fajr_jamaat");
+                        }
+                        c.close();
+                        fajr_jamaat = fajr_jamaat_time.toString();
+                        System.out.println("fajr jamaat time updated:" + fajr_jamaat);
+                        Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
+                        cal.setTime(fajr_jamaat_temp);
+                        cal.add(Calendar.MINUTE, 15);
+                        cal.add(Calendar.DAY_OF_MONTH, 1);
+                        Date fajr_jamaat = cal.getTime();
+                        fajr_jamaat_update_cal = Calendar.getInstance();
+                        fajr_jamaat_update_cal.setTime(fajr_jamaat);
+                        fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                        fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
+    //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        System.out.println("next update is on:" + fajr_jamaat_update_cal.getTime());
+                        TimeUnit.MINUTES.sleep(1);
+                        fajr_jamaat_update_enable = true;
+                        update_prayer_labels = true;
+
+                    } 
+                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+               }
+            }).start();
         }
+        
+        
+        if (zuhr_jamaat_update_cal.equals(Calendar_now) && zuhr_jamaat_update_enable )         
+        {       
+            zuhr_jamaat_update_enable = false;
+            new Thread(new Runnable() 
+            {
+                public void run() 
+                {
+                    try {
+                        c = DBConnect.connect();
+                        String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        while (rs.next())
+                        {
+                            zuhr_jamaat_time =       rs.getTime("zuhr_jamaat");
+                        }
+                        c.close();
+                        zuhr_jamaat = zuhr_jamaat_time.toString();
+                        System.out.println("Zuhr jamaat time updated:" + zuhr_jamaat);
+                        Date zuhr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + zuhr_jamaat);
+                        cal.setTime(zuhr_jamaat_temp);
+                        cal.add(Calendar.MINUTE, 15);
+                        cal.add(Calendar.DAY_OF_MONTH, 1);
+                        Date zuhr_jamaat = cal.getTime();
+                        zuhr_jamaat_update_cal = Calendar.getInstance();
+                        zuhr_jamaat_update_cal.setTime(zuhr_jamaat);
+                        zuhr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                        zuhr_jamaat_update_cal.set(Calendar.SECOND, 0);
+    //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        System.out.println("next update is on:" + zuhr_jamaat_update_cal.getTime());
+                        TimeUnit.MINUTES.sleep(1);
+                        zuhr_jamaat_update_enable = true;
+                        update_prayer_labels = true;
+
+                    } 
+                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+               }
+            }).start();
+        }
+        
+        if (asr_jamaat_update_cal.equals(Calendar_now) && asr_jamaat_update_enable )         
+        {       
+            
+            asr_jamaat_update_enable = false;
+            new Thread(new Runnable() 
+            {
+                public void run() 
+                {
+                    try {
+                        c = DBConnect.connect();
+                        String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        while (rs.next())
+                        {
+                            asr_jamaat_time =       rs.getTime("asr_jamaat");
+                        }
+                        c.close();
+                        asr_jamaat = asr_jamaat_time.toString();
+                        System.out.println("asr jamaat time updated:" + asr_jamaat);
+                        Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_jamaat);
+                        cal.setTime(asr_jamaat_temp);
+                        cal.add(Calendar.MINUTE, 15);
+                        cal.add(Calendar.DAY_OF_MONTH, 1);
+                        Date asr_jamaat = cal.getTime();
+                        asr_jamaat_update_cal = Calendar.getInstance();
+                        asr_jamaat_update_cal.setTime(asr_jamaat);
+                        asr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                        asr_jamaat_update_cal.set(Calendar.SECOND, 0);
+    //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        System.out.println("next update is on:" + asr_jamaat_update_cal.getTime());
+                        TimeUnit.MINUTES.sleep(1);
+                        asr_jamaat_update_enable = true;
+                        update_prayer_labels = true;
+
+                    } 
+                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+               }
+            }).start();
+        }
+        
+        if (maghrib_jamaat_update_cal.equals(Calendar_now) && maghrib_jamaat_update_enable )         
+        {       
+            maghrib_jamaat_update_enable = false;
+            new Thread(new Runnable() 
+            {
+                public void run() 
+                {
+                    try {
+                        c = DBConnect.connect();
+                        String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        while (rs.next())
+                        {
+                            maghrib_jamaat_time =       rs.getTime("maghrib_jamaat");
+                        }
+                        c.close();
+                        maghrib_jamaat = maghrib_jamaat_time.toString();
+                        System.out.println("maghrib jamaat time updated:" + maghrib_jamaat);
+                        Date maghrib_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + maghrib_jamaat);
+                        cal.setTime(maghrib_jamaat_temp);
+                        cal.add(Calendar.MINUTE, 15);
+                        cal.add(Calendar.DAY_OF_MONTH, 1);
+                        Date maghrib_jamaat = cal.getTime();
+                        maghrib_jamaat_update_cal = Calendar.getInstance();
+                        maghrib_jamaat_update_cal.setTime(maghrib_jamaat);
+                        maghrib_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                        maghrib_jamaat_update_cal.set(Calendar.SECOND, 0);
+    //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        System.out.println("next update is on:" + maghrib_jamaat_update_cal.getTime());
+                        TimeUnit.MINUTES.sleep(1);
+                        maghrib_jamaat_update_enable = true;
+                        update_prayer_labels = true;
+
+                    } 
+                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+               }
+            }).start();
+        }
+        
+        if (isha_jamaat_update_cal.equals(Calendar_now) && isha_jamaat_update_enable )         
+        {       
+            isha_jamaat_update_enable = false;
+            new Thread(new Runnable() 
+            {
+                public void run() 
+                {
+                    try {
+                        c = DBConnect.connect();
+                        String SQL = "select * from jos_prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        while (rs.next())
+                        {
+                            isha_jamaat_time =       rs.getTime("isha_jamaat");
+                        }
+                        c.close();
+                        isha_jamaat = isha_jamaat_time.toString();
+                        System.out.println("isha jamaat time updated:" + isha_jamaat);
+                        Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
+                        cal.setTime(isha_jamaat_temp);
+                        cal.add(Calendar.MINUTE, 15);
+                        cal.add(Calendar.DAY_OF_MONTH, 1);
+                        Date isha_jamaat = cal.getTime();
+                        isha_jamaat_update_cal = Calendar.getInstance();
+                        isha_jamaat_update_cal.setTime(isha_jamaat);
+                        isha_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
+                        isha_jamaat_update_cal.set(Calendar.SECOND, 0);
+    //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        System.out.println("next update is on:" + isha_jamaat_update_cal.getTime());
+                        TimeUnit.MINUTES.sleep(1);
+                        isha_jamaat_update_enable = true;
+                        update_prayer_labels = true;
+
+                    } 
+                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
+                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+               }
+            }).start();
+        }
+        
  
 //        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 ////        Date preDefineTime=formatter.parse("10:00");
@@ -1353,7 +1596,18 @@ public void update_labels() throws Exception{
         if (update_moon_image)
         {   
             update_moon_image = false;
-            if (moonPhase == 0)
+            
+            if (moonPhase == 200 )
+            {
+                ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
+                Moon_img.setFitWidth(160);
+                Moon_img.setFitHeight(160);
+                Moon_img.setPreserveRatio(false);
+                Moon_img.setSmooth(true);        
+                Moon_Image_Label.setGraphic(Moon_img);
+            }
+            
+            if (moonPhase == 0 )
             {
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
                 Moon_img.setFitWidth(160);
@@ -1631,7 +1885,7 @@ public void update_labels() throws Exception{
         
    GridPane prayertime_pane = new GridPane();
         prayertime_pane.setId("prayertime_pane");
-        prayertime_pane.setCache(true);       
+        prayertime_pane.setCache(false);       
 //        prayertime_pane.setGridLinesVisible(true);
         prayertime_pane.setPadding(new Insets(20, 0, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
@@ -1654,6 +1908,13 @@ public void update_labels() throws Exception{
         fajrBox.setMaxSize(200,70);
         fajrBox.setMinSize(200,70);
         fajrBox.setPrefSize(200,70);
+        
+        fajr_hourLeft.setId("hourLeft");
+        fajr_hourRight.setId("hourLeft");
+        time_Separator1.setId("hourLeft");
+        fajr_minLeft.setId("hourLeft");
+        fajr_minRight.setId("hourLeft");
+        
         fajrBox.getChildren().addAll(fajr_hourLeft, fajr_hourRight, time_Separator1, fajr_minLeft, fajr_minRight);
         prayertime_pane.setConstraints(fajrBox, 1, 2);
         prayertime_pane.getChildren().add(fajrBox);
@@ -1670,6 +1931,11 @@ public void update_labels() throws Exception{
         zuhrBox.setMaxSize(200,70);
         zuhrBox.setMinSize(200,70);
         zuhrBox.setPrefSize(200,70);
+        zuhr_hourLeft.setId("hourLeft");
+        zuhr_hourRight.setId("hourLeft");
+        time_Separator3.setId("hourLeft");
+        zuhr_minLeft.setId("hourLeft");
+        zuhr_minRight.setId("hourLeft");
         zuhrBox.getChildren().addAll(zuhr_hourLeft, zuhr_hourRight, time_Separator3, zuhr_minLeft, zuhr_minRight);
         prayertime_pane.setConstraints(zuhrBox, 1, 4);
         prayertime_pane.getChildren().add(zuhrBox);
@@ -1685,6 +1951,11 @@ public void update_labels() throws Exception{
         asrBox.setMaxSize(200,70);
         asrBox.setMinSize(200,70);
         asrBox.setPrefSize(200,70);
+        asr_hourLeft.setId("hourLeft");
+        asr_hourRight.setId("hourLeft");
+        time_Separator4.setId("hourLeft");
+        asr_minLeft.setId("hourLeft");
+        asr_minRight.setId("hourLeft");
         asrBox.getChildren().addAll(asr_hourLeft, asr_hourRight, time_Separator4, asr_minLeft, asr_minRight);
         prayertime_pane.setConstraints(asrBox, 1, 6);
         prayertime_pane.getChildren().add(asrBox);
@@ -1701,6 +1972,11 @@ public void update_labels() throws Exception{
         maghribBox.setMaxSize(200,70);
         maghribBox.setMinSize(200,70);
         maghribBox.setPrefSize(200,70);
+        maghrib_hourLeft.setId("hourLeft");
+        maghrib_hourRight.setId("hourLeft");
+        time_Separator5.setId("hourLeft");
+        maghrib_minLeft.setId("hourLeft");
+        maghrib_minRight.setId("hourLeft");
         maghribBox.getChildren().addAll(maghrib_hourLeft, maghrib_hourRight, time_Separator5, maghrib_minLeft, maghrib_minRight);
         prayertime_pane.setConstraints(maghribBox, 1, 8);
         prayertime_pane.getChildren().add(maghribBox);
@@ -1717,6 +1993,11 @@ public void update_labels() throws Exception{
         ishaBox.setMaxSize(200,70);
         ishaBox.setMinSize(200,70);
         ishaBox.setPrefSize(200,70);
+        isha_hourLeft.setId("hourLeft");
+        isha_hourRight.setId("hourLeft");
+        time_Separator6.setId("hourLeft");
+        isha_minLeft.setId("hourLeft");
+        isha_minRight.setId("hourLeft");
         ishaBox.getChildren().addAll(isha_hourLeft, isha_hourRight, time_Separator6, isha_minLeft, isha_minRight);
         prayertime_pane.setConstraints(ishaBox, 1, 10);
         prayertime_pane.getChildren().add(ishaBox);
@@ -1741,6 +2022,11 @@ public void update_labels() throws Exception{
         sunriseBox.setMaxSize(200,70);
         sunriseBox.setMinSize(200,70);
         sunriseBox.setPrefSize(200,70);
+        sunrise_hourLeft.setId("hourLeft");
+        sunrise_hourRight.setId("hourLeft");
+        time_Separator2.setId("hourLeft");
+        sunrise_minLeft.setId("hourLeft");
+        sunrise_minRight.setId("hourLeft");
         sunriseBox.getChildren().addAll(sunrise_hourLeft, sunrise_hourRight, time_Separator2, sunrise_minLeft, sunrise_minRight);
         prayertime_pane.setConstraints(sunriseBox, 1, 13);
         prayertime_pane.getChildren().add(sunriseBox);
@@ -1761,6 +2047,11 @@ public void update_labels() throws Exception{
         fridayBox.setMaxSize(200,70);
         fridayBox.setMinSize(200,70);
         fridayBox.setPrefSize(200,70);
+        friday_hourLeft.setId("hourLeft");
+        friday_hourRight.setId("hourLeft");
+        time_Separator8.setId("hourLeft");
+        friday_minLeft.setId("hourLeft");
+        friday_minRight.setId("hourLeft");
         fridayBox.getChildren().addAll(friday_hourLeft, friday_hourRight, time_Separator8, friday_minLeft, friday_minRight);
         prayertime_pane.setConstraints(fridayBox, 1, 15);
         prayertime_pane.getChildren().add(fridayBox);
@@ -1811,6 +2102,11 @@ public void update_labels() throws Exception{
         HBox fajr_jamma_Box = new HBox();
         fajr_jamma_Box.setSpacing(0);
         fajr_jamma_Box.setMaxSize(200,70);
+        fajr_jamma_hourLeft.setId("hourLeft");
+        fajr_jamma_hourRight.setId("hourLeft");
+        time_jamma_Separator1.setId("hourLeft");
+        fajr_jamma_minLeft.setId("hourLeft");
+        fajr_jamma_minRight.setId("hourLeft");
         fajr_jamma_Box.getChildren().addAll(fajr_jamma_hourLeft, fajr_jamma_hourRight, time_jamma_Separator1, fajr_jamma_minLeft, fajr_jamma_minRight);
         prayertime_pane.setConstraints(fajr_jamma_Box, 0, 2);
         prayertime_pane.getChildren().add(fajr_jamma_Box);
@@ -1819,6 +2115,11 @@ public void update_labels() throws Exception{
         HBox zuhr_jamma_Box = new HBox();
         zuhr_jamma_Box.setSpacing(0);
         zuhr_jamma_Box.setMaxSize(200,70);
+        zuhr_jamma_hourLeft.setId("hourLeft");
+        zuhr_jamma_hourRight.setId("hourLeft");
+        time_jamma_Separator2.setId("hourLeft");
+        zuhr_jamma_minLeft.setId("hourLeft");
+        zuhr_jamma_minRight.setId("hourLeft");
         zuhr_jamma_Box.getChildren().addAll(zuhr_jamma_hourLeft, zuhr_jamma_hourRight, time_jamma_Separator2, zuhr_jamma_minLeft, zuhr_jamma_minRight);
         prayertime_pane.setConstraints(zuhr_jamma_Box, 0, 4);
         prayertime_pane.getChildren().add(zuhr_jamma_Box);
@@ -1827,6 +2128,11 @@ public void update_labels() throws Exception{
         HBox asr_jamma_Box = new HBox();
         asr_jamma_Box.setSpacing(0);
         asr_jamma_Box.setMaxSize(200,70);
+        asr_jamma_minRight.setId("hourLeft");
+        asr_jamma_minLeft.setId("hourLeft");
+        time_jamma_Separator3.setId("hourLeft");
+        asr_jamma_hourRight.setId("hourLeft");
+        asr_jamma_hourLeft.setId("hourLeft");
         asr_jamma_Box.getChildren().addAll(asr_jamma_hourLeft, asr_jamma_hourRight, time_jamma_Separator3, asr_jamma_minLeft, asr_jamma_minRight);
         prayertime_pane.setConstraints(asr_jamma_Box, 0, 6);
         prayertime_pane.getChildren().add(asr_jamma_Box);
@@ -1836,6 +2142,11 @@ public void update_labels() throws Exception{
         HBox maghrib_jamma_Box = new HBox();
         maghrib_jamma_Box.setSpacing(0);
         maghrib_jamma_Box.setMaxSize(200,70);
+        maghrib_jamma_minRight.setId("hourLeft");
+        maghrib_jamma_minLeft.setId("hourLeft");
+        time_jamma_Separator4.setId("hourLeft");
+        maghrib_jamma_hourRight.setId("hourLeft");
+        maghrib_jamma_hourLeft.setId("hourLeft");
         maghrib_jamma_Box.getChildren().addAll(maghrib_jamma_hourLeft, maghrib_jamma_hourRight, time_jamma_Separator4, maghrib_jamma_minLeft, maghrib_jamma_minRight);
         prayertime_pane.setConstraints(maghrib_jamma_Box, 0, 8);
         prayertime_pane.getChildren().add(maghrib_jamma_Box);
@@ -1845,6 +2156,11 @@ public void update_labels() throws Exception{
         HBox isha_jamma_Box = new HBox();
         isha_jamma_Box.setSpacing(0);
         isha_jamma_Box.setMaxSize(200,70);
+        isha_jamma_hourLeft.setId("hourLeft");
+        isha_jamma_hourRight.setId("hourLeft");
+        time_jamma_Separator5.setId("hourLeft");
+        isha_jamma_minLeft.setId("hourLeft");
+        isha_jamma_minRight.setId("hourLeft");
         isha_jamma_Box.getChildren().addAll(isha_jamma_hourLeft, isha_jamma_hourRight, time_jamma_Separator5, isha_jamma_minLeft, isha_jamma_minRight);
         prayertime_pane.setConstraints(isha_jamma_Box, 0, 10);
         prayertime_pane.getChildren().add(isha_jamma_Box);
@@ -1861,10 +2177,10 @@ public void update_labels() throws Exception{
         GridPane Moonpane = new GridPane();
         Moonpane.setId("moonpane");
         Moonpane.getColumnConstraints().setAll(
-                ColumnConstraintsBuilder.create().prefWidth(190).minWidth(190).build(),
+                ColumnConstraintsBuilder.create().prefWidth(220).minWidth(220).build(),
                 ColumnConstraintsBuilder.create().prefWidth(100).minWidth(100).build()     
         );
-        Moonpane.setHgap(10);
+        Moonpane.setHgap(40);
         Moonpane.setMaxHeight(50);
 //       Moonpane.setGridLinesVisible(true);
 
@@ -1893,16 +2209,57 @@ public void update_labels() throws Exception{
       
         GridPane hadithPane = new GridPane();
         hadithPane.setId("hadithpane");
-
+        hadithPane.setVgap(30);
 
         hadith_Label.setId("hadith-text-arabic");
         hadith_Label.setWrapText(true);
         hadithPane.setConstraints(hadith_Label, 0, 0);
         hadithPane.getChildren().add(hadith_Label);
+        
+        announcement_Label.setId("hadith-text-arabic");
+        announcement_Label.setWrapText(true);
+        hadithPane.setConstraints(announcement_Label, 0, 1);
+        hadithPane.getChildren().add(announcement_Label);
         return hadithPane;
     }    
-}
 
+
+
+    public GridPane clockPane() {
+      
+        GridPane clockPane = new GridPane();
+//        clockPane.setId("hadithpane");
+//        clockPane.setVgap(30);
+
+        
+        clockPane.getColumnConstraints().setAll(
+                ColumnConstraintsBuilder.create().minWidth(150).build(),
+                ColumnConstraintsBuilder.create().minWidth(150).build()     
+        );
+        
+        clockPane.setHgap(0);
+        clockPane.setGridLinesVisible(true);
+//        clockPane.setMaxHeight(50);
+        
+        
+        hour_Label.setId("hour");  
+        clockPane.setHalignment(hour_Label,HPos.CENTER);
+        clockPane.setConstraints(hour_Label, 0, 0);
+        clockPane.getChildren().add(hour_Label);
+        
+        minute_Label.setId("minute");  
+        clockPane.setHalignment(minute_Label,HPos.LEFT);
+        clockPane.setValignment(minute_Label,VPos.CENTER);
+        clockPane.setConstraints(minute_Label, 1, 0);
+        clockPane.getChildren().add(minute_Label);
+        
+        date_Label.setId("date");
+        clockPane.setHalignment(date_Label,HPos.CENTER);
+        clockPane.setConstraints(date_Label, 0, 1,2,1);
+        clockPane.getChildren().add(date_Label);
+        return clockPane;
+    }    
+}
 //sudo cp  SimpleAstronomyLib-0.1.0.jar  /opt/jdk1.8.0/jre/lib/ext
 
                         
