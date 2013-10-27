@@ -108,7 +108,7 @@ import org.joda.time.format.DateTimeFormatter;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 //    private Clock clock;
     private ObservableList data;
-    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label, hour_Label, minute_Label, date_Label;
+    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label, hour_Label, minute_Label, date_Label, divider_Label;
     private Integer moonPhase;
     private Boolean isWaning;
     private Boolean sensorLow = false;
@@ -210,6 +210,7 @@ import org.joda.time.format.DateTimeFormatter;
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Arial_Bold.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/timeburner_regular.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Pinstripe_Limo.ttf").toExternalForm(),30);
+        Font.loadFont(JavaFXApplication4.class.getResource("Fonts/LateefRegOT.ttf").toExternalForm(),30);
         data = FXCollections.observableArrayList();
         GridPane Mainpane = new GridPane();
         Moon_Image_Label = new Label();
@@ -238,6 +239,7 @@ import org.joda.time.format.DateTimeFormatter;
         hour_Label = new Label();
         minute_Label = new Label();
         date_Label = new Label();
+        divider_Label = new Label();
         
 //        clock = new Clock();
 //        clock = ClockBuilder.create()
@@ -786,7 +788,7 @@ import org.joda.time.format.DateTimeFormatter;
         stage.setScene(scene);
                 
         Mainpane = new GridPane();        
-        String image = JavaFXApplication4.class.getResource("/Images/wallpaper5.png").toExternalForm();
+        String image = JavaFXApplication4.class.getResource("/Images/wallpaper_sunset.jpg").toExternalForm();
 //        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: repeat; ");  
         Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");        
         Mainpane.getColumnConstraints().setAll(
@@ -805,21 +807,25 @@ import org.joda.time.format.DateTimeFormatter;
                 ColumnConstraintsBuilder.create().percentWidth(100/13.0).build()       
         );
         Mainpane.getRowConstraints().setAll(
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/15.0).build()
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/19.0).build()
         );
 //        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
@@ -842,11 +848,11 @@ import org.joda.time.format.DateTimeFormatter;
         hadithPane.setEffect(ds);
         clockPane.setEffect(ds);
   //============================================
-        Mainpane.add(clockPane, 2, 1);
+        Mainpane.add(clockPane, 1, 1);
         Mainpane.add(Moonpane, 7, 1);
 //        Mainpane.add(clock, 1, 1,1,1);    
-        Mainpane.add(prayertime_pane, 2, 4,9,6);  
-        Mainpane.add(hadithPane, 2, 11,9,3);
+        Mainpane.add(prayertime_pane, 1, 5,11,6);  
+        Mainpane.add(hadithPane, 1, 13,11,5);
 //        Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -1186,8 +1192,8 @@ public void update_labels() throws Exception{
 //        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
         
         
-        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/athan1.wav");
-        ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/duha.wav");
+        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/athan1.wav");
+        ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/duha.wav");
 //                            try {
 //                                Process process = processBuilder.start();                                
 //                            } catch (IOException ex) {
@@ -1202,7 +1208,7 @@ public void update_labels() throws Exception{
 //        AudioInputStream converted = AudioSystem.getAudioInputStream(littleEndianFormat, ais); 
 //        Clip clip = AudioSystem.getClip();
         
-        ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+        ProcessBuilder processBuilder_Tvon = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
 //clip.open(converted);
 //            clip.start();
         
@@ -1214,9 +1220,10 @@ public void update_labels() throws Exception{
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
-            try {Process process = processBuilder.start();} 
+            try {Process process = processBuilder_Tvon.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-            try {Process process = processBuilder1.start();} 
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Duha.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
 
         }
@@ -1229,11 +1236,13 @@ public void update_labels() throws Exception{
 //            clip.start();
             sensorLow = true;
             sensor_lastTimerCall = System.currentTimeMillis();
-            try {Process process = processBuilder.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-            try {Process process = processBuilder2.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
             
+            try {Process process = processBuilder_Tvon.start();} 
+            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
+            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+  
         }
         
         else if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
@@ -1244,9 +1253,10 @@ public void update_labels() throws Exception{
 //            clip.start();
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
-            try {Process process = processBuilder.start();} 
+            try {Process process = processBuilder_Tvon.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-            try {Process process = processBuilder2.start();} 
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
         }        
 
@@ -1256,9 +1266,10 @@ public void update_labels() throws Exception{
             System.out.println("asr Time");
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
-            try {Process process = processBuilder.start();} 
+            try {Process process = processBuilder_Tvon.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-            try {Process process = processBuilder2.start();} 
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
         } 
         
@@ -1268,9 +1279,10 @@ public void update_labels() throws Exception{
             System.out.println("maghrib Time");
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
-            try {Process process = processBuilder.start();} 
+            try {Process process = processBuilder_Tvon.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-            try {Process process = processBuilder2.start();} 
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
 //            String image = JavaFXApplication4.class.getResource("/Images/wallpaper_sunset.jpg").toExternalForm();
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");  
@@ -1282,9 +1294,10 @@ public void update_labels() throws Exception{
             System.out.println("isha Time");
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
-            try {Process process = processBuilder.start();} 
+            try {Process process = processBuilder_Tvon.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-            try {Process process = processBuilder2.start();} 
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
             catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
         }      
         
@@ -1886,11 +1899,11 @@ public void update_labels() throws Exception{
    GridPane prayertime_pane = new GridPane();
         prayertime_pane.setId("prayertime_pane");
         prayertime_pane.setCache(false);       
-//        prayertime_pane.setGridLinesVisible(true);
+        prayertime_pane.setGridLinesVisible(true);
         prayertime_pane.setPadding(new Insets(20, 0, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
 //        prayertime_pane.setVgap(20);
-        prayertime_pane.setHgap(40);
+        prayertime_pane.setHgap(80);
         
         
         prayertime_pane.setConstraints(jamaat_Label_eng, 0, 1);
@@ -2209,16 +2222,23 @@ public void update_labels() throws Exception{
       
         GridPane hadithPane = new GridPane();
         hadithPane.setId("hadithpane");
-        hadithPane.setVgap(30);
+        hadithPane.setVgap(15);
 
         hadith_Label.setId("hadith-text-arabic");
         hadith_Label.setWrapText(true);
         hadithPane.setConstraints(hadith_Label, 0, 0);
         hadithPane.getChildren().add(hadith_Label);
         
+        ImageView divider_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/divider.png")));      
+        divider_Label.setGraphic(divider_img);
+        hadithPane.setHalignment(divider_Label,HPos.CENTER);
+        hadithPane.setConstraints(divider_Label, 0, 1);
+        hadithPane.getChildren().add(divider_Label); 
+        
+        
         announcement_Label.setId("hadith-text-arabic");
         announcement_Label.setWrapText(true);
-        hadithPane.setConstraints(announcement_Label, 0, 1);
+        hadithPane.setConstraints(announcement_Label, 0, 2);
         hadithPane.getChildren().add(announcement_Label);
         return hadithPane;
     }    
@@ -2228,7 +2248,7 @@ public void update_labels() throws Exception{
     public GridPane clockPane() {
       
         GridPane clockPane = new GridPane();
-//        clockPane.setId("hadithpane");
+        clockPane.setId("clockPane");
 //        clockPane.setVgap(30);
 
         
@@ -2238,7 +2258,7 @@ public void update_labels() throws Exception{
         );
         
         clockPane.setHgap(0);
-        clockPane.setGridLinesVisible(true);
+//        clockPane.setGridLinesVisible(true);
 //        clockPane.setMaxHeight(50);
         
         
