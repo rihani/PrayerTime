@@ -139,6 +139,14 @@ import org.joda.time.format.DateTimeFormatter;
     private Calendar fajr_jamaat_update_cal, duha_jamaat_update_cal, zuhr_jamaat_update_cal, asr_jamaat_update_cal, maghrib_jamaat_update_cal, isha_jamaat_update_cal;
     String fajr_jamaat ,zuhr_jamaat ,asr_jamaat ,maghrib_jamaat ,isha_jamaat ;
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
+    
+    private Date notification_Date;
+    private String message_String; 
+    private boolean  notification_Sent;
+    private Calendar notification_Date_cal;
+    
+    
+    
     private Label fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private Label sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
     private Label time_Separator1, time_Separator2, time_Separator3, time_Separator4, time_Separator5, time_Separator6,time_Separator8, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
@@ -157,7 +165,7 @@ import org.joda.time.format.DateTimeFormatter;
     GridPane clockPane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     
-    Connection c ;
+    Connection c,c2 ;
            ObservableList<String> names = FXCollections.observableArrayList();
      
            
@@ -615,6 +623,46 @@ import org.joda.time.format.DateTimeFormatter;
                             isha_jamaat_update_cal.set(Calendar.SECOND, 0);
                             System.out.println("Isha Jamaat update scheduled at:" + isha_jamaat_update_cal.getTime());
 
+                            
+                            
+                            
+                            c = DBConnect.connect();
+//                            System.out.println("connected");
+                            SQL = "Select * from notification where id = (select max(id) from notification)";
+                            rs = c.createStatement().executeQuery(SQL);
+                            while (rs.next()) 
+                            {
+                                id =                rs.getInt("id");
+                                notification_Date =       rs.getDate("notification_Date");
+                                message_String = rs.getString("message_String");
+                                notification_Sent = rs.getBoolean("notification_Sent");             
+                            }
+                            c.close();
+                            
+                            System.out.format("%s,%s,%s \n", notification_Date, message_String, notification_Sent );
+                            
+                            DateTime DateTime_now = new DateTime();    
+                            Calendar Calendar_now = Calendar.getInstance();
+                            Calendar_now.setTime(new Date());
+                            Calendar_now.set(Calendar.MILLISECOND, 0);
+                            Calendar_now.set(Calendar.SECOND, 0);
+        
+                            
+                            notification_Date_cal = Calendar.getInstance();
+                            notification_Date_cal.setTime(notification_Date);
+                            notification_Date_cal.set(Calendar.MILLISECOND, 0);
+                            notification_Date_cal.set(Calendar.SECOND, 0);
+                            
+                            System.out.println(notification_Date_cal);
+                            System.out.println(Calendar_now);
+                            
+                            if (notification_Date_cal.equals(Calendar_now) )
+                            {
+                            System.out.format("date check============================================================" );
+                
+                
+                            }
+                            
                         }
                         
                         if (isStarting)
@@ -873,6 +921,7 @@ public void update_labels() throws Exception{
         Calendar_now.setTime(new Date());
         Calendar_now.set(Calendar.MILLISECOND, 0);
         Calendar_now.set(Calendar.SECOND, 0);
+        
         
 //==Translate labels============================================================  
         
