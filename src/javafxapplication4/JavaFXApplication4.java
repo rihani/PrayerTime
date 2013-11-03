@@ -122,6 +122,15 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean maghrib_athan_enable  = true ;
     private Boolean isha_athan_enable = true ;
     
+    private Boolean fajr_jamma_time_change = false;
+    private Boolean zuhr_jamma_time_change = false;
+    private Boolean asr_jamma_time_change = false;
+    private Boolean maghrib_jamma_time_change = false;
+    private Boolean isha_jamma_time_change = false;
+                    
+    private Boolean notification = false;
+    private Boolean notification_Bis = false;
+    
     private Boolean update_prayer_labels  = false;
     private Boolean update_moon_image  = false;
     private Boolean getHadith = true;
@@ -131,7 +140,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean maghrib_jamaat_update_enable = true;
     private Boolean isha_jamaat_update_enable = true;
             
-    private String hadith, announcement;
+    private String hadith, announcement, notification_Msg;
     private int id;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
@@ -353,7 +362,7 @@ import org.joda.time.format.DateTimeFormatter;
         jamaat_Label_ar.setText("إقامة");
         prayertime_pane.setHalignment(jamaat_Label_ar,HPos.CENTER) ;
         jamaat_Label_eng.setId("prayer-label-english");
-        jamaat_Label_eng.setText("Iqamat");
+        jamaat_Label_eng.setText("Congregation");
         prayertime_pane.setHalignment(jamaat_Label_eng,HPos.CENTER);
         
         
@@ -557,18 +566,11 @@ import org.joda.time.format.DateTimeFormatter;
                             {
                                 id =                rs.getInt("id");
                                 prayer_date =       rs.getDate("date");
-    //                            fajr_begins =       rs.getTime("fajr_begins");
                                 fajr_jamaat_time =       rs.getTime("fajr_jamaat");
-    //                            sunrise =           rs.getTime("sunrise");
-    //                            zuhr_begins =       rs.getTime("zuhr_begins");
                                 zuhr_jamaat_time =       rs.getTime("zuhr_jamaat");
-    //                            asr_begins =        rs.getTime("asr_begins");
                                 asr_jamaat_time =        rs.getTime("asr_jamaat");
                                 maghrib_jamaat_time =    rs.getTime("maghrib_jamaat");
-    //                            isha_begins =       rs.getTime("isha_begins");
-                                isha_jamaat_time =       rs.getTime("isha_jamaat");
-    //                            String lastName = rs.getString("last_name");
-    //                            boolean  isAdmin = rs.getBoolean("is_admin");             
+                                isha_jamaat_time =       rs.getTime("isha_jamaat");           
                             }
                             c.close();
                             fajr_jamaat = fajr_jamaat_time.toString();
@@ -667,8 +669,15 @@ import org.joda.time.format.DateTimeFormatter;
 //                            System.out.println(Calendar_now);
                             System.out.println("Calendar_now:         " + Calendar_now.getTime());
                             
-         
-                            if (notification_Date_cal.equals(Calendar_now) && !notification_Sent)
+                            if (Calendar_now.compareTo(notification_Date_cal) <0 )  //&& !notification_Sent
+                            {
+                                
+                                notification_Msg = message_String;
+                                notification_Bis = true;
+                            
+                            
+                            }
+                            if (Calendar_now.compareTo(notification_Date_cal) >=0 )  //&& !notification_Sent
                             {
                             
                                 athan_Change_Label.setVisible(false);
@@ -687,17 +696,16 @@ import org.joda.time.format.DateTimeFormatter;
                                 }
                                 c.close();
                                 
-                                future_fajr_jamaat = future_fajr_jamaat_time.toString();
-                                Date future_fajr_jamaat_temp = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(future_prayer_date + " " + future_fajr_jamaat);
+//                                future_fajr_jamaat = future_fajr_jamaat_time.toString();
+//                                Date future_fajr_jamaat_temp = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(future_prayer_date + " " + future_fajr_jamaat);
                                 
-                                
-                                cal.setTime(future_fajr_jamaat_temp);
-                                Date future_fajr_jamaat = cal.getTime();
-                                future_fajr_jamaat_cal = Calendar.getInstance();
-                                future_fajr_jamaat_cal.setTime(future_fajr_jamaat);
-                                future_fajr_jamaat_cal.set(Calendar.MILLISECOND, 0);
-                                future_fajr_jamaat_cal.set(Calendar.SECOND, 0);
-                                System.out.println("Future fajr Jamaat :" + future_fajr_jamaat_cal.getTime());
+//                                cal.setTime(future_fajr_jamaat_temp);
+//                                Date future_fajr_jamaat = cal.getTime();
+//                                future_fajr_jamaat_cal = Calendar.getInstance();
+//                                future_fajr_jamaat_cal.setTime(future_fajr_jamaat);
+//                                future_fajr_jamaat_cal.set(Calendar.MILLISECOND, 0);
+//                                future_fajr_jamaat_cal.set(Calendar.SECOND, 0);
+//                                System.out.println("Future fajr Jamaat :" + future_fajr_jamaat_cal.getTime());
                                 
                                 
                                 // print the results
@@ -705,32 +713,121 @@ import org.joda.time.format.DateTimeFormatter;
                                 System.out.println(fajr_jamaat_time);
                                 System.out.println(future_fajr_jamaat_time);
                                 
-                                if (fajr_jamaat_time.equals(future_fajr_jamaat_time))
+                                if (!fajr_jamaat_time.equals(future_fajr_jamaat_time))
                                 {
+                                    
+                                    
                                     System.out.println("Fajr Prayer Time Difference" );
-//                                    fajr_jamma_time_change =true;
-//                                    notification = true;
+                                    fajr_jamma_time_change =true;
+                                    notification = true;
+                                    
                                     java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
                                     c = DBConnect.connect();
                                     PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
                                     ps.setDate(1, sqlDate);  
                                     ps.executeUpdate(); 
                                     c.close();
-                                    
-//                                    st.executeUpdate("insert into prayertime.notification (notification_Date) VALUE (" + future_fajr_jamaat_time + ")");
-//                                    Statement st = (Statement) c.createStatement(); 
-//                                    st.executeUpdate("UPDATE prayertime.notification SET message_String='test_name' ,notification_Sent='True' ORDER BY id DESC LIMIT 1");
-                                    
-                                    
-
                                 }
                 
+                                if (!zuhr_jamaat_time.equals(future_zuhr_jamaat_time) )
+                                {
+                                    System.out.println("Duhr Prayer Time Difference" );
+                                    zuhr_jamma_time_change =true;
+                                    if(!notification)
+                                    {
+                                        java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
+                                        c = DBConnect.connect();
+                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
+                                        ps.setDate(1, sqlDate);  
+                                        ps.executeUpdate(); 
+                                        c.close();
+                                    }
+                                    notification = true;
+                                }
+                                
+                                if (!asr_jamaat_time.equals(future_asr_jamaat_time) )
+                                {
+                                    System.out.println("asr Prayer Time Difference" );
+                                    asr_jamma_time_change =true;
+                                    if(!notification)
+                                    {
+                                        java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
+                                        c = DBConnect.connect();
+                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
+                                        ps.setDate(1, sqlDate);  
+                                        ps.executeUpdate(); 
+                                        c.close();
+                                    }
+                                    notification = true;
+                                }
+                                
+                                if (!maghrib_jamaat_time.equals(future_maghrib_jamaat_time) )
+                                {
+                                    System.out.println("maghrib Prayer Time Difference" );
+                                    maghrib_jamma_time_change =true;
+                                    if(!notification)
+                                    {
+                                        java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
+                                        c = DBConnect.connect();
+                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
+                                        ps.setDate(1, sqlDate);  
+                                        ps.executeUpdate(); 
+                                        c.close();
+                                    }
+                                    notification = true;
+                                }
+                                
+                                if (!isha_jamaat_time.equals(future_isha_jamaat_time) )
+                                {
+                                    System.out.println("isha Prayer Time Difference" );
+                                    isha_jamma_time_change =true;
+                                    if(!notification)
+                                    {
+                                        java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
+                                        c = DBConnect.connect();
+                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
+                                        ps.setDate(1, sqlDate);  
+                                        ps.executeUpdate(); 
+                                        c.close();
+                                    }
+                                    notification = true;
+                                }
                                 
                                 
-                                athan_Change_Label.setText(announcement);
                             }
                             
                         }
+                        
+                        
+                        
+                        if (notification)
+                        {
+                            String notification_date = new SimpleDateFormat("EEE").format(future_prayer_date);
+                            String notification_date1 = new SimpleDateFormat("dd'th' MMM").format(future_prayer_date);
+                            
+                            notification_Msg = "Time Change\nPlease note the following prayer time Change on " + notification_date + " next week " + notification_date1 + "\n ";
+                            
+//                            notification_Msg = "Time change\nTime saving will be in effect as of *Sunday, November 03, 2013*\nAll prayer times will move back by one hour.\nJummah prayer will be at 1:00 PM";
+                            if (fajr_jamma_time_change)
+                            {
+                                
+                                
+                                notification_Msg = notification_Msg + "Fajr congregation time: " + future_fajr_jamaat_time +"\n";
+                            }           
+                            
+                            c = DBConnect.connect();
+                            Statement st = (Statement) c.createStatement(); 
+                            st.executeUpdate("UPDATE prayertime.notification SET message_String='" + notification_Msg + "' ORDER BY id DESC LIMIT 1");
+                            c.close();
+                            
+                            
+                            Twitter twitter = TwitterFactory.getSingleton();
+                            Status status = null;
+                            try {status = twitter.updateStatus(notification_Msg);} 
+                            catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
+                        }        
+                                
                         
                         if (isStarting)
                         {
@@ -967,7 +1064,7 @@ import org.joda.time.format.DateTimeFormatter;
         Mainpane.add(Moonpane, 7, 1);
 //        Mainpane.add(clock, 1, 1,1,1);    
         Mainpane.add(prayertime_pane, 1, 5,11,6);  
-        Mainpane.add(hadithPane, 1, 13,11,5);
+        Mainpane.add(hadithPane, 1, 13,11,6);
 //        Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -1054,6 +1151,15 @@ public void update_labels() throws Exception{
             
             hadith_Label.setText(hadith);
             announcement_Label.setText(announcement);
+            
+            if(notification || notification_Bis)
+            {
+                athan_Change_Label.setVisible(true);
+                athan_Change_Label.setText(notification_Msg);
+                notification = false;
+                notification_Bis = false;
+            }
+            
             
             
             String hour = new SimpleDateFormat("k").format(Calendar_now.getTime());
@@ -2338,6 +2444,7 @@ public void update_labels() throws Exception{
     public GridPane hadithPane() {
       
         GridPane hadithPane = new GridPane();
+        hadithPane.setGridLinesVisible(true);
         hadithPane.setId("hadithpane");
         hadithPane.setVgap(15);
 
@@ -2358,9 +2465,9 @@ public void update_labels() throws Exception{
         hadithPane.setConstraints(announcement_Label, 0, 2);
         hadithPane.getChildren().add(announcement_Label);
         
-        
-        athan_Change_Label.setId("hadith-text-arabic");
+        athan_Change_Label.setId("athan-change-text");
         athan_Change_Label.setWrapText(true);
+        hadithPane.setHalignment(athan_Change_Label,HPos.LEFT);
         hadithPane.setConstraints(athan_Change_Label, 0, 3);
         hadithPane.getChildren().add(athan_Change_Label);
         

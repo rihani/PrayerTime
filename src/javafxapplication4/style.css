@@ -119,10 +119,27 @@ and open the template in the editor.
         
    }
   
+      
+      #athan-change-text{
+        
+        -fx-font-size: 35px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+/*        -fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Lateef';
+        /*-fx-fill: white;*/
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
+        -fx-text-alignment: left;
+        -fx-text-fill:whitesmoke;
+        
+   }
+   
    
       #hadith-text-arabic{
         
-        -fx-font-size: 40px;
+        -fx-font-size: 35px;
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
