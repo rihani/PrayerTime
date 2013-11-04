@@ -81,6 +81,11 @@ import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
+import com.restfb.Parameter;
+import com.restfb.exception.FacebookException;
+import com.restfb.types.FacebookType;
 
 import java.io.InputStream;
 import java.sql.PreparedStatement;
@@ -204,6 +209,9 @@ import org.joda.time.format.DateTimeFormatter;
 //        System.out.println("Successfully updated the status to [" + status.getText() + "].");
         moonPhase = 200;
         
+        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
+        
+        
         
         //https://github.com/nicatronTg/jPushover
         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
@@ -214,7 +222,8 @@ import org.joda.time.format.DateTimeFormatter;
         {
             e.printStackTrace();
         }
-        
+                            
+
         
         ProcessBuilder processBuilder = 
               new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
@@ -802,17 +811,17 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         if (notification)
                         {
-                            String notification_date = new SimpleDateFormat("EEE").format(future_prayer_date);
+                            String notification_date = new SimpleDateFormat("EEEE 'the'").format(future_prayer_date);
                             String notification_date1 = new SimpleDateFormat("dd'th' MMM").format(future_prayer_date);
                             
-                            notification_Msg = "Time Change\nPlease note the following prayer time Change on " + notification_date + " next week " + notification_date1 + "\n ";
+                            notification_Msg = "Please note the following Congregation Prayer Time Change starting from " + notification_date + " " + notification_date1 + "\n ";
                             
 //                            notification_Msg = "Time change\nTime saving will be in effect as of *Sunday, November 03, 2013*\nAll prayer times will move back by one hour.\nJummah prayer will be at 1:00 PM";
                             if (fajr_jamma_time_change)
                             {
                                 
                                 
-                                notification_Msg = notification_Msg + "Fajr congregation time: " + future_fajr_jamaat_time +"\n";
+                                notification_Msg = notification_Msg + "Fajr time: " + future_fajr_jamaat_time +"\n";
                             }           
                             
                             c = DBConnect.connect();
@@ -826,7 +835,17 @@ import org.joda.time.format.DateTimeFormatter;
                             try {status = twitter.updateStatus(notification_Msg);} 
                             catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
                             System.out.println("Successfully updated the status to [" + status.getText() + "].");
-                        }        
+                            
+                            try 
+                            {
+                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));
+                            }
+                            catch (FacebookException e) 
+                            {
+                                // This is the catchall handler for any kind of Facebook exception
+                                Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);
+                            }
+                                            }        
                                 
                         
                         if (isStarting)
