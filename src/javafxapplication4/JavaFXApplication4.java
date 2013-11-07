@@ -719,8 +719,8 @@ import org.joda.time.format.DateTimeFormatter;
                                 
                                 // print the results
                                 System.out.format("%s,%s,%s,%s,%s,%s \n", future_prayer_date, future_fajr_jamaat_time, future_zuhr_jamaat_time, future_asr_jamaat_time, future_maghrib_jamaat_time, future_isha_jamaat_time );
-                                System.out.println(fajr_jamaat_time);
-                                System.out.println(future_fajr_jamaat_time);
+//                                System.out.println(fajr_jamaat_time);
+//                                System.out.println(future_fajr_jamaat_time);
                                 
                                 if (!fajr_jamaat_time.equals(future_fajr_jamaat_time))
                                 {
@@ -770,21 +770,21 @@ import org.joda.time.format.DateTimeFormatter;
                                     notification = true;
                                 }
                                 
-                                if (!maghrib_jamaat_time.equals(future_maghrib_jamaat_time) )
-                                {
-                                    System.out.println("maghrib Prayer Time Difference" );
-                                    maghrib_jamma_time_change =true;
-                                    if(!notification)
-                                    {
-                                        java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
-                                        c = DBConnect.connect();
-                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
-                                        ps.setDate(1, sqlDate);  
-                                        ps.executeUpdate(); 
-                                        c.close();
-                                    }
-                                    notification = true;
-                                }
+//                                if (!maghrib_jamaat_time.equals(future_maghrib_jamaat_time) )
+//                                {
+//                                    System.out.println("maghrib Prayer Time Difference" );
+//                                    maghrib_jamma_time_change =true;
+//                                    if(!notification)
+//                                    {
+//                                        java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
+//                                        c = DBConnect.connect();
+//                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
+//                                        ps.setDate(1, sqlDate);  
+//                                        ps.executeUpdate(); 
+//                                        c.close();
+//                                    }
+//                                    notification = true;
+//                                }
                                 
                                 if (!isha_jamaat_time.equals(future_isha_jamaat_time) )
                                 {
@@ -808,21 +808,60 @@ import org.joda.time.format.DateTimeFormatter;
                         }
                         
                         
-                        
+ ///////////////////////put this in a thread, so error does not stop code below
                         if (notification)
                         {
                             String notification_date = new SimpleDateFormat("EEEE 'the'").format(future_prayer_date);
                             String notification_date1 = new SimpleDateFormat("dd'th' MMM").format(future_prayer_date);
                             
-                            notification_Msg = "Please note the following Congregation Prayer Time Change starting from " + notification_date + " " + notification_date1 + "\n ";
-                            
+                            notification_Msg = "Please note the following Congregation Prayer Time Change starting from " + notification_date + " " + notification_date1 + "\n";
+                            SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm");
 //                            notification_Msg = "Time change\nTime saving will be in effect as of *Sunday, November 03, 2013*\nAll prayer times will move back by one hour.\nJummah prayer will be at 1:00 PM";
                             if (fajr_jamma_time_change)
                             {
+
                                 
-                                
-                                notification_Msg = notification_Msg + "Fajr time: " + future_fajr_jamaat_time +"\n";
+                                String future_fajr_jamaat_time_mod = DATE_FORMAT.format(future_fajr_jamaat_time);
+//                                Date future_fajr_jamaat_time_mod = new SimpleDateFormat("HH:mm").parse("Fajr time: " + future_fajr_jamaat_time);
+                                notification_Msg = notification_Msg + "Fajr time: " + future_fajr_jamaat_time_mod +"\n";
+                                fajr_jamma_time_change = false;
                             }           
+                            
+                            if (zuhr_jamma_time_change)
+                            {
+                                
+                                String future_zuhr_jamaat_time_mod = DATE_FORMAT.format(future_zuhr_jamaat_time);
+//                                Date future_fajr_jamaat_time_mod = new SimpleDateFormat("HH:mm").parse("Fajr time: " + future_fajr_jamaat_time);
+                                notification_Msg = notification_Msg + "Zuhr time: " + future_zuhr_jamaat_time_mod +"\n";
+                                zuhr_jamma_time_change = false;
+                            }
+                            
+                            if (asr_jamma_time_change)
+                            {
+                                
+                                String future_asr_jamaat_time_mod = DATE_FORMAT.format(future_asr_jamaat_time);
+//                                Date future_fajr_jamaat_time_mod = new SimpleDateFormat("HH:mm").parse("Fajr time: " + future_fajr_jamaat_time);
+                                notification_Msg = notification_Msg + "Asr time: " + future_asr_jamaat_time_mod +"\n";
+                                asr_jamma_time_change = false;
+                            }
+                            
+//                            if (maghrib_jamma_time_change)
+//                            {
+//                                
+//                                String future_maghrib_jamaat_time_mod = DATE_FORMAT.format(future_maghrib_jamaat_time);
+////                                Date future_fajr_jamaat_time_mod = new SimpleDateFormat("HH:mm").parse("Fajr time: " + future_fajr_jamaat_time);
+//                                notification_Msg = notification_Msg + "Maghrib time: " + future_maghrib_jamaat_time_mod +"\n";
+//                                maghrib_jamma_time_change = false;
+//                            }
+                            
+                            if (isha_jamma_time_change)
+                            {
+                                
+                                String future_isha_jamaat_time_mod = DATE_FORMAT.format(future_isha_jamaat_time);
+//                                Date future_fajr_jamaat_time_mod = new SimpleDateFormat("HH:mm").parse("Fajr time: " + future_fajr_jamaat_time);
+                                notification_Msg = notification_Msg + "Isha time: " + future_isha_jamaat_time_mod +"\n";
+                                isha_jamma_time_change = false;
+                            }
                             
                             c = DBConnect.connect();
                             Statement st = (Statement) c.createStatement(); 
@@ -830,22 +869,15 @@ import org.joda.time.format.DateTimeFormatter;
                             c.close();
                             
                             
-                            Twitter twitter = TwitterFactory.getSingleton();
-                            Status status = null;
-                            try {status = twitter.updateStatus(notification_Msg);} 
-                            catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
-                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
+//                            Twitter twitter = TwitterFactory.getSingleton();
+//                            Status status = null;
+//                            try {status = twitter.updateStatus(notification_Msg);} 
+//                            catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+//                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
                             
-                            try 
-                            {
-                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));
-                            }
-                            catch (FacebookException e) 
-                            {
-                                // This is the catchall handler for any kind of Facebook exception
-                                Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);
-                            }
-                                            }        
+//                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
+//                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
+                        }        
                                 
                         
                         if (isStarting)
@@ -869,7 +901,7 @@ import org.joda.time.format.DateTimeFormatter;
 //                                id =                rs.getInt("id");
                                 hadith = rs.getString("hadith");
                             }
-                            announcement = "No Announcement";
+//                            announcement = "No Announcement";
                             c.close();
                             // print the results
                             System.out.format("hadith: %s\n", hadith );
@@ -1038,27 +1070,28 @@ import org.joda.time.format.DateTimeFormatter;
                 ColumnConstraintsBuilder.create().percentWidth(100/13.0).build()       
         );
         Mainpane.getRowConstraints().setAll(
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/19.0).build()
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/20.0).build()
         );
-//        Mainpane.setGridLinesVisible(true);
+        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         GridPane prayertime_pane = prayertime_pane();    
         GridPane Moonpane =   moonpane();
@@ -1083,7 +1116,7 @@ import org.joda.time.format.DateTimeFormatter;
         Mainpane.add(Moonpane, 7, 1);
 //        Mainpane.add(clock, 1, 1,1,1);    
         Mainpane.add(prayertime_pane, 1, 5,11,6);  
-        Mainpane.add(hadithPane, 1, 13,11,6);
+        Mainpane.add(hadithPane, 1, 13,11,7);
 //        Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -1181,7 +1214,7 @@ public void update_labels() throws Exception{
             
             
             
-            String hour = new SimpleDateFormat("k").format(Calendar_now.getTime());
+            String hour = new SimpleDateFormat("kk").format(Calendar_now.getTime());
             hour_Label.setText(hour);
             String minute = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
             minute_Label.setText(minute);
@@ -2263,13 +2296,13 @@ public void update_labels() throws Exception{
         prayertime_pane.getChildren().add(isha_Label_ar);
 
  //=============================  
-        HBox gapBox = new HBox();
-        gapBox.setSpacing(0);
-        gapBox.setMaxSize(200,70);
-        gapBox.setMinSize(200,70);
-        gapBox.getChildren().addAll();
-        prayertime_pane.setConstraints(gapBox, 0, 12);
-        prayertime_pane.getChildren().add(gapBox);       
+//        HBox gapBox = new HBox();
+//        gapBox.setSpacing(0);
+//        gapBox.setMaxSize(200,70);
+//        gapBox.setMinSize(200,70);
+//        gapBox.getChildren().addAll();
+//        prayertime_pane.setConstraints(gapBox, 0, 12);
+//        prayertime_pane.getChildren().add(gapBox);       
         
 //=============================  
         HBox sunriseBox = new HBox();
@@ -2478,16 +2511,10 @@ public void update_labels() throws Exception{
         hadithPane.setConstraints(divider_Label, 0, 1);
         hadithPane.getChildren().add(divider_Label); 
         
-        
-        announcement_Label.setId("hadith-text-arabic");
-        announcement_Label.setWrapText(true);
-        hadithPane.setConstraints(announcement_Label, 0, 2);
-        hadithPane.getChildren().add(announcement_Label);
-        
         athan_Change_Label.setId("athan-change-text");
         athan_Change_Label.setWrapText(true);
         hadithPane.setHalignment(athan_Change_Label,HPos.LEFT);
-        hadithPane.setConstraints(athan_Change_Label, 0, 3);
+        hadithPane.setConstraints(athan_Change_Label, 0, 2);
         hadithPane.getChildren().add(athan_Change_Label);
         
         return hadithPane;
