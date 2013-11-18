@@ -42,37 +42,19 @@ import java.util.TimerTask;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-//import javax.sound.sampled.AudioInputStream;
-//import javax.sound.sampled.AudioSystem;
-//import javax.sound.sampled.Clip;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-//import eu.hansolo.enzo.clock.Clock;
-//import eu.hansolo.enzo.clock.ClockBuilder;
-//import eu.hansolo.enzo.imgsplitflap.SplitFlap;
-//import eu.hansolo.enzo.imgsplitflap.SplitFlapBuilder;
 //import java.io.BufferedReader;
 import java.io.IOException;
 //import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-//import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;
 import javafx.scene.layout.Pane;
-//import javafx.util.Duration;
-import javax.sound.sampled.AudioFormat;
 import me.shanked.nicatronTg.jPushover.Pushover;
 
-
-
-//import twitter4j.Status;
-//import twitter4j.Twitter;
-//import twitter4j.TwitterException;
-//import twitter4j.TwitterFactory;
-//import twitter4j.auth.AccessToken;
-//import twitter4j.auth.RequestToken;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -83,9 +65,9 @@ import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
-import com.restfb.Parameter;
-import com.restfb.exception.FacebookException;
-import com.restfb.types.FacebookType;
+//import com.restfb.Parameter;
+//import com.restfb.exception.FacebookException;
+//import com.restfb.types.FacebookType;
 
 import java.io.InputStream;
 import java.sql.PreparedStatement;
@@ -93,7 +75,6 @@ import java.sql.Statement;
 import java.text.Format;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import javafx.animation.FadeTransition;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
@@ -147,7 +128,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean isha_jamaat_update_enable = true;
             
     private String hadith, announcement, notification_Msg;
-    private int id;
+    private int id, moonDaysDiff;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
@@ -156,6 +137,7 @@ import org.joda.time.format.DateTimeFormatter;
 
         
     String fajr_jamaat ,zuhr_jamaat ,asr_jamaat ,maghrib_jamaat ,isha_jamaat ;
+    String labeconv;
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
     
     String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
@@ -891,7 +873,9 @@ import org.joda.time.format.DateTimeFormatter;
                        fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
                        newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
                        System.out.println("The moon is full on " + fullMoon );
-                       
+                       System.out.println("The moon is new on " + newMoon );
+                       moonDaysDiff = Days.daysBetween(new DateTime(fullMoon), new DateTime(newMoon)).getDays();
+                       System.out.println("full moon date - new =  " + moonDaysDiff );
                         
                      } 
                 
@@ -1194,82 +1178,93 @@ public void update_labels() throws Exception{
             date_Label.setText(date);
             
             
-            
-            
-            
-            
-            
-            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
+            if (moonDaysDiff<0)
             {
-                String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
-                String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
-                
+                String FullMoon_date_en = new SimpleDateFormat("dd'th' MMMM").format(newMoon);
                 Moon_Date_Label.setId("moon-text-english");
-
-                if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " night " + FullMoon_date_en1);}
-                else{Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " " + FullMoon_date_en1);}
-                
+                Moon_Date_Label.setText("Next New Moon is on\n" + FullMoon_date_en);
                 Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
                 english = true;
-                arabic = false;
-                
+                arabic = false;   
                 
             }
             
-            
-            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
+            else
             {
-
-                Moon_Date_Label.setId("moon-text-english");
-                
-                if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("The moon is full tonight" );}
-                else{Moon_Date_Label.setText("The moon is full today" );}
-                
-                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
-                english = true;
-                arabic = false;
-
-            }
             
-            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
-            {
-
-                String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
-                
-                Moon_Date_Label.setId("moon-text-english");
-                
-                if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("Full moon is on\n"+ "tomorrow night");}
-                else{Moon_Date_Label.setText("Full moon is on\n"+ "tomorrow");}
-                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
-                english = true;
-                arabic = false;
-
-            }
-
-            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
-            {
-
-                String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
-                String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
-                
-                Moon_Date_Label.setId("moon-text-english");
-                Moon_Date_Label.setText("Full moon is on " + FullMoon_date_en + " the " + FullMoon_date_en1);
-                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
-                english = true;
-                arabic = false;
-            }
             
-            else 
-            {            
-                String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMMM").format(fullMoon);
-                Moon_Date_Label.setId("moon-text-english");
-                Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
-                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
-                english = true;
-                arabic = false;
-            
-//            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
-//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
+                {
+                    String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
+                    String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
+
+                    Moon_Date_Label.setId("moon-text-english");
+
+                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " night " + FullMoon_date_en1);}
+                    else{Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " " + FullMoon_date_en1);}
+
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+
+
+                }
+
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
+                {
+
+                    Moon_Date_Label.setId("moon-text-english");
+
+                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("The moon is full tonight" );}
+                    else{Moon_Date_Label.setText("The moon is full today" );}
+
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+
+                }
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
+                {
+
+                    String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
+
+                    Moon_Date_Label.setId("moon-text-english");
+
+                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("Full moon is on\n"+ "tomorrow night");}
+                    else{Moon_Date_Label.setText("Full moon is on\n"+ "tomorrow");}
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+
+                }
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
+                {
+
+                    String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
+                    String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
+
+                    Moon_Date_Label.setId("moon-text-english");
+                    Moon_Date_Label.setText("Full moon is on " + FullMoon_date_en + " the " + FullMoon_date_en1);
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+                }
+
+                else 
+                {            
+                    String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMMM").format(fullMoon);
+                    Moon_Date_Label.setId("moon-text-english");
+                    Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+
+    //            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
+    //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+                }
             }
 
             
@@ -1329,121 +1324,148 @@ public void update_labels() throws Exception{
             isha_Label_eng.setVisible(false);
             
             
-            
-            String labeconv;
-           
-            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
+            if (moonDaysDiff<0)
             {
-                String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
-                String FullMoon_date_ar1 = new SimpleDateFormat("dd MMMM", new Locale("ar")).format(fullMoon);
+                String FullMoon_date_ar = new SimpleDateFormat(" EEEE dd MMMM", new Locale("ar")).format(newMoon);               
+                    labeconv = "سيظهر الهلال يوم\n" + FullMoon_date_ar;
+                    StringBuilder builder = new StringBuilder();
+                    for(int i =0;i<labeconv.length();i++)
+                    {
+                        if(Character.isDigit(labeconv.charAt(i)))
+                        {
+                            builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                        }
+                        else
+                        {
+                            builder.append(labeconv.charAt(i));
+                        }
+                    }
+
+                    Moon_Date_Label.setId("moon-text-arabic");
+                    Moon_Date_Label.setText(builder.toString());
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                    english = false;
+                    arabic = true;
                 
-                
-                if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){ labeconv = "سيكون القمر بدرا ليلة\n" + FullMoon_date_ar + " القادم" +""+ FullMoon_date_ar1;}
-                else{ labeconv = "سيكون القمر بدرا\n" + FullMoon_date_ar + " القادم" +""+ FullMoon_date_ar1;}
-                
-                
-                
-                StringBuilder builder = new StringBuilder();
-                for(int i =0;i<labeconv.length();i++)
+            }
+            
+            else
+            {
+//                String labeconv;
+
+                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
                 {
-                    if(Character.isDigit(labeconv.charAt(i)))
+                    String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
+                    String FullMoon_date_ar1 = new SimpleDateFormat("dd MMMM", new Locale("ar")).format(fullMoon);
+
+
+                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){ labeconv = "سيكون القمر بدرا ليلة\n" + FullMoon_date_ar + " القادم" +""+ FullMoon_date_ar1;}
+                    else{ labeconv = "سيكون القمر بدرا\n" + FullMoon_date_ar + " القادم" +""+ FullMoon_date_ar1;}
+
+
+
+                    StringBuilder builder = new StringBuilder();
+                    for(int i =0;i<labeconv.length();i++)
                     {
-                        builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                        if(Character.isDigit(labeconv.charAt(i)))
+                        {
+                            builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                        }
+                        else
+                        {
+                            builder.append(labeconv.charAt(i));
+                        }
                     }
-                    else
-                    {
-                        builder.append(labeconv.charAt(i));
-                    }
+
+                    Moon_Date_Label.setId("moon-text-arabic");
+                    Moon_Date_Label.setText(builder.toString());
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                    english = false;
+                    arabic = true;
+
+
                 }
-                              
-                Moon_Date_Label.setId("moon-text-arabic");
-                Moon_Date_Label.setText(builder.toString());
-                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
-                english = false;
-                arabic = true;
-                
-                
-            }
-            
-            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
-            {
 
-                Moon_Date_Label.setId("moon-text-arabic");
-                
-                if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){ Moon_Date_Label.setText("سيكون القمر بدرا ليلة الغذٍٍُِِِ" );}
-                else{Moon_Date_Label.setText("سيكون القمر بدرا غدآ" );}
-                
-                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
-                english = false;
-                arabic = true;
-
-            }
-            
-            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
-            {
-
-                Moon_Date_Label.setId("moon-text-arabic");
-                if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("القمر بدر ليلة اليوم" );}
-                else{Moon_Date_Label.setText("القمر بدر اليوم " );}
-                
-                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
-                english = false;
-                arabic = true;
-
-            }
-            
-            else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
-            {
-                String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
-                String FullMoon_date_ar1 = new SimpleDateFormat("dd MMMM", new Locale("ar")).format(fullMoon);
-                                
-                
-                labeconv = "سيكون القمر بدرا " + FullMoon_date_ar + ", " + FullMoon_date_ar1;
-                StringBuilder builder = new StringBuilder();
-                for(int i =0;i<labeconv.length();i++)
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
                 {
-                    if(Character.isDigit(labeconv.charAt(i)))
-                    {
-                        builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
-                    }
-                    else
-                    {
-                        builder.append(labeconv.charAt(i));
-                    }
+
+                    Moon_Date_Label.setId("moon-text-arabic");
+
+                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){ Moon_Date_Label.setText("سيكون القمر بدرا ليلة الغذٍٍُِِِ" );}
+                    else{Moon_Date_Label.setText("سيكون القمر بدرا غدآ" );}
+
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                    english = false;
+                    arabic = true;
+
                 }
-                              
-                Moon_Date_Label.setId("moon-text-arabic");
-                Moon_Date_Label.setText(builder.toString());
-                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
-                english = false;
-                arabic = true;
-            }
-            
-            else 
-            {            
-                String FullMoon_date_ar = new SimpleDateFormat(" EEEE dd MMMM", new Locale("ar")).format(fullMoon);               
-                labeconv = "سيكون القمر بدرا يوم\n" + FullMoon_date_ar;
-                StringBuilder builder = new StringBuilder();
-                for(int i =0;i<labeconv.length();i++)
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
                 {
-                    if(Character.isDigit(labeconv.charAt(i)))
-                    {
-                        builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
-                    }
-                    else
-                    {
-                        builder.append(labeconv.charAt(i));
-                    }
+
+                    Moon_Date_Label.setId("moon-text-arabic");
+                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("القمر بدر ليلة اليوم" );}
+                    else{Moon_Date_Label.setText("القمر بدر اليوم " );}
+
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                    english = false;
+                    arabic = true;
+
                 }
-                              
-                Moon_Date_Label.setId("moon-text-arabic");
-                Moon_Date_Label.setText(builder.toString());
-                Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
-                english = false;
-                arabic = true;
-            
-//            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
-//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
+                {
+                    String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
+                    String FullMoon_date_ar1 = new SimpleDateFormat("dd MMMM", new Locale("ar")).format(fullMoon);
+
+
+                    labeconv = "سيكون القمر بدرا " + FullMoon_date_ar + ", " + FullMoon_date_ar1;
+                    StringBuilder builder = new StringBuilder();
+                    for(int i =0;i<labeconv.length();i++)
+                    {
+                        if(Character.isDigit(labeconv.charAt(i)))
+                        {
+                            builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                        }
+                        else
+                        {
+                            builder.append(labeconv.charAt(i));
+                        }
+                    }
+
+                    Moon_Date_Label.setId("moon-text-arabic");
+                    Moon_Date_Label.setText(builder.toString());
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                    english = false;
+                    arabic = true;
+                }
+
+                else 
+                {            
+                    String FullMoon_date_ar = new SimpleDateFormat(" EEEE dd MMMM", new Locale("ar")).format(fullMoon);               
+                    labeconv = "سيكون القمر بدرا يوم\n" + FullMoon_date_ar;
+                    StringBuilder builder = new StringBuilder();
+                    for(int i =0;i<labeconv.length();i++)
+                    {
+                        if(Character.isDigit(labeconv.charAt(i)))
+                        {
+                            builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                        }
+                        else
+                        {
+                            builder.append(labeconv.charAt(i));
+                        }
+                    }
+
+                    Moon_Date_Label.setId("moon-text-arabic");
+                    Moon_Date_Label.setText(builder.toString());
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                    english = false;
+                    arabic = true;
+
+    //            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
+    //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+                }
             }
   
             
