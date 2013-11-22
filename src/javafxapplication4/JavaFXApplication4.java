@@ -65,9 +65,9 @@ import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
-//import com.restfb.Parameter;
-//import com.restfb.exception.FacebookException;
-//import com.restfb.types.FacebookType;
+import com.restfb.Parameter;
+import com.restfb.exception.FacebookException;
+import com.restfb.types.FacebookType;
 
 import java.io.InputStream;
 import java.sql.PreparedStatement;
@@ -128,7 +128,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean isha_jamaat_update_enable = true;
             
     private String hadith, announcement, notification_Msg;
-    private int id, moonDaysDiff;
+    private int id;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
@@ -168,7 +168,15 @@ import org.joda.time.format.DateTimeFormatter;
     GridPane prayertime_pane;
     GridPane clockPane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
-    
+    static String[] suffixes =
+    //    0     1     2     3     4     5     6     7     8     9
+       { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th",
+    //    10    11    12    13    14    15    16    17    18    19
+         "th", "th", "th", "th", "th", "th", "th", "th", "th", "th",
+    //    20    21    22    23    24    25    26    27    28    29
+         "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th",
+    //    30    31
+         "th", "st" };
     Connection c,c2 ;
            ObservableList<String> names = FXCollections.observableArrayList();
      
@@ -177,9 +185,8 @@ import org.joda.time.format.DateTimeFormatter;
 
     @Override public void init() throws IOException {
         
-// load the font.
         
-            // The factory instance is re-useable and thread safe.
+// Twitter ==============================
     
 //        String Test = "This is a test message"; 
 //        Twitter twitter = TwitterFactory.getSingleton();
@@ -195,6 +202,7 @@ import org.joda.time.format.DateTimeFormatter;
         FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
         
         
+// Pushover ==============================       
         
         //https://github.com/nicatronTg/jPushover
         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
@@ -227,6 +235,7 @@ import org.joda.time.format.DateTimeFormatter;
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/timeburner_regular.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Pinstripe_Limo.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/LateefRegOT.ttf").toExternalForm(),30);
+        
         data = FXCollections.observableArrayList();
         GridPane Mainpane = new GridPane();
         Moon_Image_Label = new Label();
@@ -409,8 +418,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 
        
-        Timer moonCalTimer = new Timer();
-        moonCalTimer.scheduleAtFixedRate(new TimerTask() 
+        Timer prayerCalcTimer = new Timer();
+        prayerCalcTimer.scheduleAtFixedRate(new TimerTask() 
         {
             @Override
             public void run() 
@@ -583,7 +592,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             c = DBConnect.connect();
 //                            System.out.println("connected");
-                            String SQL = "select * from jos_prayertimes1 where DATE(date) = DATE(NOW())";
+                            String SQL = "select * from prayertimes where DATE(date) = DATE(NOW())";
                             ResultSet rs = c.createStatement().executeQuery(SQL);
                             while (rs.next()) 
                             {
@@ -684,10 +693,10 @@ import org.joda.time.format.DateTimeFormatter;
                             {
                             
                                 athan_Change_Label.setVisible(false);
-                                divider2_Label.setVisible(false);
+                                divider1_Label.setVisible(false);
                                 
                                 c = DBConnect.connect();
-                                SQL = "select * from jos_prayertimes1 where DATE(date) = DATE(NOW()) +7";
+                                SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) +7";
                                 rs = c.createStatement().executeQuery(SQL);
                                 while (rs.next()) 
                                 {
@@ -828,18 +837,15 @@ import org.joda.time.format.DateTimeFormatter;
 //                            catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
 //                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
                             
-//                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
-//                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
+                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
+                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
+                            
+                            try {p.sendMessage(notification_Msg);} 
+                            catch (IOException e){e.printStackTrace();}
                         }        
                                 
                         
-                        if (isStarting)
-                        {
-                            isStarting = false;
-                            
-                        
-
-                        }
+                        if (isStarting){isStarting = false;}
                         
                         
                         if (getHadith)
@@ -860,29 +866,8 @@ import org.joda.time.format.DateTimeFormatter;
                             System.out.format("hadith: %s\n", hadith );
 
                         }
-                    
-                        
-                        
-                        
-                        Moon m = new Moon();
-                        moonPhase = m.illuminatedPercentage();
-                        isWaning = m.isWaning();
-                        update_moon_image = true;
-                        System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
- 
-                       fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
-                       newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
-                       System.out.println("The moon is full on " + fullMoon );
-                       System.out.println("The moon is new on " + newMoon );
-                       moonDaysDiff = Days.daysBetween(new DateTime(fullMoon), new DateTime(newMoon)).getDays();
-                       System.out.println("full moon date - new =  " + moonDaysDiff );
-                        
+   
                      } 
-                
-                
-                
-                
-                
 
                 catch(SQLException e)
                 {
@@ -921,23 +906,55 @@ import org.joda.time.format.DateTimeFormatter;
             }
         };
         
-        moonPhase_lastTimerCall = System.nanoTime();
-        moonPhase_timer = new AnimationTimer() {
-            @Override public void handle(long now) {
-                if (now >moonPhase_lastTimerCall + 1000000_000_000l) {
-                    
-                    try {
-//                      buildData_database();
-//                        buildData_calculate();
-                    } catch (Exception ex) {
-                        Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//        moonPhase_lastTimerCall = System.nanoTime();
+//        moonPhase_timer = new AnimationTimer() {
+//            @Override public void handle(long now) {
+//                if (now >moonPhase_lastTimerCall + 1000000_000_000l) {
+//                    
+//                    try {
+////                      buildData_database();
+////                        buildData_calculate();
+//                    } catch (Exception ex) {
+//                        Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+// 
+//                    moonPhase_lastTimerCall = now;
+//                }
+//            }
+//        };
+        
+        
+        new Thread()
+        {
+            public void run() 
+            {
+                for (;;) 
+                {
+                    try 
+                    {
+                       Moon m = new Moon();
+                       moonPhase = m.illuminatedPercentage();
+                       isWaning = m.isWaning();
+                       update_moon_image = true;
+                       System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
+
+                       fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
+                       newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
+                       System.out.println("The moon is full on " + fullMoon );
+                       System.out.println("The moon is new on " + newMoon );                       
+                       if(newMoon.before(fullMoon)){System.out.println("New moon is before full moon");}
+                       else {System.out.println("Full moon is before new moon" );}
+                       
+                       Thread.sleep(3600000);
                     }
- 
-                    moonPhase_lastTimerCall = now;
+                    catch (Exception ex) 
+                    {
+                        Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
-        };
-        
+        }.start();
         
         new Thread(() -> 
         {
@@ -1025,26 +1042,28 @@ import org.joda.time.format.DateTimeFormatter;
                 ColumnConstraintsBuilder.create().percentWidth(100/13.0).build()       
         );
         Mainpane.getRowConstraints().setAll(
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/20.0).build()
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/22.0).build()
         );
         Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
@@ -1052,6 +1071,8 @@ import org.joda.time.format.DateTimeFormatter;
         GridPane Moonpane =   moonpane();
         GridPane hadithPane = hadithPane();
         GridPane clockPane =   clockPane();
+        GridPane footerPane =   footerPane();
+        
        
         
   //============================================
@@ -1066,12 +1087,15 @@ import org.joda.time.format.DateTimeFormatter;
         prayertime_pane.setEffect(ds);
         hadithPane.setEffect(ds);
         clockPane.setEffect(ds);
+        footerPane.setEffect(ds);
   //============================================
         Mainpane.add(clockPane, 1, 1);
         Mainpane.add(Moonpane, 7, 1);
 //        Mainpane.add(clock, 1, 1,1,1);    
         Mainpane.add(prayertime_pane, 1, 4,11,8);  
-        Mainpane.add(hadithPane, 1, 13,11,7);
+        Mainpane.add(hadithPane, 1, 13,11,6);
+        Mainpane.add(footerPane, 1, 20,11,2);
+
 //        Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -1163,7 +1187,7 @@ public void update_labels() throws Exception{
             {
                 athan_Change_Label.setVisible(true);
                 athan_Change_Label.setText(notification_Msg);
-                divider2_Label.setVisible(true);
+                divider1_Label.setVisible(true);
                 notification = false;
                 notification_Bis = false;
             }
@@ -1177,12 +1201,15 @@ public void update_labels() throws Exception{
             String date = new SimpleDateFormat("EEEE, dd MMMM").format(Calendar_now.getTime());
             date_Label.setText(date);
             
+            Calendar_now.setTime(newMoon);
+            int day = Calendar_now.get(Calendar.DAY_OF_MONTH);
+            String dayStr = day + suffixes[day];
             
-            if (moonDaysDiff<0)
+            if (newMoon.before(fullMoon))
             {
-                String FullMoon_date_en = new SimpleDateFormat("dd'th' MMMM").format(newMoon);
+                String FullMoon_date_en = new SimpleDateFormat("' of ' MMMM").format(newMoon);
                 Moon_Date_Label.setId("moon-text-english");
-                Moon_Date_Label.setText("Next New Moon is on\n" + FullMoon_date_en);
+                Moon_Date_Label.setText("Next New Moon is on\n" + " the "+ dayStr + FullMoon_date_en);
                 Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
                 english = true;
                 arabic = false;   
@@ -1196,12 +1223,12 @@ public void update_labels() throws Exception{
                 if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
                 {
                     String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
-                    String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
+                    String FullMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(fullMoon);
 
                     Moon_Date_Label.setId("moon-text-english");
 
-                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " night " + FullMoon_date_en1);}
-                    else{Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " " + FullMoon_date_en1);}
+                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " night "  + dayStr + FullMoon_date_en1);}
+                    else{Moon_Date_Label.setText("Full moon is on next\n" + FullMoon_date_en + " the "  + dayStr  + FullMoon_date_en1);}
 
                     Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
                     english = true;
@@ -1228,8 +1255,6 @@ public void update_labels() throws Exception{
                 else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
                 {
 
-                    String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
-
                     Moon_Date_Label.setId("moon-text-english");
 
                     if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("Full moon is on\n"+ "tomorrow night");}
@@ -1244,10 +1269,10 @@ public void update_labels() throws Exception{
                 {
 
                     String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
-                    String FullMoon_date_en1 = new SimpleDateFormat("dd'th' MMMM").format(fullMoon);
+                    String FullMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(fullMoon);
 
                     Moon_Date_Label.setId("moon-text-english");
-                    Moon_Date_Label.setText("Full moon is on " + FullMoon_date_en + " the " + FullMoon_date_en1);
+                    Moon_Date_Label.setText("Full moon is on\n" + FullMoon_date_en + " the "  + dayStr  + FullMoon_date_en1);
                     Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
                     english = true;
                     arabic = false;
@@ -1255,9 +1280,10 @@ public void update_labels() throws Exception{
 
                 else 
                 {            
-                    String FullMoon_date_en = new SimpleDateFormat("EEEE dd'th' MMMM").format(fullMoon);
+                    String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
+                    String FullMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(fullMoon);
                     Moon_Date_Label.setId("moon-text-english");
-                    Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en);
+                    Moon_Date_Label.setText("Next Full Moon is on\n" + FullMoon_date_en  + " the "  + dayStr  + FullMoon_date_en1);
                     Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
                     english = true;
                     arabic = false;
@@ -1324,7 +1350,7 @@ public void update_labels() throws Exception{
             isha_Label_eng.setVisible(false);
             
             
-            if (moonDaysDiff<0)
+            if (newMoon.before(fullMoon))
             {
                 String FullMoon_date_ar = new SimpleDateFormat(" EEEE dd MMMM", new Locale("ar")).format(newMoon);               
                     labeconv = "سيظهر الهلال يوم\n" + FullMoon_date_ar;
@@ -1614,7 +1640,7 @@ public void update_labels() throws Exception{
                 {
                     try {
                         c = DBConnect.connect();
-                        String SQL = "select * from jos_prayertimes1 where DATE(date) = DATE(NOW()) + 1";
+                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
                         ResultSet rs = c.createStatement().executeQuery(SQL);
                         while (rs.next())
                         {
@@ -1657,7 +1683,7 @@ public void update_labels() throws Exception{
 //                    try {
 //                       
 //                        c = DBConnect.connect();
-//                        String SQL = "select * from jos_prayertimes1 where DATE(date) = DATE(NOW()) + 1";
+//                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
 //                        ResultSet rs = c.createStatement().executeQuery(SQL);
 //                        while (rs.next())
 //                        {
@@ -1699,7 +1725,7 @@ public void update_labels() throws Exception{
                 {
                     try {
                         c = DBConnect.connect();
-                        String SQL = "select * from jos_prayertimes1 where DATE(date) = DATE(NOW()) + 1";
+                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
                         ResultSet rs = c.createStatement().executeQuery(SQL);
                         while (rs.next())
                         {
@@ -1740,7 +1766,7 @@ public void update_labels() throws Exception{
 //                {
 //                    try {
 //                        c = DBConnect.connect();
-//                        String SQL = "select * from jos_prayertimes1 where DATE(date) = DATE(NOW()) + 1";
+//                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
 //                        ResultSet rs = c.createStatement().executeQuery(SQL);
 //                        while (rs.next())
 //                        {
@@ -1781,7 +1807,7 @@ public void update_labels() throws Exception{
                 {
                     try {
                         c = DBConnect.connect();
-                        String SQL = "select * from jos_prayertimes1 where DATE(date) = DATE(NOW()) + 1";
+                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
                         ResultSet rs = c.createStatement().executeQuery(SQL);
                         while (rs.next())
                         {
@@ -2549,16 +2575,39 @@ public void update_labels() throws Exception{
         hadithPane.setConstraints(athan_Change_Label, 0, 2);
         hadithPane.getChildren().add(athan_Change_Label);
         
-        ImageView divider_img2 = new ImageView(new Image(getClass().getResourceAsStream("/Images/divider.png")));  
-        divider2_Label.setGraphic(divider_img2);
-        hadithPane.setHalignment(divider2_Label,HPos.CENTER);
-        hadithPane.setConstraints(divider2_Label, 0, 3);
-        hadithPane.getChildren().add(divider2_Label);
+//        ImageView divider_img2 = new ImageView(new Image(getClass().getResourceAsStream("/Images/divider.png")));  
+//        divider2_Label.setGraphic(divider_img2);
+//        hadithPane.setHalignment(divider2_Label,HPos.CENTER);
+//        hadithPane.setConstraints(divider2_Label, 0, 3);
+//        hadithPane.getChildren().add(divider2_Label);
         
         return hadithPane;
     }    
 
+    public GridPane footerPane() {
+      
+        GridPane footerPane = new GridPane();
+//        hadithPane.setGridLinesVisible(true);
+        footerPane.setId("hadithpane");
+        footerPane.setVgap(15);
 
+
+ 
+        
+        ImageView twitter_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter2.png")));      
+        twitter_img.setFitWidth(100);
+        twitter_img.setPreserveRatio(true);
+        footerPane.setHalignment(twitter_img,HPos.CENTER);
+        footerPane.setConstraints(twitter_img, 1, 0);
+        footerPane.getChildren().add(twitter_img); 
+        
+
+         
+        
+
+        
+        return footerPane;
+    }    
 
     public GridPane clockPane() {
       
