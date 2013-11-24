@@ -90,6 +90,9 @@ import org.joda.time.format.DateTimeFormatter;
  */
    
     public class JavaFXApplication4 extends Application {
+    
+    private Boolean debug    = false;  //  <<========================== Debuger
+        
     private Process p;
     private Date fullMoon= null;
     private Date newMoon= null;
@@ -415,6 +418,14 @@ import org.joda.time.format.DateTimeFormatter;
             public void run() 
             {
                 try {
+                        
+                        Moon m = new Moon();
+                        moonPhase = m.illuminatedPercentage();
+                        isWaning = m.isWaning();
+                        update_moon_image = true;
+                        System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
+                    
+                    
                         Locale.setDefault(new Locale("en", "AU"));
                         Date now = new Date();
                         Calendar cal = Calendar.getInstance();
@@ -740,6 +751,28 @@ import org.joda.time.format.DateTimeFormatter;
                                 
                             }
                             
+                            
+
+                            fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
+                            newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
+                            System.out.println("The moon is full on " + fullMoon );
+                            System.out.println("The moon is new on " + newMoon );                       
+                            if(newMoon.before(fullMoon)){System.out.println("New moon is before full moon");}
+                            else {System.out.println("Full moon is before new moon" );}
+                            
+                            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 23)
+                            {
+                                System.out.println("=================  x days left to full moon==================== " );
+                            
+                            
+                            }
+                            
+                            else 
+                            {
+                                //clear label boolean
+                            }
+                            
+                            
                         }
                         
                         
@@ -776,7 +809,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm");
 //                            en_notification_Msg = "Time change\nTime saving will be in effect as of *Sunday, November 03, 2013*\nAll prayer times will move back by one hour.\nJummah prayer will be at 1:00 PM";
-                            if (fajr_jamma_time_change)
+                            if (fajr_jamma_time_change || debug)
                             {
 
                                 String future_fajr_jamaat_time_mod = DATE_FORMAT.format(future_fajr_jamaat_time);
@@ -787,7 +820,7 @@ import org.joda.time.format.DateTimeFormatter;
                             }           
                             
                             
-                            if(Calendar_now.compareTo(nextTransitionCal)==0)
+                            if(Calendar_now.compareTo(nextTransitionCal)==0 || debug)
                             {
                                 if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){future_zuhr_jamaat_time = "13:30";}
                                 else{future_zuhr_jamaat_time = "12:30";}  
@@ -795,7 +828,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 ar_notification_Msg = ar_notification_Msg + "الظهر و الجمعة: " + future_zuhr_jamaat_time +"    ";
                             }
                             
-                            if (asr_jamma_time_change)
+                            if (asr_jamma_time_change || debug)
                             {
                                 String future_asr_jamaat_time_mod = DATE_FORMAT.format(future_asr_jamaat_time);
 //                                Date future_fajr_jamaat_time_mod = new SimpleDateFormat("HH:mm").parse("Fajr time: " + future_fajr_jamaat_time);
@@ -805,7 +838,7 @@ import org.joda.time.format.DateTimeFormatter;
                             }
                             
                             
-                            if (isha_jamma_time_change)
+                            if (isha_jamma_time_change || debug)
                             {
                                 String future_isha_jamaat_time_mod = DATE_FORMAT.format(future_isha_jamaat_time);
 //                                Date future_fajr_jamaat_time_mod = new SimpleDateFormat("HH:mm").parse("Fajr time: " + future_fajr_jamaat_time);
@@ -825,14 +858,15 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             notification_Msg = ar_notification_Msg_Lines[0] + "\n" + ar_notification_Msg_Lines[1] + "\n" + en_notification_Msg;
                             System.out.println(notification_Msg );
+                            
 //                            Twitter twitter = TwitterFactory.getSingleton();
 //                            Status status = null;
 //                            try {status = twitter.updateStatus(notification_Msg);} 
 //                            catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
 //                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
                             
-//                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
-//                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
+                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
+                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
                             
                             try {p.sendMessage(en_notification_Msg);} 
                             catch (IOException e){e.printStackTrace();}
@@ -882,37 +916,37 @@ import org.joda.time.format.DateTimeFormatter;
             }
         };
         
-        new Thread()
-        {
-            public void run() 
-            {
-                for (;;) 
-                {
-                    try 
-                    {
-                       Moon m = new Moon();
-                       moonPhase = m.illuminatedPercentage();
-                       isWaning = m.isWaning();
-                       update_moon_image = true;
-                       System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
-
-                       fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
-                       newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
-                       System.out.println("The moon is full on " + fullMoon );
-                       System.out.println("The moon is new on " + newMoon );                       
-                       if(newMoon.before(fullMoon)){System.out.println("New moon is before full moon");}
-                       else {System.out.println("Full moon is before new moon" );}
-                       
-                       Thread.sleep(3600000);
-                    }
-                    catch (Exception ex) 
-                    {
-                        Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
-        }.start();
+//        new Thread()
+//        {
+//            public void run() 
+//            {
+//                for (;;) 
+//                {
+//                    try 
+//                    {
+//                       Moon m = new Moon();
+//                       moonPhase = m.illuminatedPercentage();
+//                       isWaning = m.isWaning();
+//                       update_moon_image = true;
+//                       System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
+//
+//                       fullMoon = MoonPhaseFinder.findFullMoonFollowing(Calendar.getInstance());
+//                       newMoon = MoonPhaseFinder.findNewMoonFollowing(Calendar.getInstance());
+//                       System.out.println("The moon is full on " + fullMoon );
+//                       System.out.println("The moon is new on " + newMoon );                       
+//                       if(newMoon.before(fullMoon)){System.out.println("New moon is before full moon");}
+//                       else {System.out.println("Full moon is before new moon" );}
+//                       
+//                       Thread.sleep(3600000);
+//                    }
+//                    catch (Exception ex) 
+//                    {
+//                        Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//                        Thread.currentThread().interrupt();
+//                    }
+//                }
+//            }
+//        }.start();
         
         new Thread(() -> 
         {
