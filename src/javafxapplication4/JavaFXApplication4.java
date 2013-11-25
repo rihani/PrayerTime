@@ -99,7 +99,6 @@ import org.joda.time.format.DateTimeFormatter;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 //    private Clock clock;
     private ObservableList data;
-    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label;
     private Integer moonPhase;
     private Boolean isWaning;
     private Boolean sensorLow = false;
@@ -132,7 +131,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean maghrib_jamaat_update_enable = true;
     private Boolean isha_jamaat_update_enable = true;
             
-    private String hadith, announcement, en_notification_Msg, ar_notification_Msg;
+    private String hadith, ar_moon_hadith_lines[], en_moon_hadith_lines[], en_moon_hadith, ar_moon_hadith, announcement, en_notification_Msg, ar_notification_Msg;
     private int id;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
@@ -164,10 +163,15 @@ import org.joda.time.format.DateTimeFormatter;
     private Label maghrib_hourLeft, maghrib_hourRight, maghrib_minLeft, maghrib_minRight, maghrib_jamma_hourLeft, maghrib_jamma_hourRight, maghrib_jamma_minLeft, maghrib_jamma_minRight;
     private Label isha_hourLeft, isha_hourRight, isha_minLeft, isha_minRight, isha_jamma_hourLeft, isha_jamma_hourRight, isha_jamma_minLeft, isha_jamma_minRight;
     private Label friday_hourLeft, friday_hourRight, friday_minLeft, friday_minRight;
+    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, moon_hadith_Label_L1, moon_hadith_Label_L2;
+    
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall;
     private AnimationTimer moonPhase_timer, translate_timer;
     boolean arabic = true;
     boolean english = false;
+    boolean moon_hadith_Label_visible = false;
+    boolean hadith_Label_visible = true;
+    
     GridPane Mainpane, Moonpane, prayertime_pane, clockPane, hadithPane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     static String[] suffixes =
@@ -262,6 +266,8 @@ import org.joda.time.format.DateTimeFormatter;
         isha_Label_ar = new Label();
         isha_Label_eng = new Label();
         hadith_Label = new Label();
+        moon_hadith_Label_L1 = new Label();
+        moon_hadith_Label_L2 = new Label();
         announcement_Label = new Label();
         athan_Change_Label_L1 = new Label();
         athan_Change_Label_L2 = new Label();
@@ -270,7 +276,6 @@ import org.joda.time.format.DateTimeFormatter;
         date_Label = new Label();
         divider1_Label = new Label();
         divider2_Label = new Label();
-        
         fajr_hourLeft = new Label();
         fajr_hourRight = new Label();
         time_Separator1 = new Label();
@@ -760,16 +765,36 @@ import org.joda.time.format.DateTimeFormatter;
                             if(newMoon.before(fullMoon)){System.out.println("New moon is before full moon");}
                             else {System.out.println("Full moon is before new moon" );}
                             
-                            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 23)
+// ======= Notification for full moon 5 days earlier, 2 days before fasting period
+                            
+                            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 25 || !debug)
                             {
                                 System.out.println("=================  x days left to full moon==================== " );
-                            
+                                
+                                //hide hadith label boolean
+                                hadith_Label_visible = false;
+                                //show moon notification label boolean
+                                moon_hadith_Label_visible = true;
+                                ar_moon_hadith = "حَدَّثَنَا عُبَيْدُ اللَّهِ عَنْ زَيْدِ بْنِ أَبِي أُنَيْسَةَ عَنْ أَبِي إِسْحَقَ عَنْ جَرِيرِ بْنِ عَبْدِ اللَّهِ عَنْ النَّبِيِّ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ قَالَ : صِيَامُ ثَلاثَةِ أَيَّامٍ مِنْ كُلِّ شَهْرٍ صِيَامُ الدَّهْرِ وَأَيَّامُ الْبِيضِ صَبِيحَةَ ثَلاثَ عَشْرَةَ وَأَرْبَعَ عَشْرَةَ وَخَمْسَ عَشْرَةَ. رواه النسائى\n testing arabic";
+                                en_moon_hadith =  "hello\n testing english"  ;
+                                //set message string
+                                ar_moon_hadith_lines = ar_moon_hadith.split("\\r?\\n");
+                                en_moon_hadith_lines = en_moon_hadith.split("\\r?\\n");
+        
+                                
+                                
+//                                try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
+//                                catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
                             
                             }
                             
                             else 
                             {
-                                //clear label boolean
+                                //hide moon notification label boolean
+                                moon_hadith_Label_visible = false;
+                                //show hadith label boolean
+                                hadith_Label_visible = true;
+                                
                             }
                             
                             
@@ -864,6 +889,7 @@ import org.joda.time.format.DateTimeFormatter;
 //                            try {status = twitter.updateStatus(notification_Msg);} 
 //                            catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
 //                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
+                            System.out.println("Notification Sent to Facebook" );
                             
                             try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
                             catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
@@ -1058,7 +1084,7 @@ import org.joda.time.format.DateTimeFormatter;
                 RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/22.0).build()
         );
-        Mainpane.setGridLinesVisible(true);
+//        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         GridPane prayertime_pane = prayertime_pane();    
         GridPane Moonpane =   moonpane();
@@ -1128,8 +1154,41 @@ public void update_labels() throws Exception{
             isha_Label_ar.setVisible(false);
             isha_Label_eng.setVisible(true);
             
-            hadith_Label.setText(hadith);
-            announcement_Label.setText(announcement);
+                        
+            
+            
+                                
+            if (hadith_Label_visible)
+            {
+                hadith_Label.setVisible(true);
+                hadith_Label.setText(hadith);
+                moon_hadith_Label_L1.setVisible(false);
+                moon_hadith_Label_L2.setVisible(false);
+                moon_hadith_Label_L2.setPrefHeight(0);
+                moon_hadith_Label_L2.setMaxHeight(0);
+                moon_hadith_Label_L2.setMinHeight(0);
+            }
+            
+            if (moon_hadith_Label_visible)
+            {
+                moon_hadith_Label_L1.setVisible(true);
+                moon_hadith_Label_L1.setText(ar_moon_hadith_lines[0]);
+                hadithPane.setHalignment(moon_hadith_Label_L1,HPos.LEFT);
+                moon_hadith_Label_L2.setVisible(true);
+                moon_hadith_Label_L2.setText(en_moon_hadith_lines[0]);
+                hadithPane.setHalignment(moon_hadith_Label_L2,HPos.LEFT);
+                moon_hadith_Label_L2.setPrefHeight(100);
+                moon_hadith_Label_L2.setMinHeight(100);
+                        
+//                        hadithPane.getRowConstraints().setAll(
+//                RowConstraintsBuilder.create().build(),
+//                RowConstraintsBuilder.create().prefHeight(100).build(),
+//                RowConstraintsBuilder.create().build(),
+//                RowConstraintsBuilder.create().build()
+//                );
+                hadith_Label.setVisible(false);
+  
+            }
             
             if (!label_Notification)
             {
@@ -1259,6 +1318,31 @@ public void update_labels() throws Exception{
             isha_Label_eng.setVisible(false);
             
             hadithPane.setHalignment(athan_Change_Label_L1,HPos.RIGHT);
+            
+            if (hadith_Label_visible)
+            {
+                hadith_Label.setVisible(true);
+                hadith_Label.setText(hadith);
+                moon_hadith_Label_L1.setVisible(false);
+                moon_hadith_Label_L2.setVisible(false);
+                moon_hadith_Label_L2.setPrefHeight(0);
+
+                
+            }
+            
+            if (moon_hadith_Label_visible)
+            {
+                moon_hadith_Label_L1.setVisible(true);
+                moon_hadith_Label_L1.setText(ar_moon_hadith_lines[0]);
+                hadithPane.setHalignment(moon_hadith_Label_L1,HPos.RIGHT);
+                moon_hadith_Label_L2.setVisible(true);
+                moon_hadith_Label_L2.setText(ar_moon_hadith_lines[1]);
+                hadithPane.setHalignment(moon_hadith_Label_L2,HPos.RIGHT);
+                moon_hadith_Label_L2.setPrefHeight(100);
+                hadith_Label.setVisible(false);
+  
+            }
+            
             
             if (!label_Notification)
             {
@@ -2410,43 +2494,59 @@ public void update_labels() throws Exception{
     public GridPane hadithPane() {
       
         GridPane hadithPane = new GridPane();
-//        hadithPane.setGridLinesVisible(true);
+        hadithPane.setGridLinesVisible(true);
         hadithPane.setId("hadithpane");
-        hadithPane.setVgap(15);
+//        hadithPane.getRowConstraints().setAll(
+//                RowConstraintsBuilder.create().build(),
+//                RowConstraintsBuilder.create().prefHeight(0).build(),
+//                RowConstraintsBuilder.create().build(),
+//                RowConstraintsBuilder.create().build()
+//                );
+        
+
+        
+        hadithPane.setVgap(10);
 
         hadith_Label.setId("hadith-text-arabic");
         hadith_Label.setWrapText(true);
         hadithPane.setConstraints(hadith_Label, 0, 0);
         hadithPane.getChildren().add(hadith_Label);
         
+        moon_hadith_Label_L1.setId("hadith-text-arabic");
+        moon_hadith_Label_L1.setWrapText(true);
+        
+        hadithPane.setConstraints(moon_hadith_Label_L1, 0, 0);
+        hadithPane.getChildren().add(moon_hadith_Label_L1);
+        
+        moon_hadith_Label_L2.setId("hadith-text-arabic");
+        moon_hadith_Label_L2.setWrapText(true);
+//        moon_hadith_Label_L2.setVisible(false);
+        hadithPane.setConstraints(moon_hadith_Label_L2, 0, 1);
+        hadithPane.getChildren().add(moon_hadith_Label_L2);
+        
+        
         ImageView divider_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/divider.png")));      
         divider1_Label.setGraphic(divider_img);
         hadithPane.setHalignment(divider1_Label,HPos.CENTER);
-        hadithPane.setConstraints(divider1_Label, 0, 1);
+        hadithPane.setConstraints(divider1_Label, 0, 2);
         hadithPane.getChildren().add(divider1_Label); 
         
         athan_Change_Label_L1.setId("athan-change-text");
         athan_Change_Label_L1.setWrapText(true);
-        hadithPane.setConstraints(athan_Change_Label_L1, 0, 2);
+        hadithPane.setConstraints(athan_Change_Label_L1, 0, 3);
         hadithPane.getChildren().add(athan_Change_Label_L1);
         
         athan_Change_Label_L2.setId("athan-change-text");
         athan_Change_Label_L2.setWrapText(true);
-        hadithPane.setConstraints(athan_Change_Label_L2, 0, 3);
+        hadithPane.setConstraints(athan_Change_Label_L2, 0, 4);
         hadithPane.getChildren().add(athan_Change_Label_L2);
         
         ImageView twitter_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter.png")));      
         twitter_img.setFitWidth(110);
         twitter_img.setPreserveRatio(true);
-        twitter_img.setTranslateY(450);
+        twitter_img.setTranslateY(485);
         hadithPane.getChildren().add(twitter_img); 
         
-        ImageView face_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Facebook.png")));      
-        face_img.setFitWidth(110);
-        face_img.setPreserveRatio(true);
-        face_img.setTranslateY(450);
-        face_img.setTranslateX(750);
-        hadithPane.getChildren().add(face_img);
         
 
         
