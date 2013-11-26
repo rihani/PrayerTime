@@ -151,7 +151,26 @@ and open the template in the editor.
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment: right;
-        -fx-text-fill:whitesmoke;
+        -fx-text-fill:goldenrod;
+        
+   }
+   
+   
+   #hadith-text-english{
+        
+        -fx-font-size: 32px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+        /*-fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Lateef';
+        /*-fx-font-family: 'PT Bold Arch';*/
+        /*-fx-font-family: 'Arial Bold';*/
+        /*-fx-fill: white;*/
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
+        -fx-text-alignment: left;
+        -fx-text-fill:goldenrod;
         
    }
    

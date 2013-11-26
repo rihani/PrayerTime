@@ -928,7 +928,7 @@ import org.joda.time.format.DateTimeFormatter;
 //        translate_lastTimerCall = System.nanoTime();
         translate_timer = new AnimationTimer() {
             @Override public void handle(long now) {
-                if (now > translate_lastTimerCall + 10000_000_000l) 
+                if (now > translate_lastTimerCall + 15000_000_000l) 
                 {
                     try {update_labels();} 
                     catch (Exception ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
@@ -1157,6 +1157,7 @@ public void update_labels() throws Exception{
             {
                 hadith_Label.setVisible(true);
                 hadith_Label.setText(hadith);
+                hadith_Label.setId("hadith-text-arabic");
                 moon_hadith_Label_L1.setVisible(false);
                 moon_hadith_Label_L2.setVisible(false);
                 moon_hadith_Label_L2.setPrefHeight(0);
@@ -1168,27 +1169,20 @@ public void update_labels() throws Exception{
             {
                 moon_hadith_Label_L1.setVisible(true);
                 moon_hadith_Label_L1.setText(en_full_moon_hadith);
+                hadith_Label.setId("hadith-text-english");
                 hadithPane.setHalignment(moon_hadith_Label_L1,HPos.LEFT);
-                
                 moon_hadith_Label_L2.setVisible(true);
                 moon_hadith_Label_L2.setText(en_moon_notification);
                 hadithPane.setHalignment(moon_hadith_Label_L2,HPos.LEFT);
-                moon_hadith_Label_L2.setPrefHeight(100);
-                moon_hadith_Label_L2.setMinHeight(100);
-                        
-//                        hadithPane.getRowConstraints().setAll(
-//                RowConstraintsBuilder.create().build(),
-//                RowConstraintsBuilder.create().prefHeight(100).build(),
-//                RowConstraintsBuilder.create().build(),
-//                RowConstraintsBuilder.create().build()
-//                );
+                moon_hadith_Label_L2.setPrefHeight(165);
+                moon_hadith_Label_L2.setMinHeight(165);
+                moon_hadith_Label_L2.setMaxHeight(165);
                 hadith_Label.setVisible(false);
   
             }
             
             if (!label_Notification)
             {
-                
                 athan_Change_Label_L1.setVisible(false);
                 athan_Change_Label_L2.setVisible(false);
                 divider1_Label.setVisible(false);
@@ -1196,11 +1190,9 @@ public void update_labels() throws Exception{
             
             if (label_Notification)
             {
-                
                 athan_Change_Label_L1.setVisible(true);
                 athan_Change_Label_L2.setVisible(false);
                 divider1_Label.setVisible(true);
-                
                 hadithPane.setHalignment(athan_Change_Label_L1,HPos.LEFT);
                 athan_Change_Label_L1.setText(en_notification_Msg);
             }
@@ -1319,6 +1311,7 @@ public void update_labels() throws Exception{
             {
                 hadith_Label.setVisible(true);
                 hadith_Label.setText(hadith);
+                hadith_Label.setId("hadith-text-arabic");
                 moon_hadith_Label_L1.setVisible(false);
                 moon_hadith_Label_L2.setVisible(false);
                 moon_hadith_Label_L2.setPrefHeight(0);
@@ -1329,12 +1322,16 @@ public void update_labels() throws Exception{
             if (moon_hadith_Label_visible)
             {
                 moon_hadith_Label_L1.setVisible(true);
-                moon_hadith_Label_L1.setText(ar_full_moon_hadith);
                 hadithPane.setHalignment(moon_hadith_Label_L1,HPos.RIGHT);
+                moon_hadith_Label_L1.setText(ar_full_moon_hadith);
+                
                 moon_hadith_Label_L2.setVisible(true);
-                moon_hadith_Label_L2.setText(ar_moon_notification);
                 hadithPane.setHalignment(moon_hadith_Label_L2,HPos.RIGHT);
-                moon_hadith_Label_L2.setPrefHeight(100);
+                moon_hadith_Label_L2.setText(ar_moon_notification);
+                
+                moon_hadith_Label_L2.setPrefHeight(110);
+                moon_hadith_Label_L2.setMaxHeight(110);
+                moon_hadith_Label_L2.setMinHeight(110);
                 hadith_Label.setVisible(false);
   
             }
@@ -2492,15 +2489,6 @@ public void update_labels() throws Exception{
         GridPane hadithPane = new GridPane();
         hadithPane.setGridLinesVisible(true);
         hadithPane.setId("hadithpane");
-//        hadithPane.getRowConstraints().setAll(
-//                RowConstraintsBuilder.create().build(),
-//                RowConstraintsBuilder.create().prefHeight(0).build(),
-//                RowConstraintsBuilder.create().build(),
-//                RowConstraintsBuilder.create().build()
-//                );
-        
-
-        
         hadithPane.setVgap(10);
 
         hadith_Label.setId("hadith-text-arabic");
@@ -2510,11 +2498,10 @@ public void update_labels() throws Exception{
         
         moon_hadith_Label_L1.setId("hadith-text-arabic");
         moon_hadith_Label_L1.setWrapText(true);
-        
         hadithPane.setConstraints(moon_hadith_Label_L1, 0, 0);
         hadithPane.getChildren().add(moon_hadith_Label_L1);
         
-        moon_hadith_Label_L2.setId("hadith-text-arabic");
+        moon_hadith_Label_L2.setId("athan-change-text");
         moon_hadith_Label_L2.setWrapText(true);
 //        moon_hadith_Label_L2.setVisible(false);
         hadithPane.setConstraints(moon_hadith_Label_L2, 0, 1);
@@ -2542,10 +2529,7 @@ public void update_labels() throws Exception{
         twitter_img.setPreserveRatio(true);
         twitter_img.setTranslateY(485);
         hadithPane.getChildren().add(twitter_img); 
-        
-        
 
-        
         return hadithPane;
     }    
 
@@ -2555,15 +2539,6 @@ public void update_labels() throws Exception{
 //        hadithPane.setGridLinesVisible(true);
         footerPane.setId("hadithpane");
         footerPane.setVgap(15);
-
-
- 
-        
-        
-         
-        
-
-        
         return footerPane;
     }    
 
