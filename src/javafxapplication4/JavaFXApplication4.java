@@ -5,7 +5,7 @@
  */
 
 /*
-26/11/13 from windows XP: Uncomment Lines 227, 214 - 221, 897 - 898 to work on raspberry pi
+26/11/13 from windows XP: Uncomment Lines 227, 214 - 221, 891 - 892 to work on raspberry pi
 
 */
 
@@ -98,14 +98,16 @@ import org.joda.time.format.DateTimeFormatter;
    
     public class JavaFXApplication4 extends Application {
     
-    private Boolean debug    = false;  //  <<========================== Debuger
-        
+    private Boolean debug    = false;  //  <<========================== Debuger  
+    
+    private Date fullMoon= null; //  <<========================== might fix errors at startup
+    private Date newMoon= null; //  <<========================== might fix errors at startup
+    
     private Process p;
-    private Date fullMoon= null;
-    private Date newMoon= null;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
-//    private Clock clock;
+
     private ObservableList data;
+    
     private Integer moonPhase;
     private Boolean isWaning;
     private Boolean sensorLow = false;
@@ -118,17 +120,14 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean asr_athan_enable  = true ;
     private Boolean maghrib_athan_enable  = true ;
     private Boolean isha_athan_enable = true ;
-    
     private Boolean fajr_jamma_time_change = false;
     private Boolean zuhr_jamma_time_change = false;
     private Boolean asr_jamma_time_change = false;
     private Boolean maghrib_jamma_time_change = false;
     private Boolean isha_jamma_time_change = false;
-                    
     private Boolean notification = false;
     private Boolean notification_Bis = false;
     private Boolean label_Notification = false;
-    
     private Boolean update_prayer_labels  = false;
     private Boolean update_moon_image  = false;
     private Boolean getHadith = true;
@@ -137,31 +136,32 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean asr_jamaat_update_enable = true;
     private Boolean maghrib_jamaat_update_enable = true;
     private Boolean isha_jamaat_update_enable = true;
+    private boolean  notification_Sent;
+    private boolean arabic = true;
+    private boolean english = false;
+    private boolean moon_hadith_Label_visible = false;
+    private boolean hadith_Label_visible = true;
             
-    private String hadith, ar_moon_hadith, announcement, en_notification_Msg, ar_notification_Msg;
+    private String hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
+    private String ar_notification_Msg_Lines[], notification_Msg;    
+    private String fajr_jamaat ,zuhr_jamaat ,asr_jamaat ,maghrib_jamaat ,isha_jamaat ;
+    private String labeconv;
+    private String friday_jamaat, future_zuhr_jamaat_time;
+    private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
+    private String en_message_String, ar_message_String; 
+    
     private int id;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
     private Calendar fajr_jamaat_update_cal, duha_jamaat_update_cal, zuhr_jamaat_update_cal, asr_jamaat_update_cal, maghrib_jamaat_update_cal, isha_jamaat_update_cal;
     private Calendar future_fajr_jamaat_cal, future_zuhr_jamaat_cal, future_asr_jamaat_cal, future_maghrib_jamaat_cal, future_isha_jamaat_cal;
-
-    private String ar_notification_Msg_Lines[], notification_Msg;    
-    String fajr_jamaat ,zuhr_jamaat ,asr_jamaat ,maghrib_jamaat ,isha_jamaat ;
-    String labeconv;
-    private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
-    
-    String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
-    private Date future_fajr_jamaat_time, future_asr_jamaat_time, future_maghrib_jamaat_time,future_isha_jamaat_time;
-    String friday_jamaat, future_zuhr_jamaat_time;
-    
-    private Date notification_Date;
-    private String en_message_String, ar_message_String; 
-    private boolean  notification_Sent;
     private Calendar notification_Date_cal;
     
-    
-    
+    private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
+    private Date future_fajr_jamaat_time, future_asr_jamaat_time, future_maghrib_jamaat_time,future_isha_jamaat_time;
+    private Date notification_Date;   
+
     private Label fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private Label sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
     private Label time_Separator1, time_Separator2, time_Separator3, time_Separator4, time_Separator5, time_Separator6,time_Separator8, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
@@ -174,11 +174,7 @@ import org.joda.time.format.DateTimeFormatter;
     
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall;
     private AnimationTimer moonPhase_timer, translate_timer;
-    boolean arabic = true;
-    boolean english = false;
-    boolean moon_hadith_Label_visible = false;
-    boolean hadith_Label_visible = true;
-    
+        
     GridPane Mainpane, Moonpane, prayertime_pane, clockPane, hadithPane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     static String[] suffixes =
@@ -192,9 +188,6 @@ import org.joda.time.format.DateTimeFormatter;
          "th", "st" };
     Connection c,c2 ;
            ObservableList<String> names = FXCollections.observableArrayList();
-     
-           
-        
 
     @Override public void init() throws IOException {
         
@@ -218,20 +211,19 @@ import org.joda.time.format.DateTimeFormatter;
 // Pushover ==============================       
         
         //https://github.com/nicatronTg/jPushover
-//        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-//        try 
-//        {
-//            p.sendMessage("Prayer Time Ibn Abass starting");
-//        } catch (IOException e) 
-//        {
-//            e.printStackTrace();
-//        }
+        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+        try 
+        {
+            p.sendMessage("Prayer Time Ibn Abass starting");
+        } catch (IOException e) 
+        {
+            e.printStackTrace();
+        }
                             
 
         
-        ProcessBuilder processBuilder = 
-              new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-//            Process process = processBuilder.start();
+        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+        Process process = processBuilder.start();
 //            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 //            String line = null;
 //            while ((line = br.readLine()) != null) {
@@ -676,14 +668,12 @@ import org.joda.time.format.DateTimeFormatter;
                                 ar_notification_Msg_Lines = ar_notification_Msg.split("\\r?\\n");
                                 
                                 label_Notification = true;
-
                             }
                             
                             if (Calendar_now.compareTo(notification_Date_cal) >=0 )  //&& !notification_Sent
                             {
                                 label_Notification = false;
 
-                                
                                 c = DBConnect.connect();
                                 SQL = "select * from prayertimes where DATE(date) = DATE(NOW() ) + INTERVAL 7 DAY ";
                                 rs = c.createStatement().executeQuery(SQL);
@@ -760,7 +750,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
 // ======= Notification for full moon 5 days earlier, 2 days before fasting period
                             
-                            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 25 || debug)
+                            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 21 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 19 || debug)
                             {
                                 System.out.println("=================  x days left to full moon==================== " );
                                 
@@ -771,17 +761,34 @@ import org.joda.time.format.DateTimeFormatter;
 
                                 c = DBConnect.connect();
                                 //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-                                SQL = "select hadith from hadith WHERE day = \"15\" ORDER BY RAND( ) LIMIT 1";
+                                SQL = "select hadith, translated_hadith from hadith WHERE day = '15' ORDER BY RAND( ) LIMIT 1";
                                 rs = c.createStatement().executeQuery(SQL);
                                 while (rs.next()) 
                                 {
-                                    ar_moon_hadith = rs.getString("hadith");
+                                    ar_full_moon_hadith = rs.getString("hadith");
+                                    en_full_moon_hadith = rs.getString("translated_hadith");
                                 }
                                 c.close();
-                                System.out.format("Moon hadith: %s\n", ar_moon_hadith );
+                                System.out.format("Full Moon arabic hadith: %s\n", ar_full_moon_hadith );
+                                System.out.format("Full Moon english hadith: %s\n", en_full_moon_hadith );
                                 
+                                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 21)
+                                {
 //                                try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
 //                                catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}                           
+                                    System.out.println("Full Moon Notification Sent to Facebook" );
+                                    
+                                    ar_moon_notification = "إخوتي وأخواتي في الله ، نذكّركم وأنفسنا بفضل صيام الايام البيض من كل شهر, التي تبدأ من بعد غد ان شاء الله. إن أستطعت الصيام فصم وذكر أحبابك ";
+                                    en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\", being the 13, 14 and 15th of the arabic month will start after tomorrow, it is recommended to fast these days";
+                                }
+                                
+                                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 4)
+                                {
+                                    ar_moon_notification = "إخوتي وأخواتي في الله ، نذكّركم وأنفسنا بفضل صيام الايام البيض من كل شهر, التي تبدأ غدا ان شاء الله. إن أستطعت الصيام فصم وذكر أحبابك";
+                                    en_moon_notification = "We would like to remind our dear brothers & sisters that this month's 'White days', being the 13, 14 and 15th of the arabic month will start tomorrow, it is recommended to fast these days";
+                                }
+                                
+                                
                             }
                             
                             else 
@@ -881,8 +888,8 @@ import org.joda.time.format.DateTimeFormatter;
                             try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
                             catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
                             
-//                            try {p.sendMessage(en_notification_Msg);} 
-//                            catch (IOException e){e.printStackTrace();}
+                            try {p.sendMessage(en_notification_Msg);} 
+                            catch (IOException e){e.printStackTrace();}
                         }        
                                 
                         if (isStarting){isStarting = false;}
@@ -1160,11 +1167,11 @@ public void update_labels() throws Exception{
             if (moon_hadith_Label_visible)
             {
                 moon_hadith_Label_L1.setVisible(true);
-                moon_hadith_Label_L1.setText(ar_moon_hadith);
-                hadithPane.setHalignment(moon_hadith_Label_L1,HPos.RIGHT);
+                moon_hadith_Label_L1.setText(en_full_moon_hadith);
+                hadithPane.setHalignment(moon_hadith_Label_L1,HPos.LEFT);
                 
                 moon_hadith_Label_L2.setVisible(true);
-                moon_hadith_Label_L2.setText("english notification with date");
+                moon_hadith_Label_L2.setText(en_moon_notification);
                 hadithPane.setHalignment(moon_hadith_Label_L2,HPos.LEFT);
                 moon_hadith_Label_L2.setPrefHeight(100);
                 moon_hadith_Label_L2.setMinHeight(100);
@@ -1322,10 +1329,10 @@ public void update_labels() throws Exception{
             if (moon_hadith_Label_visible)
             {
                 moon_hadith_Label_L1.setVisible(true);
-                moon_hadith_Label_L1.setText(ar_moon_hadith);
+                moon_hadith_Label_L1.setText(ar_full_moon_hadith);
                 hadithPane.setHalignment(moon_hadith_Label_L1,HPos.RIGHT);
                 moon_hadith_Label_L2.setVisible(true);
-                moon_hadith_Label_L2.setText("arabic notification with date");
+                moon_hadith_Label_L2.setText(ar_moon_notification);
                 hadithPane.setHalignment(moon_hadith_Label_L2,HPos.RIGHT);
                 moon_hadith_Label_L2.setPrefHeight(100);
                 hadith_Label.setVisible(false);
