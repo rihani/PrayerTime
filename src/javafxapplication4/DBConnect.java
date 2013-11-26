@@ -16,13 +16,11 @@ import java.sql.SQLException;
 class DBConnect {
     
     private static Connection conn = null;
-    private static final String url = "jdbc:mysql://192.168.0.15/prayertime?useUnicode=true&characterEncoding=UTF-8";
-//    String db = "prayertime";
-    private static final String user = "admin";
-//    private static final String url = "jdbc:mysql://127.0.0.1/prayertime";
-//    private static final String user = "root";
+//    private static final String url = "jdbc:mysql://192.168.0.15/prayertime?useUnicode=true&characterEncoding=UTF-8";
+//    private static final String user = "admin";
+    private static final String url = "jdbc:mysql://127.0.0.1/prayertime";
+    private static final String user = "root";
     private static final String pass = "soumaya";
-    String unicode= "?useUnicode=yes&characterEncoding=UTF-8";
 
     public static Connection connect() throws SQLException
     {
