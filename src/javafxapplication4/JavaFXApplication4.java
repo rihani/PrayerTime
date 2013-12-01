@@ -161,6 +161,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
     private Date future_fajr_jamaat_time, future_asr_jamaat_time, future_maghrib_jamaat_time,future_isha_jamaat_time;
     private Date notification_Date;   
+    private Date fullMoon_plus1;
 
     private Label fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
     private Label sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
@@ -752,10 +753,8 @@ import org.joda.time.format.DateTimeFormatter;
                             
 // ======= Notification for full moon 5 days earlier, 2 days before fasting period
                             
-                            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 5 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 3)
-                            {
-                                System.out.println("=================  x days left to full moon==================== " );
-                                
+                            if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 5 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 3 )
+                            {                                
                                 //hide hadith label boolean
 //                                getHadith = false;
                                 hadith_Label_visible = false;
@@ -773,32 +772,97 @@ import org.joda.time.format.DateTimeFormatter;
                                 c.close();
                                 System.out.format("Full Moon arabic hadith: %s\n", ar_full_moon_hadith );
                                 System.out.format("Full Moon english hadith: %s\n", en_full_moon_hadith );
-                                
-                                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 5)
+                                fullMoon_plus1 = fullMoon;
+                                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 5 )
                                 {
 
-                                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours()){ Moon_Date_Label.setText("سيكون القمر بدرا ليلة الغذٍٍُِِِ" );}
-                                    else{Moon_Date_Label.setText("سيكون القمر بدرا غدآ" );}
-                                    
-                                    
-                                    
-                                    
-                                    ar_moon_notification = "إخوتي وأخواتي في الله ، نذكّركم وأنفسنا بفضل صيام الايام البيض من كل شهر, التي تبدأ من بعد غد ان شاء الله. إن أستطعت الصيام فصم وذكر أحبابك ";
-                                    en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start after tomorrow, it is recommended to fast these days";
-                                    facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
-//                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
-//                                    catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}                           
-                                    System.out.println("Full Moon Notification Sent to Facebook:" );
-                                    System.out.println(facebook_moon_notification_Msg);
-                                    
+                                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours() )
+                                    { 
+                                        
+                                        fullMoon_plus1.setTime(fullMoon.getTime() + 1 * 24 * 60 * 60 * 1000);
+                                        String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
+                                        String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
+                                        String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
+                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
+                                        System.out.println(ar_moon_notification);
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                        System.out.println(en_moon_notification);
+                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;                          
+                                        System.out.println("Full Moon Notification Sent to Facebook:" );
+                                        System.out.println(facebook_moon_notification_Msg);
+                                        
+                                    }
+                                    else
+                                    {
+                                        String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon);
+                                        String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon);
+                                        String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
+                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
+                                        System.out.println(ar_moon_notification);
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                        System.out.println(en_moon_notification);
+                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
+    //                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+    //                                    catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}                           
+                                        System.out.println("Full Moon Notification:" );
+                                        System.out.println(facebook_moon_notification_Msg);
+                                        
+                                    }
+                                     
                                 }
                                 
-                                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 4)
+                                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 4 )
                                 {
-                                    ar_moon_notification = "إخوتي وأخواتي في الله ، نذكّركم وأنفسنا بفضل صيام الايام البيض من كل شهر, التي تبدأ غدا ان شاء الله. إن أستطعت الصيام فصم وذكر أحبابك";
-                                    en_moon_notification = "We would like to remind our dear brothers & sisters that this month's 'White days' will start tomorrow, it is recommended to fast these days";
+                                    if (fullMoon.getHours()>maghrib_cal.getTime().getHours())
+                                    { 
+                                        
+                                        fullMoon_plus1.setTime(fullMoon.getTime() + 1 * 24 * 60 * 60 * 1000);
+                                        String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
+                                        String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
+                                        String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
+                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
+                                        System.out.println(ar_moon_notification);
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                        System.out.println(en_moon_notification);
+                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
+    //                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+    //                                    catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);} 
+                                        System.out.println("Full Moon Notification Sent to Facebook:" );
+                                        System.out.println(facebook_moon_notification_Msg);
+                                        
+                                    }
+                                    
+                                    else
+                                    {
+                                       
+                                        String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ غدا ";
+                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        ar_moon_notification = temp_ar_text1 + temp_ar_text2;
+                                        System.out.println(ar_moon_notification);
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
+                                        System.out.println(en_moon_notification);
+                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;                          
+                                        System.out.println("Full Moon Notification:" );
+                                        System.out.println(facebook_moon_notification_Msg);
+                                    }
                                 }
                                 
+                                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 3 && fullMoon.getHours()>maghrib_cal.getTime().getHours())
+                                {
+
+                                        String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ غدا ";
+                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        ar_moon_notification = temp_ar_text1 +  temp_ar_text2;
+                                        System.out.println(ar_moon_notification);
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
+                                        System.out.println(en_moon_notification);
+                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
+                                        System.out.println("Full Moon Notification:" );
+                                        System.out.println(facebook_moon_notification_Msg);
+                                }
                                 
                             }
                             
@@ -813,7 +877,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
                         }                      
                         
-// Prayer time change notification/////////////////////put this in a thread, so error does not stop code further down
+// Prayer time change notification/////////////////////put this in a thread, so error does not stop code further down ========================================================
 // creates message to send to facebook
 // creates labels for notification
                         
@@ -1108,6 +1172,7 @@ import org.joda.time.format.DateTimeFormatter;
         
                 new Thread()
         {
+            @Override
             public void run() 
             {
                 for (;;) 
@@ -1120,7 +1185,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 hadith_Label_visible = true;
                        
                     }
-                    catch (Exception ex) 
+                    catch (InterruptedException ex) 
                     {
                         Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
                         Thread.currentThread().interrupt();
@@ -1165,10 +1230,6 @@ public void update_labels() throws Exception{
             maghrib_Label_eng.setVisible(true);
             isha_Label_ar.setVisible(false);
             isha_Label_eng.setVisible(true);
-            
-                        
-            
-            
                                 
             if (hadith_Label_visible)
             {
@@ -1188,23 +1249,19 @@ public void update_labels() throws Exception{
             
             if (moon_hadith_Label_visible)
             {
-                
                 hadith_Label.setVisible(false);
                 hadith_Label.setMinHeight(0);
                 hadith_Label.setText("");
-                
                 ar_moon_hadith_Label_L1.setVisible(false);
                 en_moon_hadith_Label_L1.setVisible(true);
                 en_moon_hadith_Label_L1.setText(en_full_moon_hadith);
                 en_moon_hadith_Label_L1.setId("hadith-text-english");
                 hadithPane.setHalignment(en_moon_hadith_Label_L1,HPos.LEFT);
-                
                 ar_moon_hadith_Label_L2.setVisible(false);
                 en_moon_hadith_Label_L2.setVisible(true);
                 en_moon_hadith_Label_L2.setText(en_moon_notification);
                 en_moon_hadith_Label_L2.setId("en_moon-notification-text");
                 hadithPane.setHalignment(en_moon_hadith_Label_L2,HPos.LEFT);
-
   
             }
             
@@ -1241,12 +1298,70 @@ public void update_labels() throws Exception{
 
             if (newMoon.before(fullMoon))
             {
-                String FullMoon_date_en = new SimpleDateFormat("' of ' MMMM").format(newMoon);
-                Moon_Date_Label.setId("moon-text-english");
-                Moon_Date_Label.setText("Next New Moon is on\n" + " the "+ dayStr + FullMoon_date_en);
-                Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
-                english = true;
-                arabic = false;   
+                
+                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >1)
+                {
+                    String newMoon_date_en = new SimpleDateFormat("EEEE").format(newMoon);
+                    String newMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(newMoon);
+
+                    Moon_Date_Label.setId("moon-text-english");
+
+                    if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("New moon is on next\n" + newMoon_date_en + " night "  + dayStr + newMoon_date_en1);}
+                    else{Moon_Date_Label.setText("New moon is on next\n" + newMoon_date_en + " the "  + dayStr  + newMoon_date_en1);}
+
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+                }
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() == 0)
+                {
+                    Moon_Date_Label.setId("moon-text-english");
+
+                    if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("The moon is new tonight" );}
+                    else{Moon_Date_Label.setText("The moon is new today" );}
+
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+                }
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <=1 )
+                {
+                    Moon_Date_Label.setId("moon-text-english");
+                    if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("New moon is on\n"+ "tomorrow night");}
+                    else{Moon_Date_Label.setText("New moon is on\n"+ "tomorrow");}
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+                }
+
+                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() > 7)
+                {
+                    String newMoon_date_en = new SimpleDateFormat("EEEE").format(newMoon);
+                    String newMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(newMoon);
+                    Moon_Date_Label.setId("moon-text-english");
+                    Moon_Date_Label.setText("New moon is on\n" + newMoon_date_en + " the "  + dayStr  + newMoon_date_en1);
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+                }
+
+                else 
+                {            
+                    String newMoon_date_en = new SimpleDateFormat("EEEE").format(newMoon);
+                    String newMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(newMoon);
+                    Moon_Date_Label.setId("moon-text-english");
+                    Moon_Date_Label.setText("Next new Moon is on\n" + newMoon_date_en  + " the "  + dayStr  + newMoon_date_en1);
+                    Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
+                    english = true;
+                    arabic = false;
+
+    //            String image = JavaFXApplication4.class.getResource("wallpaper4.jpg").toExternalForm();
+    //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: stretch; -fx-background-size: 650 1180;-fx-background-position: top left;");
+                }
+                
+                
             }
             
             else
@@ -1398,26 +1513,108 @@ public void update_labels() throws Exception{
             
             if (newMoon.before(fullMoon))
             {
-                String FullMoon_date_ar = new SimpleDateFormat(" EEEE d MMMM", new Locale("ar")).format(newMoon);               
-                    labeconv = "سيظهر الهلال يوم\n" + FullMoon_date_ar;
-                    StringBuilder builder = new StringBuilder();
-                    for(int i =0;i<labeconv.length();i++)
+                    
+                    if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >1)
                     {
-                        if(Character.isDigit(labeconv.charAt(i)))
+                        String newMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(newMoon);
+                        String newMoon_date_ar1 = new SimpleDateFormat("d MMMM", new Locale("ar")).format(newMoon);
+
+
+                        if (newMoon.getHours()>maghrib_cal.getTime().getHours()){ labeconv = "سيظهر الهلال  ليلة\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
+                        else{ labeconv = "سيظهر الهلال يوم\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
+
+                        StringBuilder builder = new StringBuilder();
+                        for(int i =0;i<labeconv.length();i++)
                         {
-                            builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                            if(Character.isDigit(labeconv.charAt(i)))
+                            {
+                                builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                            }
+                            else
+                            {
+                                builder.append(labeconv.charAt(i));
+                            }
                         }
-                        else
-                        {
-                            builder.append(labeconv.charAt(i));
-                        }
+
+                        Moon_Date_Label.setId("moon-text-arabic");
+                        Moon_Date_Label.setText(builder.toString());
+                        Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                        english = false;
+                        arabic = true;
+
                     }
 
-                    Moon_Date_Label.setId("moon-text-arabic");
-                    Moon_Date_Label.setText(builder.toString());
-                    Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
-                    english = false;
-                    arabic = true;
+                    else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <=1 )
+                    {
+                        Moon_Date_Label.setId("moon-text-arabic");
+                        if (newMoon.getHours()>maghrib_cal.getTime().getHours()){ Moon_Date_Label.setText("سيظهر الهلال ليلة الغذٍٍُِِِ" );}
+                        else{Moon_Date_Label.setText("سيظهر الهلال غدآ" );}
+                        Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                        english = false;
+                        arabic = true;
+                    }
+
+                    else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() == 0)
+                    {
+                        Moon_Date_Label.setId("moon-text-arabic");
+                        if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("سيظهر الهلال ليلة اليوم" );}
+                        else{Moon_Date_Label.setText("سيظهر الهلال اليوم " );}
+                        Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                        english = false;
+                        arabic = true;
+                    }
+
+                    else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() > 7)
+                    {
+                        String newMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(newMoon);
+                        String newMoon_date_ar1 = new SimpleDateFormat("d MMMM", new Locale("ar")).format(newMoon);
+                        labeconv = "سيظهر الهلال " + newMoon_date_ar + ", " + newMoon_date_ar1;
+                        StringBuilder builder = new StringBuilder();
+                        for(int i =0;i<labeconv.length();i++)
+                        {
+                            if(Character.isDigit(labeconv.charAt(i)))
+                            {
+                                builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                            }
+                            else
+                            {
+                                builder.append(labeconv.charAt(i));
+                            }
+                        }
+
+                        Moon_Date_Label.setId("moon-text-arabic");
+                        Moon_Date_Label.setText(builder.toString());
+                        Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                        english = false;
+                        arabic = true;
+                    }
+
+                    else 
+                    {            
+                        String newMoon_date_ar = new SimpleDateFormat(" EEEE d MMMM", new Locale("ar")).format(newMoon);               
+                        labeconv = "سيظهر الهلال يوم\n" + newMoon_date_ar;
+                        StringBuilder builder = new StringBuilder();
+                        for(int i =0;i<labeconv.length();i++)
+                        {
+                            if(Character.isDigit(labeconv.charAt(i)))
+                            {
+                                builder.append(arabicChars[(int)(labeconv.charAt(i))-48]);
+                            }
+                            else
+                            {
+                                builder.append(labeconv.charAt(i));
+                            }
+                        }
+
+                        Moon_Date_Label.setId("moon-text-arabic");
+                        Moon_Date_Label.setText(builder.toString());
+                        Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
+                        english = false;
+                        arabic = true;
+                    }
+                    
+                    
+                    
             }
             
             else
