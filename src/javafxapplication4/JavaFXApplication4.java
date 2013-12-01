@@ -2028,6 +2028,7 @@ public void update_labels() throws Exception{
         if (update_prayer_labels) 
         {
             update_prayer_labels = false;
+           
             fajr_hourLeft.setText(fajr_begins_time.toString().substring(11, 12));
             fajr_hourRight.setText(fajr_begins_time.toString().substring(12, 13));
             fajr_minLeft.setText(fajr_begins_time.toString().substring(14, 15));
@@ -2441,6 +2442,12 @@ public void update_labels() throws Exception{
         prayertime_pane.setConstraints(fajr_Label_ar, 2, 2);
         prayertime_pane.getChildren().add(fajr_Label_ar);
         
+        fajr_hourLeft.setText("-");
+        fajr_hourRight.setText("-");
+        fajr_minLeft.setText("-");
+        fajr_minRight.setText("-");
+        time_Separator1.setText(":");
+        
 
 //============================= 
         HBox zuhrBox = new HBox();
@@ -2461,6 +2468,12 @@ public void update_labels() throws Exception{
         prayertime_pane.getChildren().add(zuhr_Label_eng);      
         prayertime_pane.setConstraints(zuhr_Label_ar, 2, 4);
         prayertime_pane.getChildren().add(zuhr_Label_ar);
+        
+        zuhr_hourLeft.setText("-");
+        zuhr_hourRight.setText("-");
+        zuhr_minLeft.setText("-");
+        zuhr_minRight.setText("-");
+        time_Separator3.setText(":");
 
 //============================= 
         HBox asrBox = new HBox();
@@ -2482,6 +2495,12 @@ public void update_labels() throws Exception{
         prayertime_pane.setConstraints(asr_Label_ar, 2, 6);
         prayertime_pane.getChildren().add(asr_Label_ar);
         
+        asr_hourLeft.setText("-");
+        asr_hourRight.setText("-");
+        asr_minLeft.setText("-");
+        asr_minRight.setText("-");
+        time_Separator4.setText(":");
+        
 //============================= 
         
         HBox maghribBox = new HBox();
@@ -2502,6 +2521,12 @@ public void update_labels() throws Exception{
         prayertime_pane.getChildren().add(maghrib_Label_eng);      
         prayertime_pane.setConstraints(maghrib_Label_ar, 2, 8);
         prayertime_pane.getChildren().add(maghrib_Label_ar);
+        
+        maghrib_hourLeft.setText("-");
+        maghrib_hourRight.setText("-");
+        maghrib_minLeft.setText("-");
+        maghrib_minRight.setText("-");
+        time_Separator5.setText(":");
 
 //============================= 
         
@@ -2523,6 +2548,12 @@ public void update_labels() throws Exception{
         prayertime_pane.getChildren().add(isha_Label_eng);      
         prayertime_pane.setConstraints(isha_Label_ar, 2, 10);
         prayertime_pane.getChildren().add(isha_Label_ar);
+        
+        isha_hourLeft.setText("-");
+        isha_hourRight.setText("-");
+        isha_minLeft.setText("-");
+        isha_minRight.setText("-");
+        time_Separator6.setText(":");
 
  //=============================  
 //        HBox gapBox = new HBox();
@@ -2576,9 +2607,14 @@ public void update_labels() throws Exception{
         
         prayertime_pane.setConstraints(friday_Label_eng, 2, 13);
         prayertime_pane.getChildren().add(friday_Label_eng);
-       
         prayertime_pane.setConstraints(friday_Label_ar, 2, 13);
         prayertime_pane.getChildren().add(friday_Label_ar);
+        
+        friday_hourLeft.setText("-");
+        friday_hourRight.setText("-");
+        friday_minLeft.setText("-");
+        friday_minRight.setText("-");
+        time_Separator8.setText(":");
  //============================= 
         
         final Separator sepHor1 = new Separator();
@@ -2633,6 +2669,12 @@ public void update_labels() throws Exception{
         prayertime_pane.setConstraints(fajr_jamma_Box, 0, 2);
         prayertime_pane.getChildren().add(fajr_jamma_Box);
         
+        fajr_jamma_hourLeft.setText("-");
+        fajr_jamma_hourRight.setText("-");
+        fajr_jamma_minLeft.setText("-");
+        fajr_jamma_minRight.setText("-");
+        time_jamma_Separator1.setText(":");
+        
 //============================= 
         HBox zuhr_jamma_Box = new HBox();
         zuhr_jamma_Box.setSpacing(0);
@@ -2645,6 +2687,12 @@ public void update_labels() throws Exception{
         zuhr_jamma_Box.getChildren().addAll(zuhr_jamma_hourLeft, zuhr_jamma_hourRight, time_jamma_Separator2, zuhr_jamma_minLeft, zuhr_jamma_minRight);
         prayertime_pane.setConstraints(zuhr_jamma_Box, 0, 4);
         prayertime_pane.getChildren().add(zuhr_jamma_Box);
+        
+        zuhr_jamma_hourLeft.setText("-");
+        zuhr_jamma_hourRight.setText("-");
+        zuhr_jamma_minLeft.setText("-");
+        zuhr_jamma_minRight.setText("-");
+        time_jamma_Separator2.setText(":");
 
 //============================= 
         HBox asr_jamma_Box = new HBox();
@@ -2658,6 +2706,12 @@ public void update_labels() throws Exception{
         asr_jamma_Box.getChildren().addAll(asr_jamma_hourLeft, asr_jamma_hourRight, time_jamma_Separator3, asr_jamma_minLeft, asr_jamma_minRight);
         prayertime_pane.setConstraints(asr_jamma_Box, 0, 6);
         prayertime_pane.getChildren().add(asr_jamma_Box);
+        
+        asr_jamma_hourLeft.setText("-");
+        asr_jamma_hourRight.setText("-");
+        asr_jamma_minLeft.setText("-");
+        asr_jamma_minRight.setText("-");
+        time_jamma_Separator3.setText(":");
         
 //============================= 
         
@@ -2673,6 +2727,11 @@ public void update_labels() throws Exception{
         prayertime_pane.setConstraints(maghrib_jamma_Box, 0, 8);
         prayertime_pane.getChildren().add(maghrib_jamma_Box);
         
+        maghrib_jamma_hourLeft.setText("-");
+        maghrib_jamma_hourRight.setText("-");
+        maghrib_jamma_minLeft.setText("-");
+        maghrib_jamma_minRight.setText("-");
+        time_jamma_Separator4.setText(":");
 //============================= 
         
         HBox isha_jamma_Box = new HBox();
@@ -2686,6 +2745,12 @@ public void update_labels() throws Exception{
         isha_jamma_Box.getChildren().addAll(isha_jamma_hourLeft, isha_jamma_hourRight, time_jamma_Separator5, isha_jamma_minLeft, isha_jamma_minRight);
         prayertime_pane.setConstraints(isha_jamma_Box, 0, 10);
         prayertime_pane.getChildren().add(isha_jamma_Box);
+        
+        isha_jamma_hourLeft.setText("-");
+        isha_jamma_hourRight.setText("-");
+        isha_jamma_minLeft.setText("-");
+        isha_jamma_minRight.setText("-");
+        time_jamma_Separator5.setText(":");
 
     return prayertime_pane;
 }
