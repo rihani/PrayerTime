@@ -72,15 +72,22 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.restfb.DefaultFacebookClient;
+import com.restfb.Facebook;
 import com.restfb.FacebookClient;
 import com.restfb.Parameter;
 import com.restfb.exception.FacebookException;
+import com.restfb.json.JsonObject;
 import com.restfb.types.FacebookType;
+import com.restfb.types.Post;
 
 import java.io.InputStream;
+import static java.lang.String.format;
+import static java.lang.System.currentTimeMillis;
+import static java.lang.System.out;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.text.Format;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 //import javafx.scene.text.FontPosture;
@@ -131,6 +138,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean update_prayer_labels  = false;
     private Boolean update_moon_image  = false;
     private Boolean getHadith = true;
+    private Boolean getFacebook = true;
     private Boolean fajr_jamaat_update_enable = true;
     private Boolean zuhr_jamaat_update_enable = true;
     private Boolean asr_jamaat_update_enable = true;
@@ -141,6 +149,7 @@ import org.joda.time.format.DateTimeFormatter;
     private boolean english = false;
     private boolean moon_hadith_Label_visible = false;
     private boolean hadith_Label_visible = false;
+    private boolean facebook_Label_visible = false;
             
     private String hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
@@ -149,6 +158,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String friday_jamaat, future_zuhr_jamaat_time;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
+    private String facebook_post;
     
     private int id;
     int olddayofweek_int;
@@ -171,7 +181,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Label maghrib_hourLeft, maghrib_hourRight, maghrib_minLeft, maghrib_minRight, maghrib_jamma_hourLeft, maghrib_jamma_hourRight, maghrib_jamma_minLeft, maghrib_jamma_minRight;
     private Label isha_hourLeft, isha_hourRight, isha_minLeft, isha_minRight, isha_jamma_hourLeft, isha_jamma_hourRight, isha_jamma_minLeft, isha_jamma_minRight;
     private Label friday_hourLeft, friday_hourRight, friday_minLeft, friday_minRight;
-    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2;
+    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2, facebook_Label;
     
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall;
     private AnimationTimer moonPhase_timer, translate_timer ,debug_timer ;
@@ -188,7 +198,8 @@ import org.joda.time.format.DateTimeFormatter;
     //    30    31
          "th", "st" };
     Connection c,c2 ;
-           ObservableList<String> names = FXCollections.observableArrayList();
+    ObservableList<String> names = FXCollections.observableArrayList();
+    
 
     @Override public void init() throws IOException {
         
@@ -207,8 +218,11 @@ import org.joda.time.format.DateTimeFormatter;
         moonPhase = 200;
         
         FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
+                
         
+
         
+
 // Pushover ==============================       
         
         //https://github.com/nicatronTg/jPushover
@@ -339,6 +353,7 @@ import org.joda.time.format.DateTimeFormatter;
         time_Separator8 = new Label();
         friday_minLeft = new Label();
         friday_minRight = new Label();
+        facebook_Label = new Label();
         
     
         athan_Label_ar.setId("prayer-label-arabic");
@@ -580,6 +595,7 @@ import org.joda.time.format.DateTimeFormatter;
                             maghrib_athan_enable = true;
                             isha_athan_enable = true;
                             getHadith = true;
+                            getFacebook = true;
                             
                             c = DBConnect.connect();
 //                            System.out.println("connected");
@@ -756,7 +772,8 @@ import org.joda.time.format.DateTimeFormatter;
                             if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 5 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 3 )
                             {                                
                                 //hide hadith label boolean
-//                                getHadith = false;
+                                getHadith = false;
+                                getFacebook = false;
                                 hadith_Label_visible = false;
                                 //show moon notification label boolean
                                 moon_hadith_Label_visible = true;
@@ -868,7 +885,8 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             else 
                             {
-                                getHadith = true;                                
+                                getHadith = true; 
+                                getFacebook = true;
                                 //hide moon notification label boolean
                                 moon_hadith_Label_visible = false;
                                 //show hadith label boolean
@@ -982,7 +1000,11 @@ import org.joda.time.format.DateTimeFormatter;
                             getHadith = false;
                             c = DBConnect.connect();
                             //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-                            String SQL = "select * from hadith WHERE day IS NULL order by rand() limit 1";
+//                            if ()
+                            String SQL;
+                            System.out.println("current day of the week " + dayofweek_int );
+                            if (dayofweek_int == 5){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
+                            else {SQL = "select * from hadith WHERE day IS NULL order by rand() limit 1";}
                             ResultSet rs = c.createStatement().executeQuery(SQL);
                             while (rs.next()) 
                             {
@@ -992,6 +1014,43 @@ import org.joda.time.format.DateTimeFormatter;
                             System.out.format("hadith: %s\n", hadith );
 
                         }
+
+// Get Facebook Latest Post =================================================================================
+                        if (getFacebook)
+                        {
+                            getFacebook = false;
+                            Calendar facebook_check_post_date = Calendar.getInstance();
+                            facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -2);
+                            long facebook_check_post_Unix_Time = facebook_check_post_date.getTimeInMillis() / 1000;
+                            String query1 = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
+                            String query = "SELECT message FROM stream WHERE source_id = 187050104663230   AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+                            try 
+                            {
+                                List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
+                                facebook_post = queryResults.get(0).getString("message");
+                                if(facebook_post.contains("\n\n"))
+                                {
+                                    out.println("'/n/n' detected");
+                                    facebook_post =facebook_post.replace("\n\n", "\n");
+                                    out.println(facebook_post);
+                                    facebook_Label_visible = true;
+
+                                }
+                                if(facebook_post.contains("prayer time(s)") || facebook_post.contains("White days"))
+                                {
+                                    out.println("Own post detected");
+                                    facebook_post = null;
+                                    facebook_Label_visible = false;
+
+                                }
+                                
+                            }
+                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);} 
+
+                            
+                        }
+                        
+                        
                      } 
 
                 catch(SQLException e)
@@ -1240,11 +1299,19 @@ public void update_labels() throws Exception{
                 ar_moon_hadith_Label_L2.setVisible(false);
                 en_moon_hadith_Label_L1.setVisible(false);
                 en_moon_hadith_Label_L2.setVisible(false);
+                
                 en_moon_hadith_Label_L2.setText("");
                 ar_moon_hadith_Label_L2.setText("");
                 ar_moon_hadith_Label_L2.setMinHeight(0);
                 en_moon_hadith_Label_L2.setMinHeight(0);
                 hadith_Label.setMinHeight(0);
+            }
+            
+            if (facebook_Label_visible)
+            {
+                facebook_Label.setVisible(true);
+                facebook_Label.setText(facebook_post);
+                facebook_Label.setId("facebook-text");
             }
             
             if (moon_hadith_Label_visible)
@@ -1262,6 +1329,9 @@ public void update_labels() throws Exception{
                 en_moon_hadith_Label_L2.setText(en_moon_notification);
                 en_moon_hadith_Label_L2.setId("en_moon-notification-text");
                 hadithPane.setHalignment(en_moon_hadith_Label_L2,HPos.LEFT);
+                facebook_Label.setVisible(false);
+                facebook_Label.setText("");
+                facebook_Label.setMinHeight(0);
   
             }
             
@@ -1274,6 +1344,9 @@ public void update_labels() throws Exception{
             
             if (athan_Change_Label_visible)
             {
+                facebook_Label.setVisible(false);
+                facebook_Label.setText("");
+                facebook_Label.setMinHeight(0);
                 athan_Change_Label_L1.setVisible(true);
                 athan_Change_Label_L2.setVisible(true);
                 divider1_Label.setVisible(true);
@@ -1292,12 +1365,13 @@ public void update_labels() throws Exception{
             String date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
             date_Label.setText(date);
             
-            Calendar_now.setTime(newMoon);
-            int day = Calendar_now.get(Calendar.DAY_OF_MONTH);
-            String dayStr = day + suffixes[day];
+            
 
             if (newMoon.before(fullMoon))
             {
+                Calendar_now.setTime(newMoon);
+                int day = Calendar_now.get(Calendar.DAY_OF_MONTH);
+                String dayStr = day + suffixes[day];
                 
                 if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >1)
                 {
@@ -1366,6 +1440,10 @@ public void update_labels() throws Exception{
             
             else
             {
+                Calendar_now.setTime(fullMoon);
+                int day = Calendar_now.get(Calendar.DAY_OF_MONTH);
+                String dayStr = day + suffixes[day];
+                
                 if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
                 {
                     String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
@@ -2781,6 +2859,7 @@ public void update_labels() throws Exception{
         Moonpane.getChildren().add(Moon_Image_Label); 
         Moon_Date_Label.setId("moon-text-english");
         Moon_Date_Label.setWrapText(true);
+        Moon_Date_Label.setText("Loading......");
         Moonpane.setConstraints(Moon_Date_Label, 0, 0);
         Moonpane.getChildren().add(Moon_Date_Label);
 
@@ -2804,13 +2883,13 @@ public void update_labels() throws Exception{
         
         en_moon_hadith_Label_L1.setId("hadith-text-english");
         en_moon_hadith_Label_L1.setWrapText(true);
+        en_moon_hadith_Label_L1.setText("Loading.....");
         en_moon_hadith_Label_L1.setMinHeight(0);
         hadithPane.setConstraints(en_moon_hadith_Label_L1, 0, 0);
         hadithPane.getChildren().add(en_moon_hadith_Label_L1);
         
         en_moon_hadith_Label_L2.setWrapText(true);
         en_moon_hadith_Label_L2.setMinHeight(0);
-//        en_moon_hadith_Label_L2.setPrefHeight(130);
         hadithPane.setConstraints(en_moon_hadith_Label_L2, 0, 1);
         hadithPane.getChildren().add(en_moon_hadith_Label_L2);
         
@@ -2821,11 +2900,14 @@ public void update_labels() throws Exception{
         hadithPane.getChildren().add(ar_moon_hadith_Label_L1);
         
         ar_moon_hadith_Label_L2.setWrapText(true);
-//        ar_moon_hadith_Label_L2.setPrefHeight(130);
         ar_moon_hadith_Label_L2.setMinHeight(0);
         hadithPane.setConstraints(ar_moon_hadith_Label_L2, 0, 1);
         hadithPane.getChildren().add(ar_moon_hadith_Label_L2);
         
+        facebook_Label.setWrapText(true);
+        facebook_Label.setMinHeight(0);
+        hadithPane.setConstraints(facebook_Label, 0, 1);
+        hadithPane.getChildren().add(facebook_Label);
                 
         ImageView divider_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/divider.png")));      
         divider1_Label.setGraphic(divider_img);
