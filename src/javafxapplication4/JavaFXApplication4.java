@@ -570,6 +570,7 @@ import org.joda.time.format.DateTimeFormatter;
                         else{friday_jamaat = "12:30";}
            
                         update_prayer_labels = true;
+                        getFacebook = true;
                         
                         DateTime DateTime_now = new DateTime();    
                         Calendar Calendar_now = Calendar.getInstance();
@@ -595,7 +596,7 @@ import org.joda.time.format.DateTimeFormatter;
                             maghrib_athan_enable = true;
                             isha_athan_enable = true;
                             getHadith = true;
-                            getFacebook = true;
+                            
                             
                             c = DBConnect.connect();
 //                            System.out.println("connected");
@@ -974,6 +975,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             notification = false;
                             athan_Change_Label_visible = true;
+                            getFacebook = false;
                             
                             notification_Msg = ar_notification_Msg_Lines[0] + "\n" + ar_notification_Msg_Lines[1] + "\n\n" + en_notification_Msg_Lines[0] + "\n" + en_notification_Msg_Lines[1];
                             System.out.println(notification_Msg );
@@ -1023,7 +1025,8 @@ import org.joda.time.format.DateTimeFormatter;
                             facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -2);
                             long facebook_check_post_Unix_Time = facebook_check_post_date.getTimeInMillis() / 1000;
                             String query1 = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
-                            String query = "SELECT message FROM stream WHERE source_id = 187050104663230   AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+//                            String query = "SELECT message FROM stream WHERE source_id = 187050104663230   AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+                            String query = "SELECT message FROM stream WHERE source_id = 187050104663230    AND timeline_visibility AND type != 56 AND type = 46 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
                             try 
                             {
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
@@ -1036,6 +1039,9 @@ import org.joda.time.format.DateTimeFormatter;
                                     facebook_Label_visible = true;
 
                                 }
+                                
+                                // detect if null!!!
+                                
                                 if(facebook_post.contains("prayer time(s)") || facebook_post.contains("White days"))
                                 {
                                     out.println("Own post detected");
@@ -1312,6 +1318,16 @@ public void update_labels() throws Exception{
                 facebook_Label.setVisible(true);
                 facebook_Label.setText(facebook_post);
                 facebook_Label.setId("facebook-text");
+                divider2_Label.setVisible(true);
+                
+            }
+            
+            if (!facebook_Label_visible)
+            {
+                facebook_Label.setVisible(false);
+                facebook_Label.setText("");
+                divider2_Label.setVisible(false);
+                
             }
             
             if (moon_hadith_Label_visible)
@@ -2906,7 +2922,7 @@ public void update_labels() throws Exception{
         
         facebook_Label.setWrapText(true);
         facebook_Label.setMinHeight(0);
-        hadithPane.setConstraints(facebook_Label, 0, 1);
+        hadithPane.setConstraints(facebook_Label, 0, 3);
         hadithPane.getChildren().add(facebook_Label);
                 
         ImageView divider_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/divider.png")));      
@@ -2914,7 +2930,10 @@ public void update_labels() throws Exception{
         hadithPane.setHalignment(divider1_Label,HPos.CENTER);
         hadithPane.setConstraints(divider1_Label, 0, 2);
         hadithPane.getChildren().add(divider1_Label); 
-        
+        divider2_Label.setGraphic(divider_img);
+        hadithPane.setHalignment(divider2_Label,HPos.CENTER);
+        hadithPane.setConstraints(divider2_Label, 0, 2);
+        hadithPane.getChildren().add(divider2_Label); 
         
         athan_Change_Label_L1.setWrapText(true);
         athan_Change_Label_L1.setMinHeight(0);
