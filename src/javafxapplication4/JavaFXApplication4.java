@@ -158,7 +158,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String friday_jamaat, future_zuhr_jamaat_time;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
-    private String facebook_post;
+    private String facebook_post, facebook_post_visibility, facebook_hadith;
     
     private int id;
     int olddayofweek_int;
@@ -166,11 +166,11 @@ import org.joda.time.format.DateTimeFormatter;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
     private Calendar fajr_jamaat_update_cal, duha_jamaat_update_cal, zuhr_jamaat_update_cal, asr_jamaat_update_cal, maghrib_jamaat_update_cal, isha_jamaat_update_cal;
     private Calendar future_fajr_jamaat_cal, future_zuhr_jamaat_cal, future_asr_jamaat_cal, future_maghrib_jamaat_cal, future_isha_jamaat_cal;
-    private Calendar notification_Date_cal;
+    private Calendar notification_Date_cal, hadith_notification_Date_cal;
     
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
     private Date future_fajr_jamaat_time, future_asr_jamaat_time, future_maghrib_jamaat_time,future_isha_jamaat_time;
-    private Date notification_Date;   
+    private Date notification_Date, hadith_notification_Date;   
     private Date fullMoon_plus1;
 
     private Label fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight;
@@ -1001,8 +1001,6 @@ import org.joda.time.format.DateTimeFormatter;
                         {
                             getHadith = false;
                             c = DBConnect.connect();
-                            //SQL FOR SELECTING NATIONALITY OF CUSTOMER
-//                            if ()
                             String SQL;
                             System.out.println("current day of the week " + dayofweek_int );
                             if (dayofweek_int == 5){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
@@ -1013,7 +1011,42 @@ import org.joda.time.format.DateTimeFormatter;
                                 hadith = rs.getString("hadith");
                             }
                             c.close();
-                            System.out.format("hadith: %s\n", hadith );
+                            facebook_hadith = "Hadith of the Day:\n\n"+ hadith;
+                            
+                            
+                            // check if a notification has already been sent, to avoid flooding users with notifications, i.e during a system restart
+                            c = DBConnect.connect();
+                            SQL = "Select * from facebook_hadith_notification where id = (select max(id) from facebook_hadith_notification)";
+                            rs = c.createStatement().executeQuery(SQL);
+                            while (rs.next()) 
+                            {
+                                id =                rs.getInt("id");
+                                hadith_notification_Date = rs.getDate("notification_date");
+//                                hadith_Sent = rs.getBoolean("hadith_Sent");             
+                            }
+                            c.close();
+                            hadith_notification_Date_cal = Calendar.getInstance();
+                            hadith_notification_Date_cal.setTime(hadith_notification_Date);
+                            hadith_notification_Date_cal.set(Calendar.MILLISECOND, 0);
+                            hadith_notification_Date_cal.set(Calendar.SECOND, 0);
+                            
+                            if (Calendar_now.compareTo(hadith_notification_Date_cal) == 0 )  
+                            {
+                                System.out.println("hadith has already been posted today to Facebook");
+                            }
+                            
+                            if (Calendar_now.compareTo(hadith_notification_Date_cal) != 0 )  
+                            {
+                                try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));}
+                                catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
+                                c = DBConnect.connect();
+                                PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
+                                java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
+                                ps.setTimestamp(1, mysqldate);   
+                                ps.executeUpdate(); 
+                                c.close();
+                                System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
+                            }
 
                         }
 
@@ -1021,35 +1054,35 @@ import org.joda.time.format.DateTimeFormatter;
                         if (getFacebook)
                         {
                             getFacebook = false;
+                            facebook_post = "";
                             Calendar facebook_check_post_date = Calendar.getInstance();
-                            facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -2);
+                            facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -3);
                             long facebook_check_post_Unix_Time = facebook_check_post_date.getTimeInMillis() / 1000;
-                            String query1 = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
-//                            String query = "SELECT message FROM stream WHERE source_id = 187050104663230   AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
-                            String query = "SELECT message FROM stream WHERE source_id = 187050104663230    AND timeline_visibility AND type != 56 AND type = 46 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+//                            String query1 = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
+                            String query = "SELECT message,timeline_visibility, created_time FROM stream WHERE source_id = 187050104663230 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
                             try 
                             {
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
                                 facebook_post = queryResults.get(0).getString("message");
+                                facebook_post_visibility = queryResults.get(0).getString("timeline_visibility");
+                                facebook_Label_visible = true;
+
                                 if(facebook_post.contains("\n\n"))
                                 {
                                     out.println("'/n/n' detected");
                                     facebook_post =facebook_post.replace("\n\n", "\n");
                                     out.println(facebook_post);
                                     facebook_Label_visible = true;
-
-                                }
-                                
-                                // detect if null!!!
-                                
-                                if(facebook_post.contains("prayer time(s)") || facebook_post.contains("White days"))
+                                }   
+                                Calendar facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
+                                facebook_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
+                                out.print("Comment posted on:"); out.println(facebook_created_time_calendar.getTime());
+                                if(facebook_post.contains("tonight") || facebook_post.contains("today") && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(facebook_created_time_calendar)).getDays() != 0)
                                 {
-                                    out.println("Own post detected");
-                                    facebook_post = null;
+                                    out.println("Facebook post contains either  the word 'today' or 'tonight' and has not been posted today");
+                                    facebook_post = "";
                                     facebook_Label_visible = false;
-
-                                }
-                                
+                                }  
                             }
                             catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);} 
 
