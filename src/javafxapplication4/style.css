@@ -125,12 +125,14 @@ and open the template in the editor.
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
-        -fx-font-family: 'Arial Bold';
+        -fx-font-family: 'Arial';
+        
         /*-fx-fill: white;*/
         /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment: left;
+        -fx-line-spacing: 0.5em;
         -fx-text-fill:whitesmoke;
         
    }
@@ -243,6 +245,7 @@ and open the template in the editor.
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment: right;
+        /*-fx-line-spacing: 0.1em;*/
         -fx-text-fill:goldenrod;
         
    }
@@ -250,7 +253,7 @@ and open the template in the editor.
    
    #hadith-text-english{
         
-        -fx-font-size: 38px;
+        -fx-font-size: 35px;
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -262,6 +265,7 @@ and open the template in the editor.
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
         -fx-text-alignment: left;
+        -fx-line-spacing: 0.1em;
         -fx-text-fill:goldenrod;
         
    }
