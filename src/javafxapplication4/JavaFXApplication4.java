@@ -5,6 +5,9 @@
  */
 
 /*
+//sudo cp  SimpleAstronomyLib-0.1.0.jar  /opt/jdk1.8.0/jre/lib/ext
+
+
 26/11/13 from windows XP: Uncomment Lines 227, 214 - 221, 891 - 892 to work on raspberry pi
 
 */
@@ -18,7 +21,6 @@ package javafxapplication4;
 //import java.sql.Time;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -93,10 +95,15 @@ import java.util.concurrent.TimeUnit;
 //import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 //import org.joda.time.chrono.JulianChronology;
 
 /**
@@ -107,7 +114,7 @@ import org.joda.time.format.DateTimeFormatter;
     public class JavaFXApplication4 extends Application {
     
     private Boolean debug    = false;  //  <<========================== Debuger  
-    
+    private Logger logger = Logger.getLogger(JavaFXApplication4.class.getName());
     private Date fullMoon= null; //  <<========================== might fix errors at startup
     private Date newMoon= null; //  <<========================== might fix errors at startup
     
@@ -159,7 +166,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String friday_jamaat, future_zuhr_jamaat_time;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
-    private String facebook_post, facebook_post_visibility, facebook_hadith;
+    private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count;
     
     private int id;
     int olddayofweek_int;
@@ -213,28 +220,21 @@ import org.joda.time.format.DateTimeFormatter;
 //        try {
 //             status = twitter.updateStatus(Test);
 //        } catch (TwitterException ex) {
-//            Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//            logger.warn("Unexpected error", e);
 //        }
 //        System.out.println("Successfully updated the status to [" + status.getText() + "].");
         moonPhase = 200;
         
         FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
-                
-        
 
-        
+//        PropertyConfigurator.configure("log4j.properties");
+//        logger.info("Entering application.");
 
 // Pushover ==============================       
         
         //https://github.com/nicatronTg/jPushover
         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-        try 
-        {
-            p.sendMessage("Prayer Time Ibn Abass starting");
-        } catch (IOException e) 
-        {
-            e.printStackTrace();
-        }
+        try {p.sendMessage("Prayer Time Ibn Abass starting");} catch (IOException e){e.printStackTrace();}
                             
 
         
@@ -597,29 +597,31 @@ import org.joda.time.format.DateTimeFormatter;
                             maghrib_athan_enable = true;
                             isha_athan_enable = true;
                             getHadith = true;
-                            
-                            
-                            c = DBConnect.connect();
-//                            System.out.println("connected");
-                            String SQL = "select * from prayertimes where DATE(date) = DATE(NOW())";
-                            ResultSet rs = c.createStatement().executeQuery(SQL);
-                            while (rs.next()) 
+                            String SQL;
+                            ResultSet rs;
+                            try
                             {
-                                id =                rs.getInt("id");
-                                prayer_date =       rs.getDate("date");
-                                fajr_jamaat_time =       rs.getTime("fajr_jamaat");
-                                asr_jamaat_time =        rs.getTime("asr_jamaat");
-                                isha_jamaat_time =       rs.getTime("isha_jamaat");           
+                                c = DBConnect.connect();
+    //                            System.out.println("connected");
+                                SQL = "select * from prayertimes where DATE(date) = DATE(NOW())";
+                                rs = c.createStatement().executeQuery(SQL);
+                                while (rs.next()) 
+                                {
+                                    id =                rs.getInt("id");
+                                    prayer_date =       rs.getDate("date");
+                                    fajr_jamaat_time =       rs.getTime("fajr_jamaat");
+                                    asr_jamaat_time =        rs.getTime("asr_jamaat");
+                                    isha_jamaat_time =       rs.getTime("isha_jamaat");           
+                                }
+                                c.close();
+                                fajr_jamaat = fajr_jamaat_time.toString();
+                                if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){zuhr_jamaat = "13:30";} else{zuhr_jamaat = "12:30";}
+                                asr_jamaat = asr_jamaat_time.toString();
+                                isha_jamaat = isha_jamaat_time.toString();
+                                // print the results
+                                System.out.format("%s,%s,%s,%s,%s \n", id, prayer_date, fajr_jamaat, asr_jamaat, isha_jamaat );
                             }
-                            c.close();
-                            fajr_jamaat = fajr_jamaat_time.toString();
-                            if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){zuhr_jamaat = "13:30";} else{zuhr_jamaat = "12:30";}
-                            asr_jamaat = asr_jamaat_time.toString();
-                            isha_jamaat = isha_jamaat_time.toString();
-                            // print the results
-                            System.out.format("%s,%s,%s,%s,%s \n", id, prayer_date, fajr_jamaat, asr_jamaat, isha_jamaat );
-                        
-                        
+                            catch (Exception e){ logger.warn("Unexpected error", e); }
                             
                             Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
                             cal.setTime(fajr_jamaat_temp);
@@ -660,20 +662,24 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             // check if a notification has already been sent, to avoid flooding users with notifications, i.e during a system restart
                             ar_notification_Msg_Lines = null;
-                            c = DBConnect.connect();
-                            SQL = "Select * from notification where id = (select max(id) from notification)";
-                            rs = c.createStatement().executeQuery(SQL);
-                            while (rs.next()) 
-                            {
-                                id =                rs.getInt("id");
-                                notification_Date = rs.getDate("notification_Date");
-                                en_message_String = rs.getString("en_message_String");
-                                ar_message_String = rs.getString("ar_message_String");
-                                notification_Sent = rs.getBoolean("notification_Sent");             
-                            }
-                            c.close();
-                            System.out.format("%s,%s,%s,%s \n", notification_Date, en_message_String, ar_message_String, notification_Sent );
                             
+                            try
+                            {
+                                c = DBConnect.connect();
+                                SQL = "Select * from notification where id = (select max(id) from notification)";
+                                rs = c.createStatement().executeQuery(SQL);
+                                while (rs.next()) 
+                                {
+                                    id =                rs.getInt("id");
+                                    notification_Date = rs.getDate("notification_Date");
+                                    en_message_String = rs.getString("en_message_String");
+                                    ar_message_String = rs.getString("ar_message_String");
+                                    notification_Sent = rs.getBoolean("notification_Sent");             
+                                }
+                                c.close();
+                                System.out.format("%s,%s,%s,%s \n", notification_Date, en_message_String, ar_message_String, notification_Sent );
+                            }
+                            catch (Exception e){logger.warn("Unexpected error", e);}
                             notification_Date_cal = Calendar.getInstance();
                             notification_Date_cal.setTime(notification_Date);
                             notification_Date_cal.set(Calendar.MILLISECOND, 0);
@@ -694,45 +700,31 @@ import org.joda.time.format.DateTimeFormatter;
                             if (Calendar_now.compareTo(notification_Date_cal) >=0 )  //&& !notification_Sent
                             {
                                 athan_Change_Label_visible = false;
+                                try
+                                {
+                                        c = DBConnect.connect();
+                                        SQL = "select * from prayertimes where DATE(date) = DATE(NOW() ) + INTERVAL 7 DAY ";
+                                        rs = c.createStatement().executeQuery(SQL);
+                                        while (rs.next()) 
+                                        {
+                                            future_prayer_date =       rs.getDate("date");
+                                            future_fajr_jamaat_time =       rs.getTime("fajr_jamaat");
+                                            future_asr_jamaat_time =        rs.getTime("asr_jamaat");
+                                            future_isha_jamaat_time =       rs.getTime("isha_jamaat");             
+                                        }
+                                        c.close();
 
-                                c = DBConnect.connect();
-                                SQL = "select * from prayertimes where DATE(date) = DATE(NOW() ) + INTERVAL 7 DAY ";
-                                rs = c.createStatement().executeQuery(SQL);
-                                while (rs.next()) 
-                                {
-                                    future_prayer_date =       rs.getDate("date");
-                                    future_fajr_jamaat_time =       rs.getTime("fajr_jamaat");
-                                    future_asr_jamaat_time =        rs.getTime("asr_jamaat");
-                                    future_isha_jamaat_time =       rs.getTime("isha_jamaat");             
-                                }
-                                c.close();
-                                
-                                // print the results
-                                System.out.format("%s,%s,%s,%s \n", future_prayer_date, future_fajr_jamaat_time, future_asr_jamaat_time, future_isha_jamaat_time );
+                                        // print the results
+                                        System.out.format("%s,%s,%s,%s \n", future_prayer_date, future_fajr_jamaat_time, future_asr_jamaat_time, future_isha_jamaat_time );
 
-                                
-                                if (!fajr_jamaat_time.equals(future_fajr_jamaat_time))
-                                {
-                                    
-                                    System.out.println("Fajr Prayer Time Difference" );
-                                    fajr_jamma_time_change =true;
-                                    notification = true;
-                                    
-                                    java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
-                                    c = DBConnect.connect();
-                                    PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
-                                    ps.setDate(1, sqlDate);  
-                                    ps.executeUpdate(); 
-                                    c.close();
-                                }
-               
-                                
-                                if (!asr_jamaat_time.equals(future_asr_jamaat_time) )
-                                {
-                                    System.out.println("asr Prayer Time Difference" );
-                                    asr_jamma_time_change =true;
-                                    if(!notification)
+
+                                    if (!fajr_jamaat_time.equals(future_fajr_jamaat_time))
                                     {
+
+                                        System.out.println("Fajr Prayer Time Difference" );
+                                        fajr_jamma_time_change =true;
+                                        notification = true;
+
                                         java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
                                         c = DBConnect.connect();
                                         PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
@@ -740,25 +732,42 @@ import org.joda.time.format.DateTimeFormatter;
                                         ps.executeUpdate(); 
                                         c.close();
                                     }
-                                    notification = true;
-                                }
 
-                                
-                                if (!isha_jamaat_time.equals(future_isha_jamaat_time) )
-                                {
-                                    System.out.println("isha Prayer Time Difference" );
-                                    isha_jamma_time_change =true;
-                                    if(!notification)
+
+                                    if (!asr_jamaat_time.equals(future_asr_jamaat_time) )
                                     {
-                                        java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
-                                        c = DBConnect.connect();
-                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
-                                        ps.setDate(1, sqlDate);  
-                                        ps.executeUpdate(); 
-                                        c.close();
+                                        System.out.println("asr Prayer Time Difference" );
+                                        asr_jamma_time_change =true;
+                                        if(!notification)
+                                        {
+                                            java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
+                                            c = DBConnect.connect();
+                                            PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
+                                            ps.setDate(1, sqlDate);  
+                                            ps.executeUpdate(); 
+                                            c.close();
+                                        }
+                                        notification = true;
                                     }
-                                    notification = true;
+
+
+                                    if (!isha_jamaat_time.equals(future_isha_jamaat_time) )
+                                    {
+                                        System.out.println("isha Prayer Time Difference" );
+                                        isha_jamma_time_change =true;
+                                        if(!notification)
+                                        {
+                                            java.sql.Date sqlDate = new java.sql.Date(future_prayer_date.getTime());
+                                            c = DBConnect.connect();
+                                            PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.notification (notification_Date) VALUE (?)");  
+                                            ps.setDate(1, sqlDate);  
+                                            ps.executeUpdate(); 
+                                            c.close();
+                                        }
+                                        notification = true;
+                                    }
                                 }
+                                catch (Exception e){logger.warn("Unexpected error", e);}
                                 
                             }
 
@@ -774,7 +783,7 @@ import org.joda.time.format.DateTimeFormatter;
                             Days d = Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon));
                             int days_Between_Now_Fullmoon = d.getDays();
                             
-                            if ( days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon > 3 )
+                            if ( days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2 )
                             {                                
                                 //hide hadith label boolean
                                 getHadith = false;
@@ -782,60 +791,44 @@ import org.joda.time.format.DateTimeFormatter;
                                 hadith_Label_visible = false;
                                 //show moon notification label boolean
                                 moon_hadith_Label_visible = true;
-
-                                c = DBConnect.connect();
-                                SQL = "select hadith, translated_hadith from hadith WHERE day = '15' ORDER BY RAND( ) LIMIT 1";
-                                rs = c.createStatement().executeQuery(SQL);
-                                while (rs.next()) 
+                                try
                                 {
-                                    ar_full_moon_hadith = rs.getString("hadith");
-                                    en_full_moon_hadith = rs.getString("translated_hadith");
+                                    c = DBConnect.connect();
+                                    SQL = "select hadith, translated_hadith from hadith WHERE day = '15' ORDER BY RAND( ) LIMIT 1";
+                                    rs = c.createStatement().executeQuery(SQL);
+                                    while (rs.next()) 
+                                    {
+                                        ar_full_moon_hadith = rs.getString("hadith");
+                                        en_full_moon_hadith = rs.getString("translated_hadith");
+                                    }
+                                    c.close();
+                                    System.out.format("Full Moon arabic hadith: %s\n", ar_full_moon_hadith );
+                                    System.out.format("Full Moon english hadith: %s\n", en_full_moon_hadith );
                                 }
-                                c.close();
-                                System.out.format("Full Moon arabic hadith: %s\n", ar_full_moon_hadith );
-                                System.out.format("Full Moon english hadith: %s\n", en_full_moon_hadith );
+                                catch (Exception e){logger.warn("Unexpected error", e);}
+                                
                                 fullMoon_plus1 = (Date)fullMoon.clone();
                                 DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
                                 System.out.println(days_Between_Now_Fullmoon);
                                 
-                                if ( days_Between_Now_Fullmoon == 5 )
+                                if ( days_Between_Now_Fullmoon == 5 && comparator.compare(fullMoon, maghrib_cal)<0)
                                 {
-
-                                    if (comparator.compare(fullMoon, maghrib_cal)>0 )
-                                    { 
-                                        
-                                        fullMoon_plus1.setTime(fullMoon.getTime() - 1 * 24 * 60 * 60 * 1000);
-                                        String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
-                                        String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
-                                        String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
-                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
-                                        ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
-                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
-                                        System.out.println("Full Moon Notification:" );
-                                        System.out.println(facebook_moon_notification_Msg);
-
-                                        
-                                    }
-                                    else
-                                    {
-                                        fullMoon_plus1.setTime(fullMoon.getTime() - 2 * 24 * 60 * 60 * 1000);
-                                        String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
-                                        String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
-                                        String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
-                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
-                                        ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
-                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
-                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
-                                        try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
-                                        catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}                           
-                                        System.out.println("Full Moon Notification Sent to Facebook:" );
-                                        System.out.println(facebook_moon_notification_Msg);
-                                        
-                                    }
-                                     
+                                    fullMoon_plus1.setTime(fullMoon.getTime() - 2 * 24 * 60 * 60 * 1000);
+                                    String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
+                                    String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
+                                    String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
+                                    String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                    ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
+                                    en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                    facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
+                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+                                    catch (FacebookException e){logger.warn("Unexpected error", e);}                           
+                                    System.out.println("Full Moon Notification Sent to Facebook:" );
+                                    System.out.println(facebook_moon_notification_Msg);
+    
                                 }
                                 
-                                if ( days_Between_Now_Fullmoon == 4 )
+                                else if ( days_Between_Now_Fullmoon == 4 )
                                 {
                                     if (comparator.compare(fullMoon, maghrib_cal)>0)
                                     { 
@@ -849,7 +842,7 @@ import org.joda.time.format.DateTimeFormatter;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
                                         try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
-                                        catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);} 
+                                        catch (FacebookException e){logger.warn("Unexpected error", e);} 
                                         System.out.println("Full Moon Notification Sent to Facebook:" );
                                         System.out.println(facebook_moon_notification_Msg);
                                         
@@ -873,7 +866,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 }
                                 
                                 
-                                if ( days_Between_Now_Fullmoon == 3 )
+                                else if ( days_Between_Now_Fullmoon == 3 )
                                 {
                                     if (comparator.compare(fullMoon, maghrib_cal)>0)
                                     { 
@@ -886,8 +879,7 @@ import org.joda.time.format.DateTimeFormatter;
                                         ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;  
-                                        System.out.println("Full Moon Notification:" );
-                                        System.out.println(facebook_moon_notification_Msg);
+
                                         
                                     }
                                     
@@ -899,13 +891,12 @@ import org.joda.time.format.DateTimeFormatter;
                                         ar_moon_notification = temp_ar_text1 +  temp_ar_text2;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
-                                        System.out.println("Full Moon Notification:" );
-                                        System.out.println(facebook_moon_notification_Msg);
+
 
                                     }
                                 }
 
-                                if ( days_Between_Now_Fullmoon == 2 && comparator.compare(fullMoon, maghrib_cal)>0)
+                                else if ( days_Between_Now_Fullmoon == 2 && comparator.compare(fullMoon, maghrib_cal)>0)
                                 {
                                     
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ غدا ";
@@ -915,8 +906,17 @@ import org.joda.time.format.DateTimeFormatter;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
                                         System.out.println(en_moon_notification);
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
-                                        System.out.println("Full Moon Notification:" );
-                                        System.out.println(facebook_moon_notification_Msg);
+
+                                }
+                                
+                                else
+                                {
+                                    getHadith = true; 
+                                    getFacebook = true;
+                                    //hide moon notification label boolean
+                                    moon_hadith_Label_visible = false;
+                                    //show hadith label boolean
+                                    hadith_Label_visible = true;
                                 }
                                 
                             }
@@ -1000,15 +1000,17 @@ import org.joda.time.format.DateTimeFormatter;
                                 ar_notification_Msg = ar_notification_Msg + "العشاء: " + future_isha_jamaat_time_mod;
                                 isha_jamma_time_change = false;
                             }
-                            
-                            c = DBConnect.connect();
-                            Statement st = (Statement) c.createStatement(); 
-                            st.executeUpdate("UPDATE prayertime.notification SET en_message_String='" + en_notification_Msg + "' ORDER BY id DESC LIMIT 1");
-                            st.executeUpdate("UPDATE prayertime.notification SET ar_message_String= '" + ar_notification_Msg + "' ORDER BY id DESC LIMIT 1");
-                            c.close();
-                            ar_notification_Msg_Lines = ar_notification_Msg.split("\\r?\\n");
-                            en_notification_Msg_Lines = en_notification_Msg.split("\\r?\\n");
-                            
+                            try
+                            {
+                                c = DBConnect.connect();
+                                Statement st = (Statement) c.createStatement(); 
+                                st.executeUpdate("UPDATE prayertime.notification SET en_message_String='" + en_notification_Msg + "' ORDER BY id DESC LIMIT 1");
+                                st.executeUpdate("UPDATE prayertime.notification SET ar_message_String= '" + ar_notification_Msg + "' ORDER BY id DESC LIMIT 1");
+                                c.close();
+                                ar_notification_Msg_Lines = ar_notification_Msg.split("\\r?\\n");
+                                en_notification_Msg_Lines = en_notification_Msg.split("\\r?\\n");
+                            }
+                            catch (Exception e){logger.warn("Unexpected error", e);}
                             
                             notification = false;
                             athan_Change_Label_visible = true;
@@ -1020,15 +1022,15 @@ import org.joda.time.format.DateTimeFormatter;
 //                            Twitter twitter = TwitterFactory.getSingleton();
 //                            Status status = null;
 //                            try {status = twitter.updateStatus(notification_Msg);} 
-//                            catch (TwitterException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+//                            catch (TwitterException ex) {logger.warn("Unexpected error", e);}
 //                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
                             System.out.println("Notification Sent to Facebook" );
                             
                             try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
-                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
+                            catch (Exception e){logger.warn("Unexpected error", e);}
                             
                             try {p.sendMessage(en_notification_Msg);} 
-                            catch (IOException e){e.printStackTrace();}
+                            catch (Exception e){{logger.warn("Unexpected error", e);}}
                         }        
                                 
                         if (isStarting){isStarting = false;}
@@ -1037,66 +1039,66 @@ import org.joda.time.format.DateTimeFormatter;
                         if (getHadith)
                         {
                             getHadith = false;
-                            c = DBConnect.connect();
                             String SQL;
-                            System.out.println("current day of the week " + dayofweek_int );
-                            if (dayofweek_int == 5){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
-                            else 
+                            try
                             {
-                                SQL = "select * from hadith WHERE day IS NULL order by rand() limit 1";
-//                                SQL = "select hadith, translated_hadith from hadith where ID = 37";
-                            }
-                            ResultSet rs = c.createStatement().executeQuery(SQL);
-                            while (rs.next()) 
-                            {
-                                hadith = rs.getString("hadith");
-                                translated_hadith = rs.getString("translated_hadith");
-                                
-                            }
-                            c.close();
-                            
-                            System.out.println("arabic hadith length" + hadith.length());
-                            System.out.println(" english hadith length" + translated_hadith.length());
-                            
-                            // 528 length should be the max allowed for the hadith in english, generally arabic hadith  is smaller than english translation
-                            
-                            
-                            facebook_hadith = "Hadith of the Day:\n\n"+ hadith +"\n\n" + translated_hadith;
-                            
-                            
-                            // check if a notification has already been sent, to avoid flooding users with notifications, i.e during a system restart
-                            c = DBConnect.connect();
-                            SQL = "Select * from facebook_hadith_notification where id = (select max(id) from facebook_hadith_notification)";
-                            rs = c.createStatement().executeQuery(SQL);
-                            while (rs.next()) 
-                            {
-                                id =                rs.getInt("id");
-                                hadith_notification_Date = rs.getDate("notification_date");
-//                                hadith_Sent = rs.getBoolean("hadith_Sent");             
-                            }
-                            c.close();
-                            hadith_notification_Date_cal = Calendar.getInstance();
-                            hadith_notification_Date_cal.setTime(hadith_notification_Date);
-                            hadith_notification_Date_cal.set(Calendar.MILLISECOND, 0);
-                            hadith_notification_Date_cal.set(Calendar.SECOND, 0);
-                            
-                            if (Calendar_now.compareTo(hadith_notification_Date_cal) == 0 )  
-                            {
-                                System.out.println("hadith has already been posted today to Facebook");
-                            }
-                            
-                            if (Calendar_now.compareTo(hadith_notification_Date_cal) != 0 )  
-                            {
-                                try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));}
-                                catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);}
                                 c = DBConnect.connect();
-                                PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
-                                java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
-                                ps.setTimestamp(1, mysqldate);   
-                                ps.executeUpdate(); 
+                                
+                                System.out.println("current day of the week " + dayofweek_int );
+                                if (dayofweek_int == 5){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
+                                else 
+                                {
+                                    SQL = "select * from hadith WHERE day = '0' order by rand() limit 1";
+    //                                SQL = "select hadith, translated_hadith from hadith where ID = 37";
+                                }
+                                ResultSet rs = c.createStatement().executeQuery(SQL);
+                                while (rs.next()) 
+                                {
+                                    hadith = rs.getString("hadith");
+                                    translated_hadith = rs.getString("translated_hadith");
+
+                                }
                                 c.close();
-                                System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
+                                System.out.println("arabic hadith length" + hadith.length());
+                                System.out.println(" english hadith length" + translated_hadith.length());
+                                // 528 length should be the max allowed for the hadith in english, generally arabic hadith  is smaller than english translation
+                                facebook_hadith = "Hadith of the Day:\n\n"+ hadith +"\n\n" + translated_hadith;
+                            
+                                // check if a notification has already been sent, to avoid flooding users with notifications, i.e during a system restart
+                                c = DBConnect.connect();
+                                SQL = "Select * from facebook_hadith_notification where id = (select max(id) from facebook_hadith_notification)";
+                                rs = c.createStatement().executeQuery(SQL);
+                                while (rs.next()) 
+                                {
+                                    id =                rs.getInt("id");
+                                    hadith_notification_Date = rs.getDate("notification_date");
+                                }
+                                c.close();
+                                hadith_notification_Date_cal = Calendar.getInstance();
+                                hadith_notification_Date_cal.setTime(hadith_notification_Date);
+                                hadith_notification_Date_cal.set(Calendar.MILLISECOND, 0);
+                                hadith_notification_Date_cal.set(Calendar.SECOND, 0);
+
+                                if (Calendar_now.compareTo(hadith_notification_Date_cal) == 0 )  
+                                {
+                                    System.out.println("hadith has already been posted today to Facebook");
+                                }
+
+                                if (Calendar_now.compareTo(hadith_notification_Date_cal) != 0 )  
+                                {
+                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));}
+                                    catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                    catch (Exception e){logger.warn("Unexpected error", e);}
+                                    c = DBConnect.connect();
+                                    PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
+                                    java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
+                                    ps.setTimestamp(1, mysqldate);   
+                                    ps.executeUpdate(); 
+                                    c.close();
+                                    System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
+                                }
                             }
+                            catch (Exception e){logger.warn("Unexpected error", e);}
 
                         }
 
@@ -1111,45 +1113,66 @@ import org.joda.time.format.DateTimeFormatter;
 //                            String query1 = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
 //                            String query = "SELECT message,timeline_visibility, created_time FROM stream WHERE source_id = 187050104663230 AND strlen(attachment.fb_object_type) < 1  AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
                             String query = "SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+//                            String query = "{\"messages\":\"SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \'prayer time(s)\') < 0 AND strpos(message, \'White days\') < 0 AND strpos(message, \'Hadith of the Day:\') < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1\" ,  \"count\": \"SELECT fan_count FROM page WHERE page_id = 187050104663230\"}";
+//                            out.println(query);
                             try 
                             {
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
-                                facebook_post = queryResults.get(0).getString("message");
-                                facebook_post_visibility = queryResults.get(0).getString("timeline_visibility");
-                                facebook_Label_visible = true;
-
-                                if(facebook_post.contains("\n\n"))
+                                
+                                if(!queryResults.isEmpty()) 
                                 {
-                                    out.println("'/n/n' detected");
-                                    facebook_post =facebook_post.replace("\n\n", "\n");
-                                    out.println(facebook_post);
-                                    facebook_Label_visible = true;
-                                }   
-                                Calendar facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
-                                facebook_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
-                                out.print("Comment posted on:"); out.println(facebook_created_time_calendar.getTime());
-                                if(facebook_post.contains("tonight") || facebook_post.contains("today") && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(facebook_created_time_calendar)).getDays() != 0)
-                                {
-                                    out.println("Facebook post contains either  the word 'today' or 'tonight' and has not been posted today");
-                                    facebook_post = "";
-                                    facebook_Label_visible = false;
-                                }  
+                                    JsonObject facebookPost_J = queryResults.get(0);
+                                    facebook_post = facebookPost_J.getString("message");
+                                    if(null != facebook_post && !"".equals(facebook_post)) 
+                                    {
+                                        facebook_Label_visible = true;
+                                        if(facebook_post.contains("\n\n"))
+                                        {
+                                            out.println("'/n/n' detected");
+                                            facebook_post =facebook_post.replace("\n\n", "\n");
+                                            out.println(facebook_post);
+                                            facebook_Label_visible = true;
+                                        }   
+                                        Calendar facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
+                                        facebook_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
+//                                        out.print("Comment posted on:"); out.println(facebook_created_time_calendar.getTime());
+                                        if(facebook_post.contains("tonight") || facebook_post.contains("today") && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(facebook_created_time_calendar)).getDays() != 0)
+                                        {
+                                            out.println("Facebook post contains either  the word 'today' or 'tonight' and has not been posted today");
+                                            facebook_post = "";
+                                            facebook_Label_visible = false;
+                                        }
+                                    }
+                                
+                                }
+                                else{out.println("Facebook post has not satisfied the query criteria, nothing to display");}
+ 
                             }
-                            catch (FacebookException e){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);} 
+                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                            catch (Exception e){logger.warn("Unexpected error", e);} 
 
-                            
-                        }
-                        
-                        
+                            query = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
+
+                            try 
+                            {
+                                List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
+                                facebook_Fan_Count = queryResults.get(0).getString("fan_count");
+                                out.println(facebook_Fan_Count);
+                                
+                            }
+                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                            catch (Exception e){logger.warn("Unexpected error", e);}  
+   
+                        }    
                      } 
 
                 catch(SQLException e)
                 {
                     System.out.println("Error on Database connection");
-                    Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, e);
+                    logger.warn("Unexpected error", e);
                 }
-                catch (ParseException ex){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-                catch (Exception ex){Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                catch (ParseException e){logger.warn("Unexpected error", e);} 
+                catch (Exception e){logger.warn("Unexpected error", e);}
                 
              
             }
@@ -1161,10 +1184,10 @@ import org.joda.time.format.DateTimeFormatter;
 //        translate_lastTimerCall = System.nanoTime();
         translate_timer = new AnimationTimer() {
             @Override public void handle(long now) {
-                if (now > translate_lastTimerCall + 15000_000_000l) 
+                if (now > translate_lastTimerCall + 23000_000_000l) 
                 {
                     try {update_labels();} 
-                    catch (Exception ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                    catch (Exception e) {logger.warn("Unexpected error", e);}
                     translate_lastTimerCall = now;
                 }
             }
@@ -1194,7 +1217,7 @@ import org.joda.time.format.DateTimeFormatter;
                             hdmiOn = true;
                             System.out.println("Tv turned on");
                             try {Process process1 = processBuilder1.start();}
-                            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}   
+                            catch (IOException e) {logger.warn("Unexpected error", e);}   
                          }
                      }
                      
@@ -1215,7 +1238,7 @@ import org.joda.time.format.DateTimeFormatter;
                          ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
                          hdmiOn = false;
                          try {Process process2 = processBuilder2.start();}
-                         catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                         catch (IOException e) {logger.warn("Unexpected error", e);}
                          sensor_lastTimerCall = now;
                          sensorLow = false;
                      }
@@ -1336,7 +1359,7 @@ import org.joda.time.format.DateTimeFormatter;
 //                    }
 //                    catch (InterruptedException ex) 
 //                    {
-//                        Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//                        logger.warn("Unexpected error", e);
 //                        Thread.currentThread().interrupt();
 //                    }
 //                }
@@ -1417,15 +1440,13 @@ public void update_labels() throws Exception{
             
             if (moon_hadith_Label_visible)
             {
-                hadith_Label.setVisible(false);
-                hadith_Label.setMinHeight(0);
-                hadith_Label.setText("");
-                ar_moon_hadith_Label_L1.setVisible(false);
+
                 en_moon_hadith_Label_L1.setVisible(true);
                 en_moon_hadith_Label_L1.setText(en_full_moon_hadith);
                 en_moon_hadith_Label_L1.setId("hadith-text-english");
+                hadithPane.setValignment(en_moon_hadith_Label_L1,VPos.TOP);
                 hadithPane.setHalignment(en_moon_hadith_Label_L1,HPos.LEFT);
-                ar_moon_hadith_Label_L2.setVisible(false);
+                
                 en_moon_hadith_Label_L2.setVisible(true);
                 en_moon_hadith_Label_L2.setText(en_moon_notification);
                 en_moon_hadith_Label_L2.setId("en_moon-notification-text");
@@ -1433,7 +1454,14 @@ public void update_labels() throws Exception{
                 facebook_Label.setVisible(false);
                 facebook_Label.setText("");
                 facebook_Label.setMinHeight(0);
-  
+                
+                ar_moon_hadith_Label_L1.setVisible(false);
+                ar_moon_hadith_Label_L1.setText("");
+                ar_moon_hadith_Label_L1.setMinHeight(0);
+                hadith_Label.setVisible(false);
+                hadith_Label.setMinHeight(0);
+                hadith_Label.setText("");
+                ar_moon_hadith_Label_L2.setVisible(false);
             }
             
             if (!athan_Change_Label_visible)
@@ -1473,15 +1501,19 @@ public void update_labels() throws Exception{
                 Calendar_now.setTime(newMoon);
                 int day = Calendar_now.get(Calendar.DAY_OF_MONTH);
                 String dayStr = day + suffixes[day];
+                DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
                 
-                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >1)
+                Days d = Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon));
+                int days_Between_Now_Newmoon = d.getDays();
+                
+                if ( days_Between_Now_Newmoon <= 7 && days_Between_Now_Newmoon >1)
                 {
                     String newMoon_date_en = new SimpleDateFormat("EEEE").format(newMoon);
                     String newMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(newMoon);
 
                     Moon_Date_Label.setId("moon-text-english");
 
-                    if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("New moon is on next\n" + newMoon_date_en + " night "  + dayStr + newMoon_date_en1);}
+                    if (comparator.compare(newMoon, maghrib_cal)>0){Moon_Date_Label.setText("New moon is on next\n" + newMoon_date_en + " night "  + dayStr + newMoon_date_en1);}
                     else{Moon_Date_Label.setText("New moon is on next\n" + newMoon_date_en + " the "  + dayStr  + newMoon_date_en1);}
 
                     Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
@@ -1489,11 +1521,11 @@ public void update_labels() throws Exception{
                     arabic = false;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() == 0)
+                else if ( days_Between_Now_Newmoon == 0)
                 {
                     Moon_Date_Label.setId("moon-text-english");
 
-                    if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("The moon is new tonight" );}
+                    if (comparator.compare(newMoon, maghrib_cal)>0){Moon_Date_Label.setText("The moon is new tonight" );}
                     else{Moon_Date_Label.setText("The moon is new today" );}
 
                     Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
@@ -1501,17 +1533,17 @@ public void update_labels() throws Exception{
                     arabic = false;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <=1 )
+                else if ( days_Between_Now_Newmoon >0 && days_Between_Now_Newmoon <=1 )
                 {
                     Moon_Date_Label.setId("moon-text-english");
-                    if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("New moon is on\n"+ "tomorrow night");}
+                    if (comparator.compare(newMoon, maghrib_cal)>0){Moon_Date_Label.setText("New moon is on\n"+ "tomorrow night");}
                     else{Moon_Date_Label.setText("New moon is on\n"+ "tomorrow");}
                     Moonpane.setHalignment(Moon_Date_Label,HPos.LEFT);
                     english = true;
                     arabic = false;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() > 7)
+                else if ( days_Between_Now_Newmoon <10 && days_Between_Now_Newmoon > 7)
                 {
                     String newMoon_date_en = new SimpleDateFormat("EEEE").format(newMoon);
                     String newMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(newMoon);
@@ -1545,8 +1577,10 @@ public void update_labels() throws Exception{
                 int day = Calendar_now.get(Calendar.DAY_OF_MONTH);
                 String dayStr = day + suffixes[day];
                 DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
+                Days d = Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon));
+                int days_Between_Now_Fullmoon = d.getDays();
                 
-                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
+                if ( days_Between_Now_Fullmoon <= 7 && days_Between_Now_Fullmoon >1)
                 {
                     String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
                     String FullMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(fullMoon);
@@ -1561,7 +1595,7 @@ public void update_labels() throws Exception{
                     arabic = false;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
+                else if ( days_Between_Now_Fullmoon == 0)
                 {
                     Moon_Date_Label.setId("moon-text-english");
 
@@ -1573,7 +1607,7 @@ public void update_labels() throws Exception{
                     arabic = false;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
+                else if ( days_Between_Now_Fullmoon >0 && days_Between_Now_Fullmoon <=1 )
                 {
                     Moon_Date_Label.setId("moon-text-english");
                     if (comparator.compare(fullMoon, maghrib_cal)>0){Moon_Date_Label.setText("Full moon is on\n"+ "tomorrow night");}
@@ -1583,7 +1617,7 @@ public void update_labels() throws Exception{
                     arabic = false;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
+                else if ( days_Between_Now_Fullmoon <10 && days_Between_Now_Fullmoon > 7)
                 {
                     String FullMoon_date_en = new SimpleDateFormat("EEEE").format(fullMoon);
                     String FullMoon_date_en1 = new SimpleDateFormat("' of ' MMMM").format(fullMoon);
@@ -1648,28 +1682,32 @@ public void update_labels() throws Exception{
                 ar_moon_hadith_Label_L2.setText("");
                 ar_moon_hadith_Label_L2.setMinHeight(0);
                 en_moon_hadith_Label_L2.setMinHeight(0);
-
                 
             }
             
             if (moon_hadith_Label_visible)
             {
+                ar_moon_hadith_Label_L1.setVisible(true);
+                ar_moon_hadith_Label_L1.setText(ar_full_moon_hadith);
+                ar_moon_hadith_Label_L1.setId("hadith-text-arabic");
+                hadithPane.setValignment(ar_moon_hadith_Label_L1,VPos.TOP);
+                hadithPane.setHalignment(ar_moon_hadith_Label_L1,HPos.RIGHT);
+                
+                ar_moon_hadith_Label_L2.setVisible(true);
+                ar_moon_hadith_Label_L2.setText(ar_moon_notification);
+                ar_moon_hadith_Label_L2.setId("ar_moon-notification-text");
+                hadithPane.setHalignment(ar_moon_hadith_Label_L2,HPos.RIGHT);
+                
+                facebook_Label.setVisible(false);
+                facebook_Label.setText("");
+                facebook_Label.setMinHeight(0);
+                en_moon_hadith_Label_L1.setVisible(false);
+                en_moon_hadith_Label_L1.setText("");
+                en_moon_hadith_Label_L1.setMinHeight(0);
                 hadith_Label.setVisible(false);
                 hadith_Label.setMinHeight(0);
                 hadith_Label.setText("");
-                en_moon_hadith_Label_L1.setVisible(false);
-                ar_moon_hadith_Label_L1.setVisible(true);
-                hadithPane.setHalignment(ar_moon_hadith_Label_L1,HPos.RIGHT);
-                ar_moon_hadith_Label_L1.setText(ar_full_moon_hadith);
-                ar_moon_hadith_Label_L1.setId("hadith-text-arabic");
-                
                 en_moon_hadith_Label_L2.setVisible(false);
-                ar_moon_hadith_Label_L2.setVisible(true);
-                hadithPane.setHalignment(ar_moon_hadith_Label_L2,HPos.RIGHT);
-                ar_moon_hadith_Label_L2.setText(ar_moon_notification);
-                ar_moon_hadith_Label_L2.setId("ar_moon-notification-text");
-
-                
             }
             
             
@@ -1692,16 +1730,21 @@ public void update_labels() throws Exception{
                 athan_Change_Label_L2.setId("ar_athan-change-textL2");
             }
             
+            
+            
             if (newMoon.before(fullMoon))
             {
+                    Days d = Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon));
+                    int days_Between_Now_Newmoon = d.getDays();
+                    DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
                     
-                    if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >1)
+                    if ( days_Between_Now_Newmoon <= 7 && days_Between_Now_Newmoon >1)
                     {
                         String newMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(newMoon);
                         String newMoon_date_ar1 = new SimpleDateFormat("d MMMM", new Locale("ar")).format(newMoon);
 
 
-                        if (newMoon.getHours()>maghrib_cal.getTime().getHours()){ labeconv = "سيظهر الهلال  ليلة\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
+                        if (comparator.compare(fullMoon, maghrib_cal)>0){ labeconv = "سيظهر الهلال  ليلة\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
                         else{ labeconv = "سيظهر الهلال يوم\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
 
                         StringBuilder builder = new StringBuilder();
@@ -1725,27 +1768,27 @@ public void update_labels() throws Exception{
 
                     }
 
-                    else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <=1 )
+                    else if ( days_Between_Now_Newmoon >0 && days_Between_Now_Newmoon <=1 )
                     {
                         Moon_Date_Label.setId("moon-text-arabic");
-                        if (newMoon.getHours()>maghrib_cal.getTime().getHours()){ Moon_Date_Label.setText("سيظهر الهلال ليلة الغذٍٍُِِِ" );}
+                        if (comparator.compare(fullMoon, maghrib_cal)>0){ Moon_Date_Label.setText("سيظهر الهلال ليلة الغذٍٍُِِِ" );}
                         else{Moon_Date_Label.setText("سيظهر الهلال غدآ" );}
                         Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
                         english = false;
                         arabic = true;
                     }
 
-                    else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() == 0)
+                    else if ( days_Between_Now_Newmoon == 0)
                     {
                         Moon_Date_Label.setId("moon-text-arabic");
-                        if (newMoon.getHours()>maghrib_cal.getTime().getHours()){Moon_Date_Label.setText("سيظهر الهلال ليلة اليوم" );}
+                        if (comparator.compare(newMoon, maghrib_cal)>0){Moon_Date_Label.setText("سيظهر الهلال ليلة اليوم" );}
                         else{Moon_Date_Label.setText("سيظهر الهلال اليوم " );}
                         Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
                         english = false;
                         arabic = true;
                     }
 
-                    else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(newMoon)).getDays() > 7)
+                    else if ( days_Between_Now_Newmoon <10 && days_Between_Now_Newmoon > 7)
                     {
                         String newMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(newMoon);
                         String newMoon_date_ar1 = new SimpleDateFormat("d MMMM", new Locale("ar")).format(newMoon);
@@ -1801,7 +1844,10 @@ public void update_labels() throws Exception{
             else
             {
                 DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
-                if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <= 7 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >1)
+                Days d = Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon));
+                int days_Between_Now_Fullmoon = d.getDays();
+                
+                if ( days_Between_Now_Fullmoon <= 7 && days_Between_Now_Fullmoon >1)
                 {
                     String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
                     String FullMoon_date_ar1 = new SimpleDateFormat("d MMMM", new Locale("ar")).format(fullMoon);
@@ -1831,7 +1877,7 @@ public void update_labels() throws Exception{
 
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() >0 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <=1 )
+                else if ( days_Between_Now_Fullmoon >0 && days_Between_Now_Fullmoon <=1 )
                 {
                     Moon_Date_Label.setId("moon-text-arabic");
                     if (comparator.compare(fullMoon, maghrib_cal)>0){ Moon_Date_Label.setText("سيكون القمر بدرا ليلة الغذٍٍُِِِ" );}
@@ -1841,7 +1887,7 @@ public void update_labels() throws Exception{
                     arabic = true;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() == 0)
+                else if ( days_Between_Now_Fullmoon == 0)
                 {
                     Moon_Date_Label.setId("moon-text-arabic");
                     if (comparator.compare(fullMoon, maghrib_cal)>0){Moon_Date_Label.setText("القمر بدر ليلة اليوم" );}
@@ -1851,7 +1897,7 @@ public void update_labels() throws Exception{
                     arabic = true;
                 }
 
-                else if ( Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() <10 && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon)).getDays() > 7)
+                else if ( days_Between_Now_Fullmoon <10 && days_Between_Now_Fullmoon > 7)
                 {
                     String FullMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(fullMoon);
                     String FullMoon_date_ar1 = new SimpleDateFormat("d MMMM", new Locale("ar")).format(fullMoon);
@@ -1914,12 +1960,12 @@ public void update_labels() throws Exception{
 //        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
         
         
-        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/athan1.wav");
-        ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "aplay /home/pi/javafx/examples/PrayerTime/src/Audio/duha.wav");
+        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "aplay /home/pi/prayertime/Audio/athan1.wav");
+        ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "aplay /home/pi/prayertime/Audio/duha.wav");
 //                            try {
 //                                Process process = processBuilder.start();                                
 //                            } catch (IOException ex) {
-//                                Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//                                logger.warn("Unexpected error", e);
 //                            }
                             
         
@@ -1943,10 +1989,10 @@ public void update_labels() throws Exception{
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder_Tvon.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Duha.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
 
         }
 
@@ -1960,10 +2006,10 @@ public void update_labels() throws Exception{
             sensor_lastTimerCall = System.currentTimeMillis();
             
             try {Process process = processBuilder_Tvon.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
   
         }
         
@@ -1976,10 +2022,10 @@ public void update_labels() throws Exception{
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder_Tvon.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
         }        
 
         else if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
@@ -1989,10 +2035,10 @@ public void update_labels() throws Exception{
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder_Tvon.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
         } 
         
         else if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
@@ -2002,10 +2048,10 @@ public void update_labels() throws Exception{
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder_Tvon.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
 //            String image = JavaFXApplication4.class.getResource("/Images/wallpaper_sunset.jpg").toExternalForm();
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");  
         } 
@@ -2017,10 +2063,10 @@ public void update_labels() throws Exception{
             sensor_lastTimerCall = System.currentTimeMillis();
             sensorLow = true;
             try {Process process = processBuilder_Tvon.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
-            catch (IOException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+            catch (IOException e) {logger.warn("Unexpected error", e);}
         }      
         
         
@@ -2067,9 +2113,9 @@ public void update_labels() throws Exception{
                         update_prayer_labels = true;
 
                     } 
-                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                    catch (SQLException e) {logger.warn("Unexpected error", e);} 
+                    catch (ParseException e) {logger.warn("Unexpected error", e);} 
+                    catch (InterruptedException e) {logger.warn("Unexpected error", e);}
                }
             }).start();
         }   
@@ -2109,9 +2155,9 @@ public void update_labels() throws Exception{
                         update_prayer_labels = true;
 
                     } 
-                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                    catch (SQLException e) {logger.warn("Unexpected error", e);} 
+                    catch (ParseException e) {logger.warn("Unexpected error", e);} 
+                    catch (InterruptedException e) {logger.warn("Unexpected error", e);}
                }
             }).start();
         }
@@ -2150,9 +2196,9 @@ public void update_labels() throws Exception{
 //                        update_prayer_labels = true;
 //
 //                    } 
-//                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-//                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-//                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+//                    catch (SQLException ex) {logger.warn("Unexpected error", e);} 
+//                    catch (ParseException ex) {logger.warn("Unexpected error", e);} 
+//                    catch (InterruptedException ex) {logger.warn("Unexpected error", e);}
 //               }
 //            }).start();
 //        }
@@ -2191,9 +2237,9 @@ public void update_labels() throws Exception{
                         update_prayer_labels = true;
 
                     } 
-                    catch (SQLException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-                    catch (ParseException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);} 
-                    catch (InterruptedException ex) {Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);}
+                    catch (SQLException e) {logger.warn("Unexpected error", e);} 
+                    catch (ParseException e) {logger.warn("Unexpected error", e);} 
+                    catch (InterruptedException e) {logger.warn("Unexpected error", e);}
                }
             }).start();
         }
@@ -3086,7 +3132,7 @@ public void update_labels() throws Exception{
         return clockPane;
     }    
 }
-//sudo cp  SimpleAstronomyLib-0.1.0.jar  /opt/jdk1.8.0/jre/lib/ext
+
 
                         
 //                        
@@ -3115,5 +3161,5 @@ public void update_labels() throws Exception{
 //                                    System.out.println(line);
 //                                }
 //                            } catch (IOException ex) {
-//                                Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//                                logger.warn("Unexpected error", e);
 //                            }
