@@ -82,19 +82,25 @@ import com.restfb.exception.FacebookException;
 import com.restfb.json.JsonObject;
 import com.restfb.types.FacebookType;
 import com.restfb.types.Post;
+import java.awt.Rectangle;
 
 import java.io.InputStream;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.System.out;
+import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.text.Format;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import javafx.scene.image.ImageViewBuilder;
+import static javafx.scene.input.DataFormat.URL;
+import javafx.scene.text.FontWeight;
 //import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -159,6 +165,9 @@ import org.json.simple.parser.JSONParser;
     private boolean moon_hadith_Label_visible = false;
     private boolean hadith_Label_visible = false;
     private boolean facebook_Label_visible = false;
+    private boolean facebook_Text_Post = false;
+    private boolean facebook_Picture_Post = false;
+    private boolean facebook_Label_visible_set_once = false;
             
     private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
@@ -167,7 +176,7 @@ import org.json.simple.parser.JSONParser;
     private String friday_jamaat, future_zuhr_jamaat_time;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
-    private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count;
+    private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url;
     
     private int id;
     int olddayofweek_int;
@@ -793,12 +802,13 @@ import org.json.simple.parser.JSONParser;
                             
                             Days d = Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon));
                             int days_Between_Now_Fullmoon = d.getDays();
+                            System.out.format("Days left to full moon: %s\n", days_Between_Now_Fullmoon );
                             
                             if ( days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2 )
                             {                                
                                 //hide hadith label boolean
                                 getHadith = false;
-                                getFacebook = false;
+//                                getFacebook = false;
                                 hadith_Label_visible = false;
                                 //show moon notification label boolean
                                 moon_hadith_Label_visible = true;
@@ -832,14 +842,14 @@ import org.json.simple.parser.JSONParser;
                                     ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
                                     en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
                                     facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
-                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
-                                    catch (FacebookException e){logger.warn("Unexpected error", e);}                           
+//                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+//                                    catch (FacebookException e){logger.warn("Unexpected error", e);}                           
                                     System.out.println("Full Moon Notification Sent to Facebook:" );
                                     System.out.println(facebook_moon_notification_Msg);
     
                                 }
                                 
-                                else if ( days_Between_Now_Fullmoon == 4 )
+                                else if ( days_Between_Now_Fullmoon == 5 )
                                 {
                                     if (comparator.compare(fullMoon, maghrib_cal)>0)
                                     { 
@@ -923,7 +933,7 @@ import org.json.simple.parser.JSONParser;
                                 else
                                 {
                                     getHadith = true; 
-                                    getFacebook = true;
+//                                    getFacebook = true;
                                     //hide moon notification label boolean
                                     moon_hadith_Label_visible = false;
                                     //show hadith label boolean
@@ -935,7 +945,7 @@ import org.json.simple.parser.JSONParser;
                             else 
                             {
                                 getHadith = true; 
-                                getFacebook = true;
+//                                getFacebook = true;
                                 //hide moon notification label boolean
                                 moon_hadith_Label_visible = false;
                                 //show hadith label boolean
@@ -1060,6 +1070,7 @@ import org.json.simple.parser.JSONParser;
                                 else 
                                 {
                                     SQL = "select * from hadith WHERE day = '0' order by rand() limit 1";
+//                                    SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
     //                                SQL = "select hadith, translated_hadith from hadith where ID = 37";
                                 }
                                 ResultSet rs = c.createStatement().executeQuery(SQL);
@@ -1097,16 +1108,19 @@ import org.json.simple.parser.JSONParser;
 
                                 if (Calendar_now.compareTo(hadith_notification_Date_cal) != 0 )  
                                 {
-                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));}
+                                    try 
+                                    {
+                                        facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));
+                                        c = DBConnect.connect();
+                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
+                                        java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
+                                        ps.setTimestamp(1, mysqldate);   
+                                        ps.executeUpdate(); 
+                                        c.close();
+                                        System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
+                                    }
                                     catch (FacebookException e){logger.warn("Unexpected error", e);} 
                                     catch (Exception e){logger.warn("Unexpected error", e);}
-                                    c = DBConnect.connect();
-                                    PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
-                                    java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
-                                    ps.setTimestamp(1, mysqldate);   
-                                    ps.executeUpdate(); 
-                                    c.close();
-                                    System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
                                 }
                             }
                             catch (Exception e){logger.warn("Unexpected error", e);}
@@ -1117,12 +1131,17 @@ import org.json.simple.parser.JSONParser;
                         if (getFacebook)
                         {
                             getFacebook = false;
+                            facebook_Text_Post = false;
+                            facebook_Picture_Post = false;
                             facebook_post = "";
+                            facebook_Post_Url = "";
+                            facebook_Fan_Count = "";
+                            Calendar facebook_created_time_calendar = null;
+                            Calendar facebook_photo_created_time_calendar = null;
                             Calendar facebook_check_post_date = Calendar.getInstance();
-                            facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -4);
+                            facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -6);
                             long facebook_check_post_Unix_Time = facebook_check_post_date.getTimeInMillis() / 1000;
-//                            String query1 = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
-//                            String query = "SELECT message,timeline_visibility, created_time FROM stream WHERE source_id = 187050104663230 AND strlen(attachment.fb_object_type) < 1  AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+//                            out.println(facebook_check_post_Unix_Time);
                             String query = "SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
 //                            String query = "{\"messages\":\"SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \'prayer time(s)\') < 0 AND strpos(message, \'White days\') < 0 AND strpos(message, \'Hadith of the Day:\') < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1\" ,  \"count\": \"SELECT fan_count FROM page WHERE page_id = 187050104663230\"}";
 //                            out.println(query);
@@ -1136,15 +1155,13 @@ import org.json.simple.parser.JSONParser;
                                     facebook_post = facebookPost_J.getString("message");
                                     if(null != facebook_post && !"".equals(facebook_post)) 
                                     {
-                                        facebook_Label_visible = true;
                                         if(facebook_post.contains("\n\n"))
                                         {
                                             out.println("'/n/n' detected");
                                             facebook_post =facebook_post.replace("\n\n", "\n");
                                             out.println(facebook_post);
-                                            facebook_Label_visible = true;
                                         }   
-                                        Calendar facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
+                                        facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
                                         facebook_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
 //                                        out.print("Comment posted on:"); out.println(facebook_created_time_calendar.getTime());
                                         if(facebook_post.contains("tonight") || facebook_post.contains("today") && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(facebook_created_time_calendar)).getDays() != 0)
@@ -1153,27 +1170,61 @@ import org.json.simple.parser.JSONParser;
                                             facebook_post = "";
                                             facebook_Label_visible = false;
                                         }
+                                        facebook_Text_Post = true;
+                                        facebook_Label_visible = true; 
+                                        facebook_Label_visible_set_once = true;
                                     }
-                                
                                 }
                                 else{out.println("Facebook post has not satisfied the query criteria, nothing to display");}
- 
                             }
                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                             catch (Exception e){logger.warn("Unexpected error", e);} 
 
                             query = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
-
                             try 
                             {
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
                                 facebook_Fan_Count = queryResults.get(0).getString("fan_count");
-                                out.println(facebook_Fan_Count);
+                                out.println("Page Likes: " + facebook_Fan_Count);
                                 
                             }
                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                             catch (Exception e){logger.warn("Unexpected error", e);}  
    
+                            query = "SELECT attachment.media.photo.images.src, created_time   FROM stream WHERE source_id = 187050104663230  AND type = 247 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+                            try 
+                            {
+                                List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
+                                if(!queryResults.isEmpty()) 
+                                {
+                                    facebook_Post_Url = queryResults.get(0).getJsonObject("attachment").getJsonArray("media").getJsonObject(0).getJsonObject("photo").getJsonArray("images").getJsonObject(1).getString("src");
+                                    out.println(facebook_Post_Url);
+                                    facebook_photo_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
+                                    facebook_photo_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
+                                    out.print("Comment posted on:"); out.println(facebook_photo_created_time_calendar.getTime());
+                                    facebook_Picture_Post = true;
+                                    facebook_Label_visible = true;
+                                    facebook_Label_visible_set_once = true;
+                                }
+                                
+                            }
+                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                            catch (Exception e){logger.warn("Unexpected error", e);} 
+                            
+                            //compare text and picture post dates, if facebook_Picture_Post && facebook_Text_Post are true, and dates are not null
+                            // which ever was posted last, clear facebook_post = ""; or facebook_Post_Url = "";
+                            if(facebook_Picture_Post && facebook_Text_Post)
+                            {
+                                if (facebook_photo_created_time_calendar.before(facebook_created_time_calendar))
+                                {
+                                    facebook_Post_Url = "";
+                                }
+                                
+                                else
+                                {
+                                    facebook_post = "";
+                                }
+                            }  
                         }    
                      } 
 
@@ -1418,7 +1469,7 @@ public void update_labels() throws Exception{
                 hadith_Label.setVisible(true);
                 hadith_Label.setText(translated_hadith);
                 hadith_Label.setId("hadith-text-english");
-                hadithPane.setValignment(hadith_Label,VPos.TOP);
+//                hadithPane.setValignment(hadith_Label,VPos.TOP);
                 ar_moon_hadith_Label_L1.setVisible(false);
                 ar_moon_hadith_Label_L2.setVisible(false);
                 en_moon_hadith_Label_L1.setVisible(false);
@@ -1429,14 +1480,44 @@ public void update_labels() throws Exception{
                 ar_moon_hadith_Label_L2.setMinHeight(0);
                 en_moon_hadith_Label_L2.setMinHeight(0);
                 hadith_Label.setMinHeight(0);
+ 
             }
             
             if (facebook_Label_visible)
             {
-                facebook_Label.setVisible(true);
-                facebook_Label.setText(facebook_post);
-                facebook_Label.setId("facebook-text");
-                divider2_Label.setVisible(true);
+                if (facebook_Label_visible_set_once)
+                {    
+                    if(null != facebook_post && !"".equals(facebook_post))
+                    {    
+                        System.out.println("facebook_post label set");
+                        facebook_Label.setGraphic(null);
+                        facebook_Label.setText(facebook_post);
+                        facebook_Label.setId("facebook-text");
+                        divider1_Label.setVisible(true);
+                        facebook_Label.setVisible(true);
+                        facebook_Label_visible_set_once = false;
+                    }
+
+                    if(null != facebook_Post_Url && !"".equals(facebook_Post_Url))
+                    {
+                        System.out.println("facebook_post picture label set");
+                        facebook_Label.setText("");
+                        ImageView imageView = ImageViewBuilder.create().image(new Image(facebook_Post_Url)).build();  
+                        imageView.setFitHeight(235);
+                        imageView.setPreserveRatio(true);
+                        facebook_Label.setGraphic(imageView);
+                        facebook_Label.setAlignment(Pos.CENTER);
+                        facebook_Label.setVisible(true);
+                        hadithPane.setHalignment(facebook_Label,HPos.CENTER);
+                        facebook_Label.setVisible(true);
+                        facebook_Label_visible_set_once = false;
+                        
+                        
+                        
+                    }
+                    
+                    
+                }
                 
             }
             
@@ -1444,9 +1525,9 @@ public void update_labels() throws Exception{
             {
                 facebook_Label.setVisible(false);
                 facebook_Label.setText("");
-                divider2_Label.setVisible(false);
+                divider1_Label.setVisible(false);
                 
-            }
+            }                     
             
             if (moon_hadith_Label_visible)
             {
@@ -1454,16 +1535,15 @@ public void update_labels() throws Exception{
                 en_moon_hadith_Label_L1.setVisible(true);
                 en_moon_hadith_Label_L1.setText(en_full_moon_hadith);
                 en_moon_hadith_Label_L1.setId("hadith-text-english");
-                hadithPane.setValignment(en_moon_hadith_Label_L1,VPos.TOP);
-                hadithPane.setHalignment(en_moon_hadith_Label_L1,HPos.LEFT);
                 
                 en_moon_hadith_Label_L2.setVisible(true);
                 en_moon_hadith_Label_L2.setText(en_moon_notification);
                 en_moon_hadith_Label_L2.setId("en_moon-notification-text");
                 hadithPane.setHalignment(en_moon_hadith_Label_L2,HPos.LEFT);
-                facebook_Label.setVisible(false);
-                facebook_Label.setText("");
-                facebook_Label.setMinHeight(0);
+//                facebook_Label.setVisible(false);
+//                facebook_Label.setText("");
+//                facebook_Label.setGraphic(null);
+//                facebook_Label.setMinHeight(0);
                 
                 ar_moon_hadith_Label_L1.setVisible(false);
                 ar_moon_hadith_Label_L1.setText("");
@@ -1472,28 +1552,35 @@ public void update_labels() throws Exception{
                 hadith_Label.setMinHeight(0);
                 hadith_Label.setText("");
                 ar_moon_hadith_Label_L2.setVisible(false);
+                divider1_Label.setMinHeight(50);
             }
             
             if (!athan_Change_Label_visible)
             {
                 athan_Change_Label_L1.setVisible(false);
+                athan_Change_Label_L1.setMaxHeight(0);
                 athan_Change_Label_L2.setVisible(false);
+                athan_Change_Label_L2.setMaxHeight(0);
                 divider1_Label.setVisible(false);
+                divider1_Label.setMaxHeight(0);
             }
             
             if (athan_Change_Label_visible)
             {
                 facebook_Label.setVisible(false);
                 facebook_Label.setText("");
+                facebook_Label.setGraphic(null);
                 facebook_Label.setMinHeight(0);
                 athan_Change_Label_L1.setVisible(true);
+                athan_Change_Label_L1.setMaxHeight(70);
                 athan_Change_Label_L2.setVisible(true);
+                athan_Change_Label_L2.setMaxHeight(70);
                 divider1_Label.setVisible(true);
+                divider1_Label.setMaxHeight(40);
+                
                 athan_Change_Label_L1.setId("en_athan-change-text");
-                hadithPane.setHalignment(athan_Change_Label_L1,HPos.LEFT);
                 athan_Change_Label_L1.setText(en_notification_Msg_Lines[0]);
                 athan_Change_Label_L2.setId("en_athan-change-textL2");
-                hadithPane.setHalignment(athan_Change_Label_L2,HPos.LEFT);
                 athan_Change_Label_L2.setText(en_notification_Msg_Lines[1]);
             }
                         
@@ -1683,7 +1770,6 @@ public void update_labels() throws Exception{
                 hadith_Label.setMinHeight(0);
                 hadith_Label.setText(hadith);
                 hadith_Label.setId("hadith-text-arabic");
-                hadithPane.setValignment(hadith_Label,VPos.TOP);
                 ar_moon_hadith_Label_L1.setVisible(false);
                 ar_moon_hadith_Label_L2.setVisible(false);
                 en_moon_hadith_Label_L1.setVisible(false);
@@ -1700,17 +1786,16 @@ public void update_labels() throws Exception{
                 ar_moon_hadith_Label_L1.setVisible(true);
                 ar_moon_hadith_Label_L1.setText(ar_full_moon_hadith);
                 ar_moon_hadith_Label_L1.setId("hadith-text-arabic");
-                hadithPane.setValignment(ar_moon_hadith_Label_L1,VPos.TOP);
-                hadithPane.setHalignment(ar_moon_hadith_Label_L1,HPos.RIGHT);
                 
                 ar_moon_hadith_Label_L2.setVisible(true);
                 ar_moon_hadith_Label_L2.setText(ar_moon_notification);
                 ar_moon_hadith_Label_L2.setId("ar_moon-notification-text");
                 hadithPane.setHalignment(ar_moon_hadith_Label_L2,HPos.RIGHT);
                 
-                facebook_Label.setVisible(false);
-                facebook_Label.setText("");
-                facebook_Label.setMinHeight(0);
+//                facebook_Label.setVisible(false);
+//                facebook_Label.setText("");
+//                facebook_Label.setGraphic(null);
+//                facebook_Label.setMinHeight(0);
                 en_moon_hadith_Label_L1.setVisible(false);
                 en_moon_hadith_Label_L1.setText("");
                 en_moon_hadith_Label_L1.setMinHeight(0);
@@ -1718,6 +1803,7 @@ public void update_labels() throws Exception{
                 hadith_Label.setMinHeight(0);
                 hadith_Label.setText("");
                 en_moon_hadith_Label_L2.setVisible(false);
+                divider1_Label.setMinHeight(50);
             }
             
             
@@ -1725,19 +1811,31 @@ public void update_labels() throws Exception{
             {
                 athan_Change_Label_L1.setVisible(false);
                 athan_Change_Label_L2.setVisible(false);
+                athan_Change_Label_L1.setMaxHeight(0);
+                athan_Change_Label_L2.setMaxHeight(0);
                 divider1_Label.setVisible(false);
+                divider1_Label.setMaxHeight(0);
             }
             
             if (athan_Change_Label_visible)
             {
                 athan_Change_Label_L1.setVisible(true);
                 athan_Change_Label_L2.setVisible(true);
+                athan_Change_Label_L2.setMaxHeight(70);
+                athan_Change_Label_L2.setMaxHeight(70);
                 divider1_Label.setVisible(true);
+                divider1_Label.setMaxHeight(50);
+                hadithPane.setHalignment(athan_Change_Label_L1,HPos.RIGHT);
                 athan_Change_Label_L1.setText(ar_notification_Msg_Lines[0]);
                 athan_Change_Label_L1.setId("ar_athan-change-text");
                 hadithPane.setHalignment(athan_Change_Label_L2,HPos.RIGHT);
                 athan_Change_Label_L2.setText(ar_notification_Msg_Lines[1]);
                 athan_Change_Label_L2.setId("ar_athan-change-textL2");
+
+                facebook_Label.setVisible(false);
+                facebook_Label.setText("");
+                facebook_Label.setGraphic(null);
+                facebook_Label.setMinHeight(0);
             }
             
             
@@ -1754,8 +1852,7 @@ public void update_labels() throws Exception{
                             String newMoon_date_ar = new SimpleDateFormat("' 'EEEE", new Locale("ar")).format(newMoon);
                             String newMoon_date_ar1 = new SimpleDateFormat("d MMMM", new Locale("ar")).format(newMoon);
 
-
-                            if (comparator.compare(fullMoon, maghrib_cal)>0){ labeconv = "سيظهر الهلال  ليلة\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
+                            if (comparator.compare(newMoon, maghrib_cal)>0){ labeconv = "سيظهر الهلال  ليلة\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
                             else{ labeconv = "سيظهر الهلال يوم\n" + newMoon_date_ar + " القادم" +""+ newMoon_date_ar1;}
 
                             StringBuilder builder = new StringBuilder();
@@ -1782,7 +1879,7 @@ public void update_labels() throws Exception{
                         else if ( days_Between_Now_Newmoon >0 && days_Between_Now_Newmoon <=1 )
                         {
                             Moon_Date_Label.setId("moon-text-arabic");
-                            if (comparator.compare(fullMoon, maghrib_cal)>0){ Moon_Date_Label.setText("سيظهر الهلال ليلة الغذٍٍُِِِ" );}
+                            if (comparator.compare(newMoon, maghrib_cal)>0){ Moon_Date_Label.setText("سيظهر الهلال ليلة الغذٍٍُِِِ" );}
                             else{Moon_Date_Label.setText("سيظهر الهلال غدآ" );}
                             Moonpane.setHalignment(Moon_Date_Label,HPos.RIGHT);
                             english = false;
@@ -1847,8 +1944,6 @@ public void update_labels() throws Exception{
                             english = false;
                             arabic = true;
                         }
-
-
 
                 }
 
@@ -2078,9 +2173,7 @@ public void update_labels() throws Exception{
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
-        }      
-        
-        
+        }                      
         
 // Jammat update=========================================================== 
         
@@ -2173,47 +2266,6 @@ public void update_labels() throws Exception{
             }).start();
         }
         
-//        if (maghrib_jamaat_update_cal.equals(Calendar_now) && maghrib_jamaat_update_enable )         
-//        {       
-//            maghrib_jamaat_update_enable = false;
-//            new Thread(new Runnable() 
-//            {
-//                public void run() 
-//                {
-//                    try {
-//                        c = DBConnect.connect();
-//                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
-//                        ResultSet rs = c.createStatement().executeQuery(SQL);
-//                        while (rs.next())
-//                        {
-//                            maghrib_jamaat_time =       rs.getTime("maghrib_jamaat");
-//                        }
-//                        c.close();
-//                        maghrib_jamaat = maghrib_jamaat_time.toString();
-//                        System.out.println("maghrib jamaat time updated:" + maghrib_jamaat);
-//                        Date maghrib_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + maghrib_jamaat);
-//                        cal.setTime(maghrib_jamaat_temp);
-//                        cal.add(Calendar.MINUTE, 15);
-//                        cal.add(Calendar.DAY_OF_MONTH, 1);
-//                        Date maghrib_jamaat = cal.getTime();
-//                        maghrib_jamaat_update_cal = Calendar.getInstance();
-//                        maghrib_jamaat_update_cal.setTime(maghrib_jamaat);
-//                        maghrib_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
-//                        maghrib_jamaat_update_cal.set(Calendar.SECOND, 0);
-//    //                            System.out.println(fajr_jamaat_update_cal.getTime());
-//                        System.out.println("next update is on:" + maghrib_jamaat_update_cal.getTime());
-//                        TimeUnit.MINUTES.sleep(1);
-//                        maghrib_jamaat_update_enable = true;
-//                        update_prayer_labels = true;
-//
-//                    } 
-//                    catch (SQLException ex) {logger.warn("Unexpected error", e);} 
-//                    catch (ParseException ex) {logger.warn("Unexpected error", e);} 
-//                    catch (InterruptedException ex) {logger.warn("Unexpected error", e);}
-//               }
-//            }).start();
-//        }
-        
         if (isha_jamaat_update_cal.equals(Calendar_now) && isha_jamaat_update_enable )         
         {       
             isha_jamaat_update_enable = false;
@@ -2254,7 +2306,6 @@ public void update_labels() throws Exception{
                }
             }).start();
         }
-        
  
 //        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 ////        Date preDefineTime=formatter.parse("10:00");
@@ -2277,7 +2328,6 @@ public void update_labels() throws Exception{
 //            sunrise_hourRight.setText(sunrise_time.toString().substring(12, 13));
 //            sunrise_minLeft.setText(sunrise_time.toString().substring(14, 15));
 //            sunrise_minRight.setText(sunrise_time.toString().substring(15, 16));
-            
 
             zuhr_hourLeft.setText(zuhr_begins_time.toString().substring(11, 12));
             zuhr_hourRight.setText(zuhr_begins_time.toString().substring(12, 13));
@@ -2336,16 +2386,12 @@ public void update_labels() throws Exception{
             friday_hourRight.setText(friday_jamaat.substring(1, 2));
             friday_minLeft.setText(friday_jamaat.substring(3, 4));
             friday_minRight.setText(friday_jamaat.substring(4, 5));
-            
              
             time_jamma_Separator1.setText(":");
             time_jamma_Separator2.setText(":");
             time_jamma_Separator3.setText(":");
             time_jamma_Separator4.setText(":");
-            time_jamma_Separator5.setText(":");
-
-            
-            
+            time_jamma_Separator5.setText(":");   
         }
         
 //==Update Moon Images============================================================  
@@ -2356,6 +2402,7 @@ public void update_labels() throws Exception{
             
             if (moonPhase == 200 )
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2366,6 +2413,7 @@ public void update_labels() throws Exception{
             
             if (moonPhase <= 2 && moonPhase >= 0 )
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/0%.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2376,6 +2424,7 @@ public void update_labels() throws Exception{
         
             else if (moonPhase>2 && moonPhase<=10 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/3%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2386,6 +2435,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>10 && moonPhase<=17 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/12%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2396,6 +2446,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>17 && moonPhase<=32 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/21%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2405,6 +2456,7 @@ public void update_labels() throws Exception{
             }
             else if (moonPhase>32 && moonPhase<=43 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/38%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2415,6 +2467,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>43 && moonPhase<=52 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/47%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2425,6 +2478,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>52 && moonPhase<=61 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2435,6 +2489,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>61 && moonPhase<=70 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/65%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2445,6 +2500,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>70 && moonPhase<=78 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/74%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2455,6 +2511,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>78 && moonPhase<=87 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/82%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2465,6 +2522,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>87 && moonPhase<=99 && isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/91%WA.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2475,6 +2533,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase== 100)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/100%.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2485,6 +2544,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>2 && moonPhase<=12 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/8%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2495,6 +2555,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>12 && moonPhase<=20 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/16%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2505,6 +2566,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>20 && moonPhase<=28 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/24%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2515,6 +2577,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>28 && moonPhase<=36 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/32%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2525,6 +2588,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>36 && moonPhase<=44 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/40%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2535,6 +2599,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>44 && moonPhase<=52 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/48%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2545,6 +2610,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>52 && moonPhase<=59 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/56%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2555,6 +2621,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>59 && moonPhase<=67 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/63%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2565,6 +2632,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>67 && moonPhase<=74 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/71%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2575,6 +2643,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>74 && moonPhase<=82 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/78%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2585,6 +2654,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>82 && moonPhase<=90 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/86%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2595,6 +2665,7 @@ public void update_labels() throws Exception{
 
             else if (moonPhase>90 && moonPhase<=99 && !isWaning)
             {
+                Moon_Image_Label.setGraphic(null);
                 ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/94%WX.png")));      
                 Moon_img.setFitWidth(160);
                 Moon_img.setFitHeight(160);
@@ -2648,7 +2719,6 @@ public void update_labels() throws Exception{
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
 //        prayertime_pane.setVgap(20);
         prayertime_pane.setHgap(80);
-        
         
         prayertime_pane.setConstraints(jamaat_Label_eng, 0, 1);
         prayertime_pane.getChildren().add(jamaat_Label_eng);      
@@ -3033,7 +3103,7 @@ public void update_labels() throws Exception{
         GridPane hadithPane = new GridPane();
 //        hadithPane.setGridLinesVisible(true);
         hadithPane.setId("hadithpane");
-        hadithPane.setVgap(20);
+        hadithPane.setVgap(0);
 
         hadith_Label.setId("hadith-text-arabic");
         hadith_Label.setWrapText(true);
@@ -3075,10 +3145,11 @@ public void update_labels() throws Exception{
         hadithPane.setHalignment(divider1_Label,HPos.CENTER);
         hadithPane.setConstraints(divider1_Label, 0, 2);
         hadithPane.getChildren().add(divider1_Label); 
-        divider2_Label.setGraphic(divider_img);
-        hadithPane.setHalignment(divider2_Label,HPos.CENTER);
-        hadithPane.setConstraints(divider2_Label, 0, 2);
-        hadithPane.getChildren().add(divider2_Label); 
+        
+//        divider2_Label.setGraphic(divider_img);
+//        hadithPane.setHalignment(divider2_Label,HPos.CENTER);
+//        hadithPane.setConstraints(divider2_Label, 0, 2);
+//        hadithPane.getChildren().add(divider2_Label); 
         
         athan_Change_Label_L1.setWrapText(true);
         athan_Change_Label_L1.setMinHeight(0);
@@ -3090,11 +3161,7 @@ public void update_labels() throws Exception{
         hadithPane.setConstraints(athan_Change_Label_L2, 0, 4);
         hadithPane.getChildren().add(athan_Change_Label_L2);
         
-//        ImageView twitter_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter.png")));      
-//        twitter_img.setFitWidth(110);
-//        twitter_img.setPreserveRatio(true);
-//        twitter_img.setTranslateY(485);
-//        hadithPane.getChildren().add(twitter_img); 
+
 
         return hadithPane;
     }    
@@ -3102,23 +3169,32 @@ public void update_labels() throws Exception{
     public GridPane footerPane() {
       
         GridPane footerPane = new GridPane();
-//        hadithPane.setGridLinesVisible(true);
+//        hadithPane.setGridLinesVisible(true);  
+        double size = 15;
+        TextFlow textFlow = new TextFlow();
+        Text text1 = new Text("Get prayer time notifications and daily hadith on your mobile by following us on ");
+        text1.setFont(Font.font("Tahoma", size));
+        text1.setFill(Color.GRAY);
+//        Text text2 = new Text("embedded objects: ");
+//        text2.setFont(Font.font("Tahoma", FontWeight.BOLD, size));
+//        Text text3 = new Text(" then button ");
+//        Text text4 = new Text(" finally an image ");
+        ImageView facebook_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/facebook.png")));
+        facebook_image.setTranslateY(15);
+        Text text5 = new Text(" or ");
+        text5.setFont(Font.font("Tahoma", size));
+        text5.setFill(Color.GRAY);
+        ImageView twitter_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/twitter.png")));
+        textFlow.getChildren().addAll(text1, facebook_image, text5, twitter_image);
+        footerPane.setConstraints(textFlow, 0, 0);
+        footerPane.getChildren().add(textFlow);
         
-        footer_Label.setWrapText(true);
-        footer_Label.setTranslateY(15);
-        footer_Label.setId("footer-text");
-        footer_Label.setText("Get prayer time notifications and daily hadith on your mobile by following us on Facebook or Twitter");
-        footer_Label.setMinHeight(0);
-        footerPane.setConstraints(footer_Label, 0, 0);
-        footerPane.getChildren().add(footer_Label);
-                
-        ImageView like_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/divider.png")));      
-        like_Label.setGraphic(like_img);
-        footerPane.setHalignment(divider1_Label,HPos.CENTER);
-        footerPane.setConstraints(divider1_Label, 0, 1);
-        footerPane.getChildren().add(divider1_Label);
-        
-        
+//        ImageView twitter_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter.png")));      
+//        twitter_img.setFitWidth(110);
+//        twitter_img.setPreserveRatio(true);
+//        twitter_img.setTranslateY(485);
+//        hadithPane.getChildren().add(twitter_img); 
+
         return footerPane;
     }    
 
