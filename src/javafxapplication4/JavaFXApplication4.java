@@ -17,9 +17,8 @@ sudo service samba restart
 
 package javafxapplication4;
 
-//import java.util.Locale;
-//import org.joda.time.*;
-//import java.sql.Time;
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import javafx.animation.AnimationTimer;
@@ -31,8 +30,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-//import javafx.scene.text.Text;
-//import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 import javafx.geometry.Insets;
@@ -82,13 +79,12 @@ import com.restfb.exception.FacebookException;
 import com.restfb.json.JsonObject;
 import com.restfb.types.FacebookType;
 import com.restfb.types.Post;
-import java.awt.Rectangle;
 
-import java.io.InputStream;
-import static java.lang.String.format;
-import static java.lang.System.currentTimeMillis;
+//import java.io.InputStream;
+//import static java.lang.String.format;
+//import static java.lang.System.currentTimeMillis;
 import static java.lang.System.out;
-import java.net.URL;
+//import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.text.Format;
@@ -96,21 +92,21 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import javafx.scene.image.ImageViewBuilder;
-import static javafx.scene.input.DataFormat.URL;
-import javafx.scene.text.FontWeight;
+//import static javafx.scene.input.DataFormat.URL;
+//import javafx.scene.text.FontWeight;
 //import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.util.Duration;
+//import javafx.util.Duration;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+//import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+//import org.json.simple.JSONArray;
+//import org.json.simple.JSONObject;
+//import org.json.simple.parser.JSONParser;
 //import org.joda.time.chrono.JulianChronology;
 
 /**
@@ -168,6 +164,7 @@ import org.json.simple.parser.JSONParser;
     private boolean facebook_Text_Post = false;
     private boolean facebook_Picture_Post = false;
     private boolean facebook_Label_visible_set_once = false;
+    private boolean prayer_In_Progress = false;
             
     private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
@@ -217,7 +214,9 @@ import org.json.simple.parser.JSONParser;
          "th", "st" };
     Connection c,c2 ;
     ObservableList<String> names = FXCollections.observableArrayList();
-    
+    private String fromClient;
+    private String toClient;
+    private ServerSocket server;
 
     @Override public void init() throws IOException {
         
@@ -240,13 +239,22 @@ import org.json.simple.parser.JSONParser;
             @Override
             public void run() 
             {
+                ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
+                try 
+                {
+                        Process process2 = processBuilder2.start(); 
+                        hdmiOn = false;
+                        prayer_In_Progress = true;
+                }
+                catch (IOException e) {logger.warn("Unexpected error", e);}
                 logger.info("Exiting application....");
             }
         }));
         
         moonPhase = 200;
-        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
-
+//        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
+        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BALxHS3AsaZBcNq2SB27JeLRDj6K6NIzz09ciEkhamhvEAZCjvy7eN7DVER1UVIOUvl4HUIIaSS7gnwLSeR6jVvxWhNqCPWCVZBqFDdiUcgKiZCNCFMtXVHoiRaue5gvOu6BU3KXAtJpt6ZAsxBWOeZA1fEEuM46jdo6iRgkmKy2jTr5ZBpmZC0YZD");
+        
 // Pushover ==============================       
         
         //https://github.com/nicatronTg/jPushover
@@ -263,6 +271,11 @@ import org.json.simple.parser.JSONParser;
 //               System.out.println(line);
 //            } 
        
+//        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/athan1.mp3");
+//        try {Process process3 = processBuilder_Athan.start();} 
+//            catch (IOException e) {logger.warn("Unexpected error", e);}
+        
+        
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/PTBLARC.TTF").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/BMajidSh.ttf").toExternalForm(),30);
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/Oldoutsh.ttf").toExternalForm(),30);
@@ -714,6 +727,7 @@ import org.json.simple.parser.JSONParser;
                                 ar_notification_Msg_Lines = ar_notification_Msg.split("\\r?\\n");
                                 en_notification_Msg_Lines = en_notification_Msg.split("\\r?\\n");
                                 athan_Change_Label_visible = true;
+                                getFacebook = false;
                             }
                             
                             if (Calendar_now.compareTo(notification_Date_cal) >=0 )  //&& !notification_Sent
@@ -1066,12 +1080,11 @@ import org.json.simple.parser.JSONParser;
                                 c = DBConnect.connect();
                                 
 //                                System.out.println("current day of the week " + dayofweek_int );
-                                if (dayofweek_int == 5){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
+                                if (dayofweek_int == 5 || dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
                                 else 
                                 {
                                     SQL = "select * from hadith WHERE day = '0' order by rand() limit 1";
-//                                    SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
-    //                                SQL = "select hadith, translated_hadith from hadith where ID = 37";
+                                    //SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
                                 }
                                 ResultSet rs = c.createStatement().executeQuery(SQL);
                                 while (rs.next()) 
@@ -1101,6 +1114,8 @@ import org.json.simple.parser.JSONParser;
                                 hadith_notification_Date_cal.set(Calendar.MILLISECOND, 0);
                                 hadith_notification_Date_cal.set(Calendar.SECOND, 0);
 
+//                                System.out.println(hadith_notification_Date_cal.getTime());
+//                                System.out.println(Calendar_now.getTime());
                                 if (Calendar_now.compareTo(hadith_notification_Date_cal) == 0 )  
                                 {
                                     System.out.println("hadith has already been posted today to Facebook");
@@ -1275,11 +1290,12 @@ import org.json.simple.parser.JSONParser;
                          sensor_lastTimerCall = System.currentTimeMillis();
                          if(!hdmiOn)
                          {
-                            ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-                            hdmiOn = true;
-                            System.out.println("Tv turned on");
-                            try {Process process1 = processBuilder1.start();}
-                            catch (IOException e) {logger.warn("Unexpected error", e);}   
+                             ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+                             hdmiOn = true;
+                             System.out.println("Tv turned on");
+                             try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
+                             try {Process process1 = processBuilder1.start();}
+                             catch (IOException e) {logger.warn("Unexpected error", e);}   
                          }
                      }
                      
@@ -1294,7 +1310,7 @@ import org.json.simple.parser.JSONParser;
                  try 
                  {
                      long now = System.currentTimeMillis();
-                     if (System.currentTimeMillis() > sensor_lastTimerCall + 360000 && sensorLow) 
+                     if (System.currentTimeMillis() > sensor_lastTimerCall + 1200000 && sensorLow) 
                      {
                          System.out.println("All is quiet...");
                          ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
@@ -1306,7 +1322,7 @@ import org.json.simple.parser.JSONParser;
                      }
                      Thread.sleep(1000);
                  }
-                 catch(InterruptedException ex) 
+                 catch(InterruptedException e) 
                  {
                      gpioSensor.shutdown();
                      Thread.currentThread().interrupt();
@@ -1315,6 +1331,57 @@ import org.json.simple.parser.JSONParser;
 
          }).start();
 
+        
+        
+        
+// Infrared sensor thread to turn on/Off TV screen when Prayer starts ===============================================================        
+        new Thread(() -> 
+        {
+
+             System.out.println(" ... Prayer Detection Starting.....");            
+             for (;;) 
+             {                 
+                try 
+                {
+                    DatagramSocket socket = new DatagramSocket(8888, InetAddress.getByName("0.0.0.0"));
+                    socket.setBroadcast(true);
+                    byte[] buf = new byte[512];
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                    while (true) 
+                    {
+                        socket.receive(packet);
+                        String received = new String(packet.getData(), 0, packet.getLength());
+                        System.out.println("UDP Packet received: " + received);
+                        if(received.equals("Prayer in progress")) 
+                        {
+                            ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
+                            try 
+                            {
+                                if (hdmiOn)
+                                {
+                                    Process process2 = processBuilder2.start(); 
+                                    hdmiOn = false;
+                                    prayer_In_Progress = true;
+                                    System.out.println("Prayer in Progress...Turning Off TV(s)");
+                                    
+                                }
+                            }
+                            catch (IOException e) {logger.warn("Unexpected error", e);}
+                            
+                        }
+                    }
+                }
+
+//                 catch(InterruptedException e){Thread.currentThread().interrupt();}
+                 catch (Exception e){logger.warn("Unexpected error", e); Thread.currentThread().interrupt();}
+                 
+             }
+
+         }).start();
+        
+        
+        
+        
     }
 //===============================================================================================================================================
     
@@ -1328,7 +1395,7 @@ import org.json.simple.parser.JSONParser;
         stage.setScene(scene);
                 
         Mainpane = new GridPane();        
-        String image = JavaFXApplication4.class.getResource("/Images/green-wallpaper.jpg").toExternalForm();
+        String image = JavaFXApplication4.class.getResource("/Images/Blue-Wallpaper.jpg").toExternalForm();
 //        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: repeat; ");  
         Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");        
         
@@ -1397,7 +1464,9 @@ import org.json.simple.parser.JSONParser;
         Mainpane.add(Moonpane, 7, 1);
         Mainpane.add(prayertime_pane, 1, 4,11,8);  
         Mainpane.add(hadithPane, 1, 13,11,8);
-        Mainpane.add(footerPane, 1, 21,11,1);
+        
+        Mainpane.add(footerPane, 1, 20,11,1);
+        footerPane.setTranslateY(70);
 //        Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -1582,6 +1651,7 @@ public void update_labels() throws Exception{
                 athan_Change_Label_L1.setText(en_notification_Msg_Lines[0]);
                 athan_Change_Label_L2.setId("en_athan-change-textL2");
                 athan_Change_Label_L2.setText(en_notification_Msg_Lines[1]);
+                hadithPane.setHalignment(athan_Change_Label_L2,HPos.LEFT);
             }
                         
             String hour = new SimpleDateFormat("kk").format(Calendar_now.getTime());
@@ -1825,12 +1895,11 @@ public void update_labels() throws Exception{
                 athan_Change_Label_L2.setMaxHeight(70);
                 divider1_Label.setVisible(true);
                 divider1_Label.setMaxHeight(50);
-                hadithPane.setHalignment(athan_Change_Label_L1,HPos.RIGHT);
                 athan_Change_Label_L1.setText(ar_notification_Msg_Lines[0]);
                 athan_Change_Label_L1.setId("ar_athan-change-text");
-                hadithPane.setHalignment(athan_Change_Label_L2,HPos.RIGHT);
                 athan_Change_Label_L2.setText(ar_notification_Msg_Lines[1]);
                 athan_Change_Label_L2.setId("ar_athan-change-textL2");
+                hadithPane.setHalignment(athan_Change_Label_L2,HPos.RIGHT);
 
                 facebook_Label.setVisible(false);
                 facebook_Label.setText("");
@@ -2066,8 +2135,11 @@ public void update_labels() throws Exception{
 //        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
         
         
-        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "aplay /home/pi/prayertime/Audio/athan1.wav");
-        ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "aplay /home/pi/prayertime/Audio/duha.wav");
+        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/athan1.mp3");
+        ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/duha.mp3");
+        
+        
+        
 //                            try {
 //                                Process process = processBuilder.start();                                
 //                            } catch (IOException ex) {
@@ -3171,29 +3243,61 @@ public void update_labels() throws Exception{
         GridPane footerPane = new GridPane();
 //        hadithPane.setGridLinesVisible(true);  
         double size = 15;
-        TextFlow textFlow = new TextFlow();
-        Text text1 = new Text("Get prayer time notifications and daily hadith on your mobile by following us on ");
+        TextFlow textFlow1 = new TextFlow();
+        TextFlow textFlow2 = new TextFlow();
+        TextFlow textFlow3 = new TextFlow();
+        Text text1 = new Text("                       Get prayer time notifications and daily hadith on your mobile by following us on ");
         text1.setFont(Font.font("Tahoma", size));
         text1.setFill(Color.GRAY);
-//        Text text2 = new Text("embedded objects: ");
-//        text2.setFont(Font.font("Tahoma", FontWeight.BOLD, size));
-//        Text text3 = new Text(" then button ");
-//        Text text4 = new Text(" finally an image ");
         ImageView facebook_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/facebook.png")));
         facebook_image.setTranslateY(15);
-        Text text5 = new Text(" or ");
+        Text text5 = new Text("  or  ");
         text5.setFont(Font.font("Tahoma", size));
         text5.setFill(Color.GRAY);
         ImageView twitter_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/twitter.png")));
-        textFlow.getChildren().addAll(text1, facebook_image, text5, twitter_image);
-        footerPane.setConstraints(textFlow, 0, 0);
-        footerPane.getChildren().add(textFlow);
+        Text text6 = new Text("                                             Twitter: ");
+        text6.setFont(Font.font("Tahoma", size));
+        text6.setFill(Color.GRAY);
+        Text text7 = new Text("@Daar_Ibn_Abbas");
+        text7.setFont(Font.font("Tahoma", size));
+        text7.setFill(Color.WHITE);
+        Text text8 = new Text("           Facebook Page: ");
+        text8.setFont(Font.font("Tahoma", size));
+        text8.setFill(Color.GRAY);
+        Text text9 = new Text("Daar-Ibn-Abbas");
+        text9.setFont(Font.font("Tahoma", size));
+        text9.setFill(Color.WHITE);
+        Text text10 = new Text("لا حول ولا قوة الا بالله العلي العظيم                                                                         ");
+        text10.setFont(Font.font("Tahoma", size));
+        text10.setFill(Color.GRAY);
+//        
+//        
+//        ImageView twitter_code = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter.png"))); 
+//        twitter_code.setFitHeight(70);
+//        twitter_code.setTranslateY(20);
+//        twitter_code.setPreserveRatio(true);
+//        ImageView facebook_code = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Facebook.png")));
+//        facebook_code.setFitHeight(70);
+//        facebook_code.setTranslateY(20);
+//        facebook_code.setPreserveRatio(true);
+        textFlow1.getChildren().addAll(text1, twitter_image, text5, facebook_image);
+        footerPane.setHalignment(textFlow1,HPos.CENTER);
+        footerPane.setConstraints(textFlow1, 0, 0);
+        footerPane.getChildren().add(textFlow1);
         
-//        ImageView twitter_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter.png")));      
-//        twitter_img.setFitWidth(110);
-//        twitter_img.setPreserveRatio(true);
-//        twitter_img.setTranslateY(485);
-//        hadithPane.getChildren().add(twitter_img); 
+        textFlow2.getChildren().addAll(text6,text7,text8, text9);
+        footerPane.setHalignment(textFlow2,HPos.CENTER);
+        footerPane.setConstraints(textFlow2, 0, 1);
+        footerPane.getChildren().add(textFlow2);
+        
+        textFlow3.getChildren().addAll(text10);
+        footerPane.setHalignment(textFlow3,HPos.CENTER);
+        footerPane.setConstraints(textFlow3, 0, 2);
+        footerPane.getChildren().add(textFlow3);
+        
+        
+        
+
 
         return footerPane;
     }    
