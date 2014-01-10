@@ -116,7 +116,7 @@ import org.joda.time.format.DateTimeFormatter;
    
     public class JavaFXApplication4 extends Application {
     
-    private Boolean debug    = false;  //  <<========================== Debuger  
+    private Boolean debug    = true;  //  <<========================== Debuger  
     private Logger logger = Logger.getLogger(JavaFXApplication4.class.getName());
     private Date fullMoon= null; //  <<========================== might fix errors at startup
     private Date newMoon= null; //  <<========================== might fix errors at startup
@@ -129,7 +129,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Integer moonPhase;
     private Boolean isWaning;
     private Boolean sensorLow = false;
-    private Boolean hdmiOn = true;
+    private Boolean hdmiOn = false;
     private Boolean isStarting = true;
     private Boolean new_day = true;
     private Boolean fajr_athan_enable = true ;
@@ -165,6 +165,7 @@ import org.joda.time.format.DateTimeFormatter;
     private boolean facebook_Picture_Post = false;
     private boolean facebook_Label_visible_set_once = false;
     private boolean prayer_In_Progress = false;
+    private boolean startup = true;
             
     private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
@@ -173,7 +174,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String friday_jamaat, future_zuhr_jamaat_time;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
-    private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url;
+    private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url,old_facebook_Post_Url;;
     
     private int id;
     int olddayofweek_int;
@@ -198,7 +199,11 @@ import org.joda.time.format.DateTimeFormatter;
     private Label friday_hourLeft, friday_hourRight, friday_minLeft, friday_minRight;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2, facebook_Label;
     
-    private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall;
+    private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall, proximity_lastTimerCall;
+//    public long delay_turnOnTV_after_Prayers = 480000000000L; // 8minutes
+    public long delay_turnOnTV_after_Prayers = 60000000000L; // 1minutes
+//    public long delay_turnOffTV_after_inactivity = 1200000000000L; // 20minutes
+    public long delay_turnOffTV_after_inactivity = 280000000000L; // 1minutes
     private AnimationTimer moonPhase_timer, translate_timer ,debug_timer ;
         
     GridPane Mainpane, Moonpane, prayertime_pane, clockPane, hadithPane;
@@ -238,17 +243,7 @@ import org.joda.time.format.DateTimeFormatter;
         {            
             @Override
             public void run() 
-            {
-                ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
-                try 
-                {
-                        Process process2 = processBuilder2.start(); 
-                        hdmiOn = false;
-                        prayer_In_Progress = true;
-                }
-                catch (IOException e) {logger.warn("Unexpected error", e);}
-                logger.info("Exiting application....");
-            }
+            {logger.info("Exiting application....");}
         }));
         
         moonPhase = 200;
@@ -263,8 +258,8 @@ import org.joda.time.format.DateTimeFormatter;
                             
 
         
-        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-        Process process = processBuilder.start();
+//        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+//        Process process = processBuilder.start();
 //            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 //            String line = null;
 //            while ((line = br.readLine()) != null) {
@@ -1125,7 +1120,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 {
                                     try 
                                     {
-                                        facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));
+//                                        facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));
                                         c = DBConnect.connect();
                                         PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
                                         java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
@@ -1149,7 +1144,7 @@ import org.joda.time.format.DateTimeFormatter;
                             facebook_Text_Post = false;
                             facebook_Picture_Post = false;
                             facebook_post = "";
-                            facebook_Post_Url = "";
+//                            facebook_Post_Url = "";
                             facebook_Fan_Count = "";
                             Calendar facebook_created_time_calendar = null;
                             Calendar facebook_photo_created_time_calendar = null;
@@ -1212,14 +1207,38 @@ import org.joda.time.format.DateTimeFormatter;
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
                                 if(!queryResults.isEmpty()) 
                                 {
+                                    if(null != facebook_Post_Url && !"".equals(facebook_Post_Url)){ old_facebook_Post_Url = new String(facebook_Post_Url);}
+//                                    out.println(old_facebook_Post_Url);
+                                    
                                     facebook_Post_Url = queryResults.get(0).getJsonObject("attachment").getJsonArray("media").getJsonObject(0).getJsonObject("photo").getJsonArray("images").getJsonObject(1).getString("src");
-                                    out.println(facebook_Post_Url);
+//                                    out.println(facebook_Post_Url);
+
                                     facebook_photo_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
                                     facebook_photo_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
                                     out.print("Comment posted on:"); out.println(facebook_photo_created_time_calendar.getTime());
-                                    facebook_Picture_Post = true;
-                                    facebook_Label_visible = true;
-                                    facebook_Label_visible_set_once = true;
+                                    
+                                    if(null != facebook_Post_Url && !"".equals(facebook_Post_Url) )
+                                    {
+                                        if(null != old_facebook_Post_Url && !"".equals(old_facebook_Post_Url))
+                                        {
+                                            if(facebook_Post_Url.equals(old_facebook_Post_Url))
+                                            {out.print("Facebook photo post has not changed from previous fetch, nothing has been set");}
+                                            
+                                            if(!facebook_Post_Url.equals(old_facebook_Post_Url))
+                                            {
+                                                facebook_Picture_Post = true;
+                                                facebook_Label_visible = true;
+                                                facebook_Label_visible_set_once = true;
+                                            }
+                                        }
+                                        
+                                        else
+                                        {
+                                            facebook_Picture_Post = true;
+                                            facebook_Label_visible = true;
+                                            facebook_Label_visible_set_once = true;
+                                        }
+                                    }   
                                 }
                                 
                             }
@@ -1254,7 +1273,7 @@ import org.joda.time.format.DateTimeFormatter;
              
             }
         }, 0, 3600000);   
-//        }, 0, 240000);        
+//        }, 0, 120000);        
         
 // Timer to traslate labels from arabic to english on the screen====================================================
         
@@ -1276,7 +1295,7 @@ import org.joda.time.format.DateTimeFormatter;
         new Thread(() -> 
         {
              final GpioController gpioSensor = GpioFactory.getInstance();
-             sensor_lastTimerCall = System.currentTimeMillis();
+             sensor_lastTimerCall =  System.nanoTime(); 
              final GpioPinDigitalInput sensor = gpioSensor.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
              
              sensor.addListener(new GpioPinListenerDigital() 
@@ -1287,15 +1306,39 @@ import org.joda.time.format.DateTimeFormatter;
 
                      if (event.getState().isHigh()) 
                      {
-                         sensor_lastTimerCall = System.currentTimeMillis();
+                         sensor_lastTimerCall = System.nanoTime(); 
                          if(!hdmiOn)
                          {
-                             ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-                             hdmiOn = true;
-                             System.out.println("Tv turned on");
-                             try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
-                             try {Process process1 = processBuilder1.start();}
-                             catch (IOException e) {logger.warn("Unexpected error", e);}   
+                             
+                             System.out.println(prayer_In_Progress);
+                             
+                             if (!prayer_In_Progress)
+                             {
+                                ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+                                hdmiOn = true;
+                                startup = false;
+                                System.out.println("Tv turned on");
+                                try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
+                                try {Process process1 = processBuilder1.start();}
+                                catch (IOException e) {logger.warn("Unexpected error", e);} 
+
+                             }
+
+                             if (prayer_In_Progress)
+                             {
+                                if (System.nanoTime() > proximity_lastTimerCall + delay_turnOnTV_after_Prayers )
+                                {
+//                                    System.out.println(proximity_lastTimerCall + delay_turnOnTV_after_Prayers);
+//                                    System.out.println(System.nanoTime());
+                                    ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+                                    hdmiOn = true;
+                                    prayer_In_Progress = false;
+                                    System.out.println("Tv turned on");
+                                    try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
+                                    try {Process process1 = processBuilder1.start();}
+                                    catch (IOException e) {logger.warn("Unexpected error", e);} 
+                                }
+                             }
                          }
                      }
                      
@@ -1309,15 +1352,16 @@ import org.joda.time.format.DateTimeFormatter;
              {
                  try 
                  {
-                     long now = System.currentTimeMillis();
-                     if (System.currentTimeMillis() > sensor_lastTimerCall + 1200000 && sensorLow) 
+                     
+                     if (System.nanoTime() > sensor_lastTimerCall + delay_turnOffTV_after_inactivity && sensorLow && hdmiOn || startup) 
                      {
+                         startup = false;
                          System.out.println("All is quiet...");
                          ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
                          hdmiOn = false;
                          try {Process process2 = processBuilder2.start();}
                          catch (IOException e) {logger.warn("Unexpected error", e);}
-                         sensor_lastTimerCall = now;
+                         sensor_lastTimerCall = System.nanoTime();
                          sensorLow = false;
                      }
                      Thread.sleep(1000);
@@ -1349,9 +1393,11 @@ import org.joda.time.format.DateTimeFormatter;
                     DatagramPacket packet = new DatagramPacket(buf, buf.length);
                     while (true) 
                     {
+                        
                         socket.receive(packet);
                         String received = new String(packet.getData(), 0, packet.getLength());
                         System.out.println("UDP Packet received: " + received);
+                        proximity_lastTimerCall = System.nanoTime();
                         if(received.equals("Prayer in progress")) 
                         {
                             ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
@@ -1360,9 +1406,11 @@ import org.joda.time.format.DateTimeFormatter;
                                 if (hdmiOn)
                                 {
                                     Process process2 = processBuilder2.start(); 
+                                    System.out.println("Prayer in Progress...Turning Off TV(s)");
+                                    Thread.sleep(1000);
                                     hdmiOn = false;
                                     prayer_In_Progress = true;
-                                    System.out.println("Prayer in Progress...Turning Off TV(s)");
+                                    proximity_lastTimerCall = System.nanoTime();
                                     
                                 }
                             }
@@ -1579,10 +1627,7 @@ public void update_labels() throws Exception{
                         facebook_Label.setVisible(true);
                         hadithPane.setHalignment(facebook_Label,HPos.CENTER);
                         facebook_Label.setVisible(true);
-                        facebook_Label_visible_set_once = false;
-                        
-                        
-                        
+                        facebook_Label_visible_set_once = false;  
                     }
                     
                     
@@ -2137,8 +2182,7 @@ public void update_labels() throws Exception{
         
         ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/athan1.mp3");
         ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/duha.mp3");
-        
-        
+
         
 //                            try {
 //                                Process process = processBuilder.start();                                
@@ -2164,9 +2208,9 @@ public void update_labels() throws Exception{
             System.out.println("Duha Time");
 //            String image = JavaFXApplication4.class.getResource("/Images/sunrise.png").toExternalForm();
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");
-            sensor_lastTimerCall = System.currentTimeMillis();
+            sensor_lastTimerCall = System.nanoTime();
             sensorLow = true;
-            try {Process process = processBuilder_Tvon.start();} 
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Duha.start();} 
@@ -2181,9 +2225,9 @@ public void update_labels() throws Exception{
 //            clip.open(converted);
 //            clip.start();
             sensorLow = true;
-            sensor_lastTimerCall = System.currentTimeMillis();
+            sensor_lastTimerCall = System.nanoTime();
             
-            try {Process process = processBuilder_Tvon.start();} 
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
@@ -2197,9 +2241,9 @@ public void update_labels() throws Exception{
             System.out.println("zuhr Time");
 //            clip.open(converted);
 //            clip.start();
-            sensor_lastTimerCall = System.currentTimeMillis();
+            sensor_lastTimerCall = System.nanoTime();
             sensorLow = true;
-            try {Process process = processBuilder_Tvon.start();} 
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
@@ -2210,9 +2254,9 @@ public void update_labels() throws Exception{
         {
             asr_athan_enable = false;
             System.out.println("asr Time");
-            sensor_lastTimerCall = System.currentTimeMillis();
+            sensor_lastTimerCall = System.nanoTime();
             sensorLow = true;
-            try {Process process = processBuilder_Tvon.start();} 
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
@@ -2223,9 +2267,9 @@ public void update_labels() throws Exception{
         {
             maghrib_athan_enable = false;
             System.out.println("maghrib Time");
-            sensor_lastTimerCall = System.currentTimeMillis();
+            sensor_lastTimerCall = System.nanoTime();
             sensorLow = true;
-            try {Process process = processBuilder_Tvon.start();} 
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
@@ -2238,9 +2282,9 @@ public void update_labels() throws Exception{
         {
             isha_athan_enable = false;
             System.out.println("isha Time");
-            sensor_lastTimerCall = System.currentTimeMillis();
+            sensor_lastTimerCall = System.nanoTime();
             sensorLow = true;
-            try {Process process = processBuilder_Tvon.start();} 
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
