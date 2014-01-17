@@ -87,6 +87,7 @@ import static java.lang.System.out;
 //import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.text.DateFormat;
 import java.text.Format;
 import java.util.List;
 import java.util.TimeZone;
@@ -166,6 +167,7 @@ import org.joda.time.format.DateTimeFormatter;
     private boolean facebook_Label_visible_set_once = false;
     private boolean prayer_In_Progress = false;
     private boolean startup = true;
+    private boolean prayer_In_Progress_notification = false;
             
     private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
@@ -180,6 +182,7 @@ import org.joda.time.format.DateTimeFormatter;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
+    private Calendar fajr_jamaat_cal, duha_jamaat_cal, zuhr_jamaat_cal, asr_jamaat_cal, maghrib_jamaat_cal, isha_jamaat_cal;
     private Calendar fajr_jamaat_update_cal, duha_jamaat_update_cal, zuhr_jamaat_update_cal, asr_jamaat_update_cal, maghrib_jamaat_update_cal, isha_jamaat_update_cal;
     private Calendar future_fajr_jamaat_cal, future_zuhr_jamaat_cal, future_asr_jamaat_cal, future_maghrib_jamaat_cal, future_isha_jamaat_cal;
     private Calendar notification_Date_cal, hadith_notification_Date_cal;
@@ -188,7 +191,9 @@ import org.joda.time.format.DateTimeFormatter;
     private Date future_fajr_jamaat_time, future_asr_jamaat_time, future_maghrib_jamaat_time,future_isha_jamaat_time;
     private Date notification_Date, hadith_notification_Date;   
     private Date fullMoon_plus1;
-
+    Date ishadate, maghribdate, asrdate, zuhrdate, fajrdate; 
+    Date fajrjamaatdate, zuhrjamaatdate, asrjamaatdate, maghribjamaatdate, ishajamaatdate;
+    
     private Label fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight, footer_Label, like_Label;
     private Label sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
     private Label time_Separator1, time_Separator2, time_Separator3, time_Separator4, time_Separator5, time_Separator6,time_Separator8, time_jamma_Separator1, time_jamma_Separator2, time_jamma_Separator3, time_jamma_Separator4 ,time_jamma_Separator5; 
@@ -200,10 +205,12 @@ import org.joda.time.format.DateTimeFormatter;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2, facebook_Label;
     
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall, proximity_lastTimerCall;
-//    public long delay_turnOnTV_after_Prayers = 480000000000L; // 8minutes
-    public long delay_turnOnTV_after_Prayers = 60000000000L; // 1minutes
-//    public long delay_turnOffTV_after_inactivity = 1200000000000L; // 20minutes
-    public long delay_turnOffTV_after_inactivity = 280000000000L; // 1minutes
+    public long delay_turnOnTV_after_Prayers = 105000000000L; // 1.75 minute
+//    public long delay_turnOnTV_after_Prayers = 60000000000L; // 1 minute
+    public long delay_turnOnTV_after_Prayers_nightmode = 420000000000L; // 7 minutes
+    
+    public long delay_turnOffTV_after_inactivity = 1200000000000L; // 20minutes
+//    public long delay_turnOffTV_after_inactivity = 280000000000L; // 1minutes
     private AnimationTimer moonPhase_timer, translate_timer ,debug_timer ;
         
     GridPane Mainpane, Moonpane, prayertime_pane, clockPane, hadithPane;
@@ -594,7 +601,7 @@ import org.joda.time.format.DateTimeFormatter;
                         System.out.println(" isha time " + isha_begins_time);
                         
 //                        set friday prayer here
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){friday_jamaat = "13:30";}
+                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){friday_jamaat = "01:30";}
                         else{friday_jamaat = "12:30";}
            
                         update_prayer_labels = true;
@@ -642,7 +649,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 }
                                 c.close();
                                 fajr_jamaat = fajr_jamaat_time.toString();
-                                if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){zuhr_jamaat = "13:30";} else{zuhr_jamaat = "12:30";}
+                                if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){zuhr_jamaat = "01:30";} else{zuhr_jamaat = "12:30";}
                                 asr_jamaat = asr_jamaat_time.toString();
                                 isha_jamaat = isha_jamaat_time.toString();
                                 // print the results
@@ -658,9 +665,10 @@ import org.joda.time.format.DateTimeFormatter;
                             fajr_jamaat_update_cal.setTime(fajr_jamaat);
                             fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
+                            
+                            fajr_jamaat_cal = (Calendar)fajr_jamaat_update_cal.clone();
+                            fajr_jamaat_cal.add(Calendar.MINUTE, -15);
 //                            System.out.println("fajr Jamaat update scheduled at:" + fajr_jamaat_update_cal.getTime());
-
-
                             
                             Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_jamaat);
                             cal.setTime(asr_jamaat_temp);
@@ -671,6 +679,8 @@ import org.joda.time.format.DateTimeFormatter;
                             asr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             asr_jamaat_update_cal.set(Calendar.SECOND, 0);
 //                            System.out.println("asr Jamaat update scheduled at:" + asr_jamaat_update_cal.getTime());
+                            asr_jamaat_cal = (Calendar)asr_jamaat_update_cal.clone();
+                            asr_jamaat_cal.add(Calendar.MINUTE, -15);
 
                             
                             Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
@@ -682,6 +692,8 @@ import org.joda.time.format.DateTimeFormatter;
                             isha_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                             isha_jamaat_update_cal.set(Calendar.SECOND, 0);
 //                            System.out.println("Isha Jamaat update scheduled at:" + isha_jamaat_update_cal.getTime());
+                            isha_jamaat_cal = (Calendar)isha_jamaat_update_cal.clone();
+                            isha_jamaat_cal.add(Calendar.MINUTE, -15);
 
                             
 //==============Prayer time change notification logic + 7days
@@ -839,7 +851,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 
                                 fullMoon_plus1 = (Date)fullMoon.clone();
                                 DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
-                                System.out.println(days_Between_Now_Fullmoon);
+//                                System.out.println(days_Between_Now_Fullmoon);
                                 
                                 if ( days_Between_Now_Fullmoon == 5 && comparator.compare(fullMoon, maghrib_cal)<0)
                                 {
@@ -855,14 +867,12 @@ import org.joda.time.format.DateTimeFormatter;
 //                                    catch (FacebookException e){logger.warn("Unexpected error", e);}                           
                                     System.out.println("Full Moon Notification Sent to Facebook:" );
                                     System.out.println(facebook_moon_notification_Msg);
-    
                                 }
                                 
                                 else if ( days_Between_Now_Fullmoon == 5 )
                                 {
                                     if (comparator.compare(fullMoon, maghrib_cal)>0)
                                     { 
-                                        
                                         fullMoon_plus1.setTime(fullMoon.getTime() - 1 * 24 * 60 * 60 * 1000);
                                         String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
                                         String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
@@ -875,12 +885,10 @@ import org.joda.time.format.DateTimeFormatter;
                                         catch (FacebookException e){logger.warn("Unexpected error", e);} 
                                         System.out.println("Full Moon Notification Sent to Facebook:" );
                                         System.out.println(facebook_moon_notification_Msg);
-                                        
                                     }
                                     
                                     else
                                     {
-                                       
                                         fullMoon_plus1.setTime(fullMoon.getTime() - 2 * 24 * 60 * 60 * 1000);
                                         String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
                                         String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
@@ -891,16 +899,13 @@ import org.joda.time.format.DateTimeFormatter;
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;                          
                                         System.out.println("Full Moon Notification:" );
                                         System.out.println(facebook_moon_notification_Msg);
-
                                     }
                                 }
-                                
                                 
                                 else if ( days_Between_Now_Fullmoon == 3 )
                                 {
                                     if (comparator.compare(fullMoon, maghrib_cal)>0)
                                     { 
-                                        
                                         fullMoon_plus1.setTime(fullMoon.getTime() - 1 * 24 * 60 * 60 * 1000);
                                         String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
                                         String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
@@ -908,27 +913,25 @@ import org.joda.time.format.DateTimeFormatter;
                                         String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
                                         ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
-                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;  
-
-                                        
+                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
                                     }
                                     
                                     else
                                     {
-                                       
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ غدا ";
                                         String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
                                         ar_moon_notification = temp_ar_text1 +  temp_ar_text2;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
-                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
-
-
+                                        facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;   
+                                        try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+                                        catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                        System.out.println("Full Moon Notification Sent to Facebook:" );
+                                        System.out.println(facebook_moon_notification_Msg);
                                     }
                                 }
 
                                 else if ( days_Between_Now_Fullmoon == 2 && comparator.compare(fullMoon, maghrib_cal)>0)
                                 {
-                                    
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ غدا ";
                                         String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
                                         ar_moon_notification = temp_ar_text1 +  temp_ar_text2;
@@ -936,19 +939,18 @@ import org.joda.time.format.DateTimeFormatter;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
                                         System.out.println(en_moon_notification);
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
-
+                                        try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+                                        catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                        System.out.println("Full Moon Notification Sent to Facebook:" );
+                                        System.out.println(facebook_moon_notification_Msg);
                                 }
                                 
                                 else
                                 {
                                     getHadith = true; 
-//                                    getFacebook = true;
-                                    //hide moon notification label boolean
                                     moon_hadith_Label_visible = false;
-                                    //show hadith label boolean
                                     hadith_Label_visible = true;
                                 }
-                                
                             }
                             
                             else 
@@ -1163,6 +1165,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 {
                                     JsonObject facebookPost_J = queryResults.get(0);
                                     facebook_post = facebookPost_J.getString("message");
+                                    System.out.println("Facebook string length" + facebook_post.length());
                                     if(null != facebook_post && !"".equals(facebook_post)) 
                                     {
                                         if(facebook_post.contains("\n\n"))
@@ -1309,9 +1312,6 @@ import org.joda.time.format.DateTimeFormatter;
                          sensor_lastTimerCall = System.nanoTime(); 
                          if(!hdmiOn)
                          {
-                             
-                             System.out.println(prayer_In_Progress);
-                             
                              if (!prayer_In_Progress)
                              {
                                 ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
@@ -1326,18 +1326,88 @@ import org.joda.time.format.DateTimeFormatter;
 
                              if (prayer_In_Progress)
                              {
-                                if (System.nanoTime() > proximity_lastTimerCall + delay_turnOnTV_after_Prayers )
+                                
+                                Calendar cal = Calendar.getInstance();
+                                int hour_Now_int = cal.get(Calendar.HOUR_OF_DAY); 
+                                int hourbefore_fajr_int = fajr_cal.get(Calendar.HOUR_OF_DAY) -1; 
+                                hourbefore_fajr_int = hourbefore_fajr_int -1; 
+//                                System.out.println("hour now is" + hour_Now_int);
+//                                System.out.println("fajr hour -1 hour is" + hourbefore_fajr_int);
+                                
+                                
+                                
+                                if(hour_Now_int >=0 && hour_Now_int<=hourbefore_fajr_int)
                                 {
-//                                    System.out.println(proximity_lastTimerCall + delay_turnOnTV_after_Prayers);
-//                                    System.out.println(System.nanoTime());
-                                    ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-                                    hdmiOn = true;
-                                    prayer_In_Progress = false;
-                                    System.out.println("Tv turned on");
-                                    try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
-                                    try {Process process1 = processBuilder1.start();}
-                                    catch (IOException e) {logger.warn("Unexpected error", e);} 
+                                    
+                                    
+                                    System.out.println("prayer detected in after hours");
+                                    if (System.nanoTime() > proximity_lastTimerCall + delay_turnOnTV_after_Prayers_nightmode )
+                                    {
+    //                                    System.out.println(proximity_lastTimerCall + delay_turnOnTV_after_Prayers_nightmode);
+    //                                    System.out.println(System.nanoTime());
+                                        ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+                                        hdmiOn = true;
+                                        prayer_In_Progress = false;
+                                        System.out.println("Tv turned on");
+                                        try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
+                                        try {Process process1 = processBuilder1.start();}
+                                        catch (IOException e) {logger.warn("Unexpected error", e);} 
+                                    }
                                 }
+                                
+                                else
+                                {
+                                    System.out.println("prayer detected during normal hours");
+                                    
+                                    if (prayer_In_Progress_notification && cal.after(fajr_jamaat_cal) && cal.before(fajr_jamaat_update_cal))
+                                    {
+                                        prayer_In_Progress_notification = false;
+                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+                                        try {p.sendMessage("Fajr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                    }
+                                    if (prayer_In_Progress_notification && cal.after(zuhr_jamaat_cal) && cal.before(zuhr_jamaat_update_cal))
+                                    {
+                                        prayer_In_Progress_notification = false;
+                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+                                        try {p.sendMessage("Zuhr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                    }
+                                    if (prayer_In_Progress_notification && cal.after(asr_jamaat_cal) && cal.before(asr_jamaat_update_cal))
+                                    {
+                                        prayer_In_Progress_notification = false;
+                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+                                        try {p.sendMessage("Asr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                    }
+                                    if (prayer_In_Progress_notification && cal.after(maghrib_jamaat_cal) && cal.before(maghrib_jamaat_update_cal))
+                                    {
+                                        prayer_In_Progress_notification = false;
+                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+                                        try {p.sendMessage("Maghrib Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                    }
+                                    if (prayer_In_Progress_notification && cal.after(isha_jamaat_cal) && cal.before(isha_jamaat_update_cal))
+                                    {
+                                        prayer_In_Progress_notification = false;
+                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+                                        try {p.sendMessage("Isha Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                    }
+                                    
+                                    if (System.nanoTime() > proximity_lastTimerCall + delay_turnOnTV_after_Prayers )
+                                    {
+    //                                    System.out.println(proximity_lastTimerCall + delay_turnOnTV_after_Prayers);
+    //                                    System.out.println(System.nanoTime());
+                                        ProcessBuilder processBuilder1 = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+                                        hdmiOn = true;
+                                        prayer_In_Progress = false;
+                                        System.out.println("Tv turned on");
+                                        try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
+                                        try {Process process1 = processBuilder1.start();}catch (IOException e) {logger.warn("Unexpected error", e);} 
+                                        
+                                        
+                                        
+                                    }
+                                
+                                
+                                }
+ 
                              }
                          }
                      }
@@ -1699,7 +1769,7 @@ public void update_labels() throws Exception{
                 hadithPane.setHalignment(athan_Change_Label_L2,HPos.LEFT);
             }
                         
-            String hour = new SimpleDateFormat("kk").format(Calendar_now.getTime());
+            String hour = new SimpleDateFormat("hh").format(Calendar_now.getTime());
             hour_Label.setText(hour);
             String minute = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
             minute_Label.setText(minute);
@@ -2220,6 +2290,7 @@ public void update_labels() throws Exception{
 
         else if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
         {
+            prayer_In_Progress_notification = true;
             fajr_athan_enable = false;
             System.out.println("fajr Time");
 //            clip.open(converted);
@@ -2237,6 +2308,7 @@ public void update_labels() throws Exception{
         
         else if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
         {
+            prayer_In_Progress_notification = true;
             zuhr_athan_enable = false;
             System.out.println("zuhr Time");
 //            clip.open(converted);
@@ -2252,6 +2324,7 @@ public void update_labels() throws Exception{
 
         else if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
         {
+            prayer_In_Progress_notification = true;
             asr_athan_enable = false;
             System.out.println("asr Time");
             sensor_lastTimerCall = System.nanoTime();
@@ -2265,6 +2338,7 @@ public void update_labels() throws Exception{
         
         else if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
         {
+            prayer_In_Progress_notification = true;
             maghrib_athan_enable = false;
             System.out.println("maghrib Time");
             sensor_lastTimerCall = System.nanoTime();
@@ -2280,6 +2354,7 @@ public void update_labels() throws Exception{
         
         else if (isha_cal.equals(Calendar_now) && isha_athan_enable) 
         {
+            prayer_In_Progress_notification = true;
             isha_athan_enable = false;
             System.out.println("isha Time");
             sensor_lastTimerCall = System.nanoTime();
@@ -2434,36 +2509,52 @@ public void update_labels() throws Exception{
         if (update_prayer_labels) 
         {
             update_prayer_labels = false;
-           
-            fajr_hourLeft.setText(fajr_begins_time.toString().substring(11, 12));
-            fajr_hourRight.setText(fajr_begins_time.toString().substring(12, 13));
-            fajr_minLeft.setText(fajr_begins_time.toString().substring(14, 15));
-            fajr_minRight.setText(fajr_begins_time.toString().substring(15, 16));
+
+            DateFormat dateFormat = new SimpleDateFormat("hh:mm");
+            fajrdate = fajr_cal.getTime();
+            String formattedDateTime = dateFormat.format(fajrdate);
+            
+            fajr_hourLeft.setText(formattedDateTime.substring(0, 1));
+            fajr_hourRight.setText(formattedDateTime.substring(1, 2));
+            fajr_minLeft.setText(formattedDateTime.substring(3, 4));
+            fajr_minRight.setText(formattedDateTime.substring(4, 5));
             
 //            sunrise_hourLeft.setText(sunrise_time.toString().substring(11, 12));
 //            sunrise_hourRight.setText(sunrise_time.toString().substring(12, 13));
 //            sunrise_minLeft.setText(sunrise_time.toString().substring(14, 15));
 //            sunrise_minRight.setText(sunrise_time.toString().substring(15, 16));
 
-            zuhr_hourLeft.setText(zuhr_begins_time.toString().substring(11, 12));
-            zuhr_hourRight.setText(zuhr_begins_time.toString().substring(12, 13));
-            zuhr_minLeft.setText(zuhr_begins_time.toString().substring(14, 15));
-            zuhr_minRight.setText(zuhr_begins_time.toString().substring(15, 16));
+            zuhrdate = zuhr_cal.getTime();
+            formattedDateTime = dateFormat.format(zuhrdate);
+            
+            zuhr_hourLeft.setText(formattedDateTime.substring(0, 1));
+            zuhr_hourRight.setText(formattedDateTime.substring(1, 2));
+            zuhr_minLeft.setText(formattedDateTime.substring(3, 4));
+            zuhr_minRight.setText(formattedDateTime.substring(4, 5));
              
-            asr_hourLeft.setText(asr_begins_time.toString().substring(11, 12));
-            asr_hourRight.setText(asr_begins_time.toString().substring(12, 13));
-            asr_minLeft.setText(asr_begins_time.toString().substring(14, 15));
-            asr_minRight.setText(asr_begins_time.toString().substring(15, 16));
-             
-            maghrib_hourLeft.setText(maghrib_begins_time.toString().substring(11, 12));
-            maghrib_hourRight.setText(maghrib_begins_time.toString().substring(12, 13));
-            maghrib_minLeft.setText(maghrib_begins_time.toString().substring(14, 15));
-            maghrib_minRight.setText(maghrib_begins_time.toString().substring(15, 16));
-             
-            isha_hourLeft.setText(isha_begins_time.toString().substring(11, 12));
-            isha_hourRight.setText(isha_begins_time.toString().substring(12, 13));
-            isha_minLeft.setText(isha_begins_time.toString().substring(14, 15));
-            isha_minRight.setText(isha_begins_time.toString().substring(15, 16));
+            asrdate = asr_cal.getTime();
+            formattedDateTime = dateFormat.format(asrdate);
+            
+            asr_hourLeft.setText(formattedDateTime.substring(0, 1));
+            asr_hourRight.setText(formattedDateTime.substring(1, 2));
+            asr_minLeft.setText(formattedDateTime.substring(3, 4));
+            asr_minRight.setText(formattedDateTime.substring(4, 5));
+            
+            maghribdate = maghrib_cal.getTime();
+            formattedDateTime = dateFormat.format(maghribdate);
+            
+            maghrib_hourLeft.setText(formattedDateTime.substring(0, 1));
+            maghrib_hourRight.setText(formattedDateTime.substring(1, 2));
+            maghrib_minLeft.setText(formattedDateTime.substring(3, 4));
+            maghrib_minRight.setText(formattedDateTime.substring(4, 5));
+            
+            ishadate = isha_cal.getTime();
+            formattedDateTime = dateFormat.format(ishadate);
+            
+            isha_hourLeft.setText(formattedDateTime.substring(0, 1));
+            isha_hourRight.setText(formattedDateTime.substring(1, 2));
+            isha_minLeft.setText(formattedDateTime.substring(3, 4));
+            isha_minRight.setText(formattedDateTime.substring(4, 5));
             
             time_Separator1.setText(":");
             time_Separator2.setText(":");
@@ -2473,30 +2564,45 @@ public void update_labels() throws Exception{
             time_Separator6.setText(":");
             time_Separator8.setText(":");
             
-            fajr_jamma_hourLeft.setText(fajr_jamaat.substring(0, 1));
-            fajr_jamma_hourRight.setText(fajr_jamaat.substring(1, 2));
-            fajr_jamma_minLeft.setText(fajr_jamaat.substring(3, 4));
-            fajr_jamma_minRight.setText(fajr_jamaat.substring(4, 5));
-             
+            
+            fajrjamaatdate = fajr_jamaat_cal.getTime();
+            formattedDateTime = dateFormat.format(fajrjamaatdate);
+            
+            fajr_jamma_hourLeft.setText(formattedDateTime.substring(0, 1));
+            fajr_jamma_hourRight.setText(formattedDateTime.substring(1, 2));
+            fajr_jamma_minLeft.setText(formattedDateTime.substring(3, 4));
+            fajr_jamma_minRight.setText(formattedDateTime.substring(4, 5));
+            
+
+            
             zuhr_jamma_hourLeft.setText(zuhr_jamaat.substring(0, 1));
             zuhr_jamma_hourRight.setText(zuhr_jamaat.substring(1, 2));
             zuhr_jamma_minLeft.setText(zuhr_jamaat.substring(3, 4));
             zuhr_jamma_minRight.setText(zuhr_jamaat.substring(4, 5));
              
-            asr_jamma_hourLeft.setText(asr_jamaat.substring(0, 1));
-            asr_jamma_hourRight.setText(asr_jamaat.substring(1, 2));
-            asr_jamma_minLeft.setText(asr_jamaat.substring(3, 4));
-            asr_jamma_minRight.setText(asr_jamaat.substring(4, 5));
-             
-            maghrib_jamma_hourLeft.setText(maghrib_begins_time.toString().substring(11, 12));
-            maghrib_jamma_hourRight.setText(maghrib_begins_time.toString().substring(12, 13));
-            maghrib_jamma_minLeft.setText(maghrib_begins_time.toString().substring(14, 15));
-            maghrib_jamma_minRight.setText(maghrib_begins_time.toString().substring(15, 16));
-             
-            isha_jamma_hourLeft.setText(isha_jamaat.substring(0, 1));
-            isha_jamma_hourRight.setText(isha_jamaat.substring(1, 2));
-            isha_jamma_minLeft.setText(isha_jamaat.substring(3, 4));
-            isha_jamma_minRight.setText(isha_jamaat.substring(4, 5));
+            
+            asrjamaatdate = asr_jamaat_cal.getTime();
+            formattedDateTime = dateFormat.format(asrjamaatdate);
+            
+            asr_jamma_hourLeft.setText(formattedDateTime.substring(0, 1));
+            asr_jamma_hourRight.setText(formattedDateTime.substring(1, 2));
+            asr_jamma_minLeft.setText(formattedDateTime.substring(3, 4));
+            asr_jamma_minRight.setText(formattedDateTime.substring(4, 5));
+            
+            maghribjamaatdate = maghrib_cal.getTime();
+            formattedDateTime = dateFormat.format(maghribjamaatdate);
+            maghrib_jamma_hourLeft.setText(formattedDateTime.substring(0, 1));
+            maghrib_jamma_hourRight.setText(formattedDateTime.substring(1, 2));
+            maghrib_jamma_minLeft.setText(formattedDateTime.substring(3, 4));
+            maghrib_jamma_minRight.setText(formattedDateTime.substring(4, 5));
+            
+            ishajamaatdate = isha_jamaat_cal.getTime();
+            formattedDateTime = dateFormat.format(ishajamaatdate);
+            
+            isha_jamma_hourLeft.setText(formattedDateTime.substring(0, 1));
+            isha_jamma_hourRight.setText(formattedDateTime.substring(1, 2));
+            isha_jamma_minLeft.setText(formattedDateTime.substring(3, 4));
+            isha_jamma_minRight.setText(formattedDateTime.substring(4, 5));
             
             friday_hourLeft.setText(friday_jamaat.substring(0, 1));
             friday_hourRight.setText(friday_jamaat.substring(1, 2));
