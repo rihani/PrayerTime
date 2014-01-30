@@ -16,6 +16,7 @@ sudo service samba restart
 
 
 package javafxapplication4;
+import java.util.List;
 
 import java.io.*;
 import java.net.*;
@@ -167,7 +168,11 @@ import org.joda.time.format.DateTimeFormatter;
     private boolean facebook_Label_visible_set_once = false;
     private boolean prayer_In_Progress = false;
     private boolean startup = true;
-    private boolean prayer_In_Progress_notification = false;
+    private boolean fajr_prayer_In_Progress_notification = false;
+    private boolean zuhr_prayer_In_Progress_notification = false;
+    private boolean asr_prayer_In_Progress_notification = false;
+    private boolean maghrib_prayer_In_Progress_notification = false;
+    private boolean isha_prayer_In_Progress_notification = false;
             
     private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
@@ -184,7 +189,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
     private Calendar fajr_jamaat_cal, duha_jamaat_cal, zuhr_jamaat_cal, asr_jamaat_cal, maghrib_jamaat_cal, isha_jamaat_cal;
     private Calendar fajr_jamaat_update_cal, duha_jamaat_update_cal, zuhr_jamaat_update_cal, asr_jamaat_update_cal, maghrib_jamaat_update_cal, isha_jamaat_update_cal;
-    private Calendar future_fajr_jamaat_cal, future_zuhr_jamaat_cal, future_asr_jamaat_cal, future_maghrib_jamaat_cal, future_isha_jamaat_cal;
+    private Calendar future_fajr_jamaat_cal, future_zuhr_jamaat_cal, future_asr_jamaat_cal, future_maghrib_jamaat_cal, future_isha_jamaat_cal, maghrib_plus15_cal, zuhr_plus15_cal;
     private Calendar notification_Date_cal, hadith_notification_Date_cal;
     
     private Date fajr_begins_time,fajr_jamaat_time, sunrise_time, duha_time, zuhr_begins_time, zuhr_jamaat_time, asr_begins_time, asr_jamaat_time, maghrib_begins_time, maghrib_jamaat_time,isha_begins_time, isha_jamaat_time;
@@ -204,12 +209,17 @@ import org.joda.time.format.DateTimeFormatter;
     private Label friday_hourLeft, friday_hourRight, friday_minLeft, friday_minRight;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2, facebook_Label;
     
+    private List<String> images;
+    File directory;
+    private String rand_Image_Path;
+    
+    
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall, proximity_lastTimerCall;
-    public long delay_turnOnTV_after_Prayers = 105000000000L; // 1.75 minute
+    public long delay_turnOnTV_after_Prayers = 135000000000L; // 2.25 minute
 //    public long delay_turnOnTV_after_Prayers = 60000000000L; // 1 minute
     public long delay_turnOnTV_after_Prayers_nightmode = 420000000000L; // 7 minutes
     
-    public long delay_turnOffTV_after_inactivity = 1200000000000L; // 20minutes
+    public long delay_turnOffTV_after_inactivity = 1500000000000L; // 25minutes
 //    public long delay_turnOffTV_after_inactivity = 280000000000L; // 1minutes
     private AnimationTimer moonPhase_timer, translate_timer ,debug_timer ;
         
@@ -229,6 +239,13 @@ import org.joda.time.format.DateTimeFormatter;
     private String fromClient;
     private String toClient;
     private ServerSocket server;
+    
+    DatagramSocket socket, socket1;
+    boolean send_Broadcast_msg = false;
+    String broadcast_msg;
+    byte[] buf1 = new byte[256];
+    InetAddress group;
+    DatagramPacket packet1;
 
     @Override public void init() throws IOException {
         
@@ -257,13 +274,42 @@ import org.joda.time.format.DateTimeFormatter;
 //        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
         FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BALxHS3AsaZBcNq2SB27JeLRDj6K6NIzz09ciEkhamhvEAZCjvy7eN7DVER1UVIOUvl4HUIIaSS7gnwLSeR6jVvxWhNqCPWCVZBqFDdiUcgKiZCNCFMtXVHoiRaue5gvOu6BU3KXAtJpt6ZAsxBWOeZA1fEEuM46jdo6iRgkmKy2jTr5ZBpmZC0YZD");
         
-// Pushover ==============================       
+// Pushover ==========================================================================        
         
         //https://github.com/nicatronTg/jPushover
         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
         try {p.sendMessage("Prayer Time Ibn Abass starting");} catch (IOException e){e.printStackTrace();}
-                            
+         
+        
+//Load random Background image on strtup ===============================================        
+        images = new ArrayList<String>();
+        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
+        File[] files = directory.listFiles();
+        for(File f : files) 
+        {
+            images.add(f.getName());
+        }   
+        System.out.println(images);
+        int countImages = images.size();
+        int imageNumber = (int) (Math.random() * countImages);
+        rand_Image_Path = directory + "/"+ images.get(imageNumber);
+        System.out.println(rand_Image_Path);
 
+        try
+        {
+            broadcast_msg = "Prayer Time Server Starting";
+            socket1 = new DatagramSocket(null);
+            socket1.setBroadcast(true);
+            buf1 = broadcast_msg.getBytes();
+            group = InetAddress.getByName("255.255.255.255");
+            packet1 = new DatagramPacket(buf1, buf1.length, group, 8888);
+            socket1.send(packet1);
+        
+        }
+        catch(Exception e){System.err.println("Sending failed. " + e.getMessage());}
+        
+        
+        
         
 //        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
 //        Process process = processBuilder.start();
@@ -590,6 +636,9 @@ import org.joda.time.format.DateTimeFormatter;
                         maghrib_cal.setTime(maghrib);
                         maghrib_begins_time = maghrib_cal.getTime();
                         System.out.println(" maghrib time " + maghrib_begins_time);
+
+                        maghrib_plus15_cal = (Calendar)maghrib_cal.clone();
+                        maghrib_plus15_cal.add(Calendar.MINUTE, +15);
                         
                         Date isha_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + new Time(formatter.parse(prayerTimes.get(6)).getTime()));
                         cal.setTime(isha_temp);
@@ -656,6 +705,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 System.out.format("%s,%s,%s,%s,%s \n", id, prayer_date, fajr_jamaat, asr_jamaat, isha_jamaat );
                             }
                             catch (Exception e){ logger.warn("Unexpected error", e); }
+                                                
                             
                             Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
                             cal.setTime(fajr_jamaat_temp);
@@ -670,6 +720,17 @@ import org.joda.time.format.DateTimeFormatter;
                             fajr_jamaat_cal.add(Calendar.MINUTE, -15);
 //                            System.out.println("fajr Jamaat update scheduled at:" + fajr_jamaat_update_cal.getTime());
                             
+                            Date zuhr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + zuhr_jamaat);
+                            cal.setTime(zuhr_jamaat_temp);
+                            Date zuhr_jamaat_Date = cal.getTime();
+                            zuhr_jamaat_cal = Calendar.getInstance();
+                            zuhr_jamaat_cal.setTime(zuhr_jamaat_Date);
+                            zuhr_jamaat_cal.set(Calendar.MILLISECOND, 0);
+                            zuhr_jamaat_cal.set(Calendar.SECOND, 0);
+                            
+                            zuhr_plus15_cal = (Calendar)zuhr_jamaat_cal.clone();
+                            zuhr_plus15_cal.add(Calendar.MINUTE, +15);
+                            
                             Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_jamaat);
                             cal.setTime(asr_jamaat_temp);
                             cal.add(Calendar.MINUTE, 15);
@@ -682,7 +743,6 @@ import org.joda.time.format.DateTimeFormatter;
                             asr_jamaat_cal = (Calendar)asr_jamaat_update_cal.clone();
                             asr_jamaat_cal.add(Calendar.MINUTE, -15);
 
-                            
                             Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
                             cal.setTime(isha_jamaat_temp);
                             cal.add(Calendar.MINUTE, 15);
@@ -1075,13 +1135,11 @@ import org.joda.time.format.DateTimeFormatter;
                             try
                             {
                                 c = DBConnect.connect();
-                                
-//                                System.out.println("current day of the week " + dayofweek_int );
                                 if (dayofweek_int == 5 || dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
                                 else 
                                 {
                                     SQL = "select * from hadith WHERE day = '0' order by rand() limit 1";
-                                    //SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
+//                                    SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
                                 }
                                 ResultSet rs = c.createStatement().executeQuery(SQL);
                                 while (rs.next()) 
@@ -1154,7 +1212,7 @@ import org.joda.time.format.DateTimeFormatter;
                             facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -6);
                             long facebook_check_post_Unix_Time = facebook_check_post_date.getTimeInMillis() / 1000;
 //                            out.println(facebook_check_post_Unix_Time);
-                            String query = "SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+                            String query = "SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
 //                            String query = "{\"messages\":\"SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \'prayer time(s)\') < 0 AND strpos(message, \'White days\') < 0 AND strpos(message, \'Hadith of the Day:\') < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1\" ,  \"count\": \"SELECT fan_count FROM page WHERE page_id = 187050104663230\"}";
 //                            out.println(query);
                             try 
@@ -1165,7 +1223,11 @@ import org.joda.time.format.DateTimeFormatter;
                                 {
                                     JsonObject facebookPost_J = queryResults.get(0);
                                     facebook_post = facebookPost_J.getString("message");
-                                    System.out.println("Facebook string length" + facebook_post.length());
+
+//                                    facebook_post = "Asalamualaikum,\n" + "We have been given a large printer/copier for administration at Daar Ibn\n Abbas. Is there any brothers available to pick it up from Lakemba? ";
+                                    
+                                    String[] lines = facebook_post.split("\r\n|\r|\n");
+
                                     if(null != facebook_post && !"".equals(facebook_post)) 
                                     {
                                         if(facebook_post.contains("\n\n"))
@@ -1183,12 +1245,25 @@ import org.joda.time.format.DateTimeFormatter;
                                             facebook_post = "";
                                             facebook_Label_visible = false;
                                         }
-                                        facebook_Text_Post = true;
-                                        facebook_Label_visible = true; 
-                                        facebook_Label_visible_set_once = true;
+                                        
+                                        else if (facebook_post.length() > 390 || lines.length > 6)
+                                        {
+                                            System.out.println("Facebook post is too large, it will not be posted");
+                                            System.out.println("Facebook lines: " +lines.length);
+                                            System.out.println("Facebook string length: " + facebook_post.length());
+                                            facebook_post = "";
+                                            facebook_Label_visible = false;
+                                        }
+                                        
+                                        else
+                                        {
+                                            facebook_Text_Post = true;
+                                            facebook_Label_visible = true; 
+                                            facebook_Label_visible_set_once = true;
+                                        }
                                     }
                                 }
-                                else{out.println("Facebook post has not satisfied the query criteria, nothing to display");}
+                                else{out.println("Facebook post is empty");}
                             }
                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                             catch (Exception e){logger.warn("Unexpected error", e);} 
@@ -1204,7 +1279,7 @@ import org.joda.time.format.DateTimeFormatter;
                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                             catch (Exception e){logger.warn("Unexpected error", e);}  
    
-                            query = "SELECT attachment.media.photo.images.src, created_time   FROM stream WHERE source_id = 187050104663230  AND type = 247 AND created_time > " + facebook_check_post_Unix_Time + "LIMIT 1";
+                            query = "SELECT attachment.media.photo.images.src, created_time   FROM stream WHERE source_id = 187050104663230  AND type = 247 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
                             try 
                             {
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
@@ -1283,7 +1358,7 @@ import org.joda.time.format.DateTimeFormatter;
 //        translate_lastTimerCall = System.nanoTime();
         translate_timer = new AnimationTimer() {
             @Override public void handle(long now) {
-                if (now > translate_lastTimerCall + 23000_000_000l) 
+                if (now > translate_lastTimerCall + 30000_000_000l) 
                 {
                     try {update_labels();} 
                     catch (Exception e) {logger.warn("Unexpected error", e);}
@@ -1359,37 +1434,50 @@ import org.joda.time.format.DateTimeFormatter;
                                 {
                                     System.out.println("prayer detected during normal hours");
                                     
-                                    if (prayer_In_Progress_notification && cal.after(fajr_jamaat_cal) && cal.before(fajr_jamaat_update_cal))
+                                    if (fajr_prayer_In_Progress_notification && cal.after(fajr_jamaat_cal) && cal.before(fajr_jamaat_update_cal))
                                     {
-                                        prayer_In_Progress_notification = false;
+                                        fajr_prayer_In_Progress_notification = false;
                                         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-                                        try {p.sendMessage("Fajr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        try {p.sendMessage("Fajr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in progress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        send_Broadcast_msg = true;
+                                        broadcast_msg = "Fajr Jamaa at Daar Ibn Abass has just started";
                                     }
-                                    if (prayer_In_Progress_notification && cal.after(zuhr_jamaat_cal) && cal.before(zuhr_jamaat_update_cal))
+                                    if (zuhr_prayer_In_Progress_notification && cal.after(zuhr_jamaat_cal) && cal.before(zuhr_plus15_cal))
                                     {
-                                        prayer_In_Progress_notification = false;
+                                        zuhr_prayer_In_Progress_notification = false;
                                         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-                                        try {p.sendMessage("Zuhr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        try {p.sendMessage("Zuhr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in progress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        send_Broadcast_msg = true;
+                                        broadcast_msg = "Zuhr Jamaa at Daar Ibn Abass has just started";
                                     }
-                                    if (prayer_In_Progress_notification && cal.after(asr_jamaat_cal) && cal.before(asr_jamaat_update_cal))
+                                    if (asr_prayer_In_Progress_notification && cal.after(asr_jamaat_cal) && cal.before(asr_jamaat_update_cal))
                                     {
-                                        prayer_In_Progress_notification = false;
+                                        asr_prayer_In_Progress_notification = false;
                                         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-                                        try {p.sendMessage("Asr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
-                                    }
-                                    if (prayer_In_Progress_notification && cal.after(maghrib_jamaat_cal) && cal.before(maghrib_jamaat_update_cal))
-                                    {
-                                        prayer_In_Progress_notification = false;
-                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-                                        try {p.sendMessage("Maghrib Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
-                                    }
-                                    if (prayer_In_Progress_notification && cal.after(isha_jamaat_cal) && cal.before(isha_jamaat_update_cal))
-                                    {
-                                        prayer_In_Progress_notification = false;
-                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-                                        try {p.sendMessage("Isha Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in pprogress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        try {p.sendMessage("Asr Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in progress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        send_Broadcast_msg = true;
+                                        broadcast_msg = "Asr Jamaa at Daar Ibn Abass has just started";
                                     }
                                     
+                                    
+                                    if (maghrib_prayer_In_Progress_notification && cal.after(maghrib_cal) && cal.before(maghrib_plus15_cal))
+                                    {
+                                        maghrib_prayer_In_Progress_notification = false;
+                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+                                        try {p.sendMessage("Maghrib Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in progress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        send_Broadcast_msg = true;
+                                        broadcast_msg = "Maghrib Jamaa at Daar Ibn Abass has just started";
+                                    }
+                                    
+                                    if (isha_prayer_In_Progress_notification && cal.after(isha_jamaat_cal) && cal.before(isha_jamaat_update_cal))
+                                    {
+                                        isha_prayer_In_Progress_notification = false;
+                                        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+                                        try {p.sendMessage("Isha Jamaa at Daar Ibn Abass has just started"); System.out.println("Prayer in progress notification sent");} catch (IOException e){e.printStackTrace();}
+                                        send_Broadcast_msg = true;
+                                        broadcast_msg = "Isha Jamaa at Daar Ibn Abass has just started";
+                                    }
+
                                     if (System.nanoTime() > proximity_lastTimerCall + delay_turnOnTV_after_Prayers )
                                     {
     //                                    System.out.println(proximity_lastTimerCall + delay_turnOnTV_after_Prayers);
@@ -1399,10 +1487,22 @@ import org.joda.time.format.DateTimeFormatter;
                                         prayer_In_Progress = false;
                                         System.out.println("Tv turned on");
                                         try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
-                                        try {Process process1 = processBuilder1.start();}catch (IOException e) {logger.warn("Unexpected error", e);} 
-                                        
-                                        
-                                        
+                                        try {Process process1 = processBuilder1.start();}catch (IOException e) {logger.warn("Unexpected error", e);}    
+                                    }
+                                    
+                                    if(send_Broadcast_msg)
+                                    {
+                                        try
+                                        {
+                                            send_Broadcast_msg = false;
+                                            socket1 = new DatagramSocket(null);
+                                            socket1.setBroadcast(true);
+                                            buf1 = broadcast_msg.getBytes();
+                                            group = InetAddress.getByName("255.255.255.255");
+                                            packet1 = new DatagramPacket(buf1, buf1.length, group, 8888);
+                                            socket1.send(packet1);
+                                        }
+                                        catch(Exception e){logger.warn("Unexpected error", e);}
                                     }
                                 
                                 
@@ -1512,10 +1612,21 @@ import org.joda.time.format.DateTimeFormatter;
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         stage.setScene(scene);
                 
-        Mainpane = new GridPane();        
-        String image = JavaFXApplication4.class.getResource("/Images/Blue-Wallpaper.jpg").toExternalForm();
+        Mainpane = new GridPane();
+        try
+        {
+        String image = new File(rand_Image_Path).toURI().toURL().toString();
+        System.out.println("image string: " + image);
+//        String image = JavaFXApplication4.class.getResource(rand_Image_Path).toExternalForm();
 //        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: repeat; ");  
         Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");        
+        }
+        catch (IOException e) {logger.warn("Unexpected error", e);}
+        
+        
+        
+     
+        
         
         Mainpane.getColumnConstraints().setAll(
                 ColumnConstraintsBuilder.create().percentWidth(100/13.0).build(),
@@ -1533,30 +1644,32 @@ import org.joda.time.format.DateTimeFormatter;
                 ColumnConstraintsBuilder.create().percentWidth(100/13.0).build()       
         );
         Mainpane.getRowConstraints().setAll(
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build(),
-                RowConstraintsBuilder.create().percentHeight(100/22.0).build()
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build()
         );
-//        Mainpane.setGridLinesVisible(true);
+        Mainpane.setGridLinesVisible(false);
         Mainpane.setId("Mainpane");
         GridPane prayertime_pane = prayertime_pane();    
         GridPane Moonpane =   moonpane();
@@ -1581,10 +1694,10 @@ import org.joda.time.format.DateTimeFormatter;
         Mainpane.add(clockPane, 1, 1);
         Mainpane.add(Moonpane, 7, 1);
         Mainpane.add(prayertime_pane, 1, 4,11,8);  
-        Mainpane.add(hadithPane, 1, 13,11,8);
-        
+        Mainpane.add(hadithPane, 1, 14,11,9);
+        hadithPane.setTranslateY(-40);
         Mainpane.add(footerPane, 1, 20,11,1);
-        footerPane.setTranslateY(70);
+        footerPane.setTranslateY(210);
 //        Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -2278,8 +2391,8 @@ public void update_labels() throws Exception{
             System.out.println("Duha Time");
 //            String image = JavaFXApplication4.class.getResource("/Images/sunrise.png").toExternalForm();
 //            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");
-            sensor_lastTimerCall = System.nanoTime();
-            sensorLow = true;
+//            sensor_lastTimerCall = System.nanoTime();
+//            sensorLow = true;
             try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
@@ -2290,14 +2403,14 @@ public void update_labels() throws Exception{
 
         else if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
         {
-            prayer_In_Progress_notification = true;
+            fajr_prayer_In_Progress_notification = true;
             fajr_athan_enable = false;
             System.out.println("fajr Time");
 //            clip.open(converted);
 //            clip.start();
-            sensorLow = true;
-            sensor_lastTimerCall = System.nanoTime();
             
+            sensor_lastTimerCall = System.nanoTime();
+            sensorLow = true;
             try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
             TimeUnit.SECONDS.sleep(3);
@@ -2308,7 +2421,7 @@ public void update_labels() throws Exception{
         
         else if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
         {
-            prayer_In_Progress_notification = true;
+            zuhr_prayer_In_Progress_notification = true;
             zuhr_athan_enable = false;
             System.out.println("zuhr Time");
 //            clip.open(converted);
@@ -2324,7 +2437,7 @@ public void update_labels() throws Exception{
 
         else if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
         {
-            prayer_In_Progress_notification = true;
+            asr_prayer_In_Progress_notification = true;
             asr_athan_enable = false;
             System.out.println("asr Time");
             sensor_lastTimerCall = System.nanoTime();
@@ -2338,7 +2451,7 @@ public void update_labels() throws Exception{
         
         else if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
         {
-            prayer_In_Progress_notification = true;
+            maghrib_prayer_In_Progress_notification = true;
             maghrib_athan_enable = false;
             System.out.println("maghrib Time");
             sensor_lastTimerCall = System.nanoTime();
@@ -2354,7 +2467,7 @@ public void update_labels() throws Exception{
         
         else if (isha_cal.equals(Calendar_now) && isha_athan_enable) 
         {
-            prayer_In_Progress_notification = true;
+            isha_prayer_In_Progress_notification = true;
             isha_athan_enable = false;
             System.out.println("isha Time");
             sensor_lastTimerCall = System.nanoTime();
@@ -2936,7 +3049,7 @@ public void update_labels() throws Exception{
    GridPane prayertime_pane = new GridPane();
         prayertime_pane.setId("prayertime_pane");
         prayertime_pane.setCache(false);       
-//        prayertime_pane.setGridLinesVisible(true);
+        prayertime_pane.setGridLinesVisible(false);
         prayertime_pane.setPadding(new Insets(20, 0, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
 //        prayertime_pane.setVgap(20);
@@ -3300,7 +3413,7 @@ public void update_labels() throws Exception{
         );
         Moonpane.setHgap(40);
         Moonpane.setMaxHeight(50);
-//       Moonpane.setGridLinesVisible(true);
+//       Moonpane.setGridLinesVisible(false);
 
         ImageView Moon_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Moon/100%.png")));      
         Moon_img.setFitWidth(160);
@@ -3323,7 +3436,7 @@ public void update_labels() throws Exception{
     public GridPane hadithPane() {
       
         GridPane hadithPane = new GridPane();
-//        hadithPane.setGridLinesVisible(true);
+//        hadithPane.setGridLinesVisible(false);
         hadithPane.setId("hadithpane");
         hadithPane.setVgap(0);
 
@@ -3391,7 +3504,7 @@ public void update_labels() throws Exception{
     public GridPane footerPane() {
       
         GridPane footerPane = new GridPane();
-//        hadithPane.setGridLinesVisible(true);  
+//        hadithPane.setGridLinesVisible(false);  
         double size = 15;
         TextFlow textFlow1 = new TextFlow();
         TextFlow textFlow2 = new TextFlow();
@@ -3465,7 +3578,7 @@ public void update_labels() throws Exception{
         );
         
         clockPane.setHgap(0);
-//        clockPane.setGridLinesVisible(true);
+        clockPane.setGridLinesVisible(false);
 //        clockPane.setMaxHeight(50);
         
         
