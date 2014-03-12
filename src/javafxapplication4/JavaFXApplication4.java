@@ -94,6 +94,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import javafx.scene.image.ImageViewBuilder;
+import javafx.scene.text.FontWeight;
 //import static javafx.scene.input.DataFormat.URL;
 //import javafx.scene.text.FontWeight;
 //import javafx.scene.text.FontPosture;
@@ -125,7 +126,16 @@ import org.joda.time.format.DateTimeFormatter;
     
     private Process p;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
-
+    
+    // Bankstown NSW Location
+//    double latitude = -33.9172891;
+//    double longitude = 151.035882;
+//    double timezone = 10;
+    
+    double latitude;
+    double longitude;
+    double timezone;
+    
     private ObservableList data;
     
     private Integer moonPhase;
@@ -158,6 +168,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean maghrib_jamaat_update_enable = true;
     private Boolean isha_jamaat_update_enable = true;
     private boolean  notification_Sent;
+    private boolean  facebook_notification_enable = false;
     private boolean arabic = true;
     private boolean english = false;
     private boolean moon_hadith_Label_visible = false;
@@ -181,7 +192,9 @@ import org.joda.time.format.DateTimeFormatter;
     private String friday_jamaat, future_zuhr_jamaat_time;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
-    private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url,old_facebook_Post_Url;;
+    private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url,old_facebook_Post_Url;
+    String SQL;
+    ResultSet rs;
     
     private int id;
     int olddayofweek_int;
@@ -278,12 +291,41 @@ import org.joda.time.format.DateTimeFormatter;
         
         //https://github.com/nicatronTg/jPushover
         Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-        try {p.sendMessage("Prayer Time Ibn Abass starting");} catch (IOException e){e.printStackTrace();}
-         
+        try {p.sendMessage("Prayer Time Ibn Abass (Main Room) starting");} catch (IOException e){e.printStackTrace();}
+        
+        
+        
+        
+// Get Parameter from database==========================================================
+        
+        try
+            {
+                c = DBConnect.connect();
+                SQL = "Select * from settings";
+                rs = c.createStatement().executeQuery(SQL);
+                while (rs.next()) 
+                {
+                    id =                rs.getInt("id");
+                    facebook_notification_enable = rs.getBoolean("facebook_notification_enable");  
+                    latitude = rs.getDouble("latitude");
+                    longitude = rs.getDouble("longitude");
+                    timezone = rs.getInt("timezone");
+                }
+                c.close();
+                System.out.format("%s, %s, %s, %s \n", facebook_notification_enable, latitude, longitude, timezone );
+            }
+        catch (Exception e){logger.warn("Unexpected error", e);}
+
+        if (facebook_notification_enable){System.out.println("facebook notification is enabled" );}
+        if (!facebook_notification_enable){System.out.println("facebook notification is not enabled" );}
         
 //Load random Background image on strtup ===============================================        
         images = new ArrayList<String>();
-        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
+        //change on osx
+//        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
+        //change on Pi
+        directory = new File("/home/pi/prayertime/Images/");
+        
         File[] files = directory.listFiles();
         for(File f : files) 
         {
@@ -445,7 +487,7 @@ import org.joda.time.format.DateTimeFormatter;
         prayertime_pane.setHalignment(athan_Label_eng,HPos.CENTER);
         
         jamaat_Label_ar.setId("prayer-label-arabic");
-        jamaat_Label_ar.setText("إقامة");
+        jamaat_Label_ar.setText("الإقامة");
         prayertime_pane.setHalignment(jamaat_Label_ar,HPos.CENTER) ;
         jamaat_Label_eng.setId("prayer-label-english");
         jamaat_Label_eng.setText("Congregation");
@@ -529,19 +571,12 @@ import org.joda.time.format.DateTimeFormatter;
                         String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                         PrayTime getprayertime = new PrayTime();
 
-                        // Bankstown NSW Location
-                        double latitude = -33.9172891;
-                        double longitude = 151.035882;
-                        double timezone = 10;
-                        
-
                         getprayertime.setTimeFormat(0);
                         getprayertime.setCalcMethod(4);
                         getprayertime.setAsrJuristic(1);
                         getprayertime.setAdjustHighLats(0);
                         int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
                         getprayertime.tune(offsets);
-                        
                         
                         Date time = cal.getTime();
                         System.out.println(" daylight saving? " + TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time ));
@@ -680,8 +715,7 @@ import org.joda.time.format.DateTimeFormatter;
                             maghrib_athan_enable = true;
                             isha_athan_enable = true;
                             getHadith = true;
-                            String SQL;
-                            ResultSet rs;
+                            
                             try
                             {
                                 c = DBConnect.connect();
@@ -923,10 +957,10 @@ import org.joda.time.format.DateTimeFormatter;
                                     ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
                                     en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
                                     facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
-//                                    try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+//                                    try{facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
 //                                    catch (FacebookException e){logger.warn("Unexpected error", e);}                           
-                                    System.out.println("Full Moon Notification Sent to Facebook:" );
-                                    System.out.println(facebook_moon_notification_Msg);
+//                                    System.out.println("Full Moon Notification Sent to Facebook:" );
+//                                    System.out.println(facebook_moon_notification_Msg);
                                 }
                                 
                                 else if ( days_Between_Now_Fullmoon == 5 )
@@ -941,10 +975,18 @@ import org.joda.time.format.DateTimeFormatter;
                                         ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
-                                        try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
-                                        catch (FacebookException e){logger.warn("Unexpected error", e);} 
-                                        System.out.println("Full Moon Notification Sent to Facebook:" );
-                                        System.out.println(facebook_moon_notification_Msg);
+                                        if (facebook_notification_enable)
+                                        {
+                                            try 
+                                            {
+                                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+                                                System.out.println("Full Moon Notification Sent to Facebook:" );
+                                                System.out.println(facebook_moon_notification_Msg);
+                                            }
+                                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                            
+                                        }
+                                        
                                     }
                                     
                                     else
@@ -983,10 +1025,17 @@ import org.joda.time.format.DateTimeFormatter;
                                         ar_moon_notification = temp_ar_text1 +  temp_ar_text2;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;   
-                                        try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
-                                        catch (FacebookException e){logger.warn("Unexpected error", e);} 
-                                        System.out.println("Full Moon Notification Sent to Facebook:" );
-                                        System.out.println(facebook_moon_notification_Msg);
+                                        if (facebook_notification_enable)
+                                        {
+                                            try 
+                                            {
+                                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+                                                System.out.println("Full Moon Notification Sent to Facebook:" );
+                                                System.out.println(facebook_moon_notification_Msg);
+                                            }
+                                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                        }
+                                        
                                     }
                                 }
 
@@ -999,10 +1048,17 @@ import org.joda.time.format.DateTimeFormatter;
                                         en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
                                         System.out.println(en_moon_notification);
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
-                                        try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
-                                        catch (FacebookException e){logger.warn("Unexpected error", e);} 
-                                        System.out.println("Full Moon Notification Sent to Facebook:" );
-                                        System.out.println(facebook_moon_notification_Msg);
+                                        if (facebook_notification_enable)
+                                        {
+                                            try 
+                                            {
+                                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+                                                System.out.println("Full Moon Notification Sent to Facebook:" );
+                                                System.out.println(facebook_moon_notification_Msg);
+                                            }
+                                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                        }
+                                        
                                 }
                                 
                                 else
@@ -1117,9 +1173,11 @@ import org.joda.time.format.DateTimeFormatter;
 //                            catch (TwitterException ex) {logger.warn("Unexpected error", e);}
 //                            System.out.println("Successfully updated the status to [" + status.getText() + "].");
                             System.out.println("Notification Sent to Facebook" );
-                            
-                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
-                            catch (Exception e){logger.warn("Unexpected error", e);}
+                            if (facebook_notification_enable)
+                            {
+                                try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
+                                catch (Exception e){logger.warn("Unexpected error", e);}
+                            }
                             
                             try {p.sendMessage(en_notification_Msg);} 
                             catch (Exception e){{logger.warn("Unexpected error", e);}}
@@ -1131,7 +1189,6 @@ import org.joda.time.format.DateTimeFormatter;
                         if (getHadith)
                         {
                             getHadith = false;
-                            String SQL;
                             try
                             {
                                 c = DBConnect.connect();
@@ -1141,7 +1198,7 @@ import org.joda.time.format.DateTimeFormatter;
                                     SQL = "select * from hadith WHERE day = '0' order by rand() limit 1";
 //                                    SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
                                 }
-                                ResultSet rs = c.createStatement().executeQuery(SQL);
+                                rs = c.createStatement().executeQuery(SQL);
                                 while (rs.next()) 
                                 {
                                     hadith = rs.getString("hadith");
@@ -1180,7 +1237,13 @@ import org.joda.time.format.DateTimeFormatter;
                                 {
                                     try 
                                     {
-//                                        facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));
+
+                                        if (facebook_notification_enable)
+                                        {
+                                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));}
+                                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                        }
+
                                         c = DBConnect.connect();
                                         PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
                                         java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
@@ -1548,7 +1611,7 @@ import org.joda.time.format.DateTimeFormatter;
         
         
         
-// Infrared sensor thread to turn on/Off TV screen when Prayer starts ===============================================================        
+// //Infrared sensor thread to turn on/Off TV screen when Prayer starts ===============================================================        
         new Thread(() -> 
         {
 
@@ -2496,8 +2559,8 @@ public void update_labels() throws Exception{
                 {
                     try {
                         c = DBConnect.connect();
-                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
-                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        rs = c.createStatement().executeQuery(SQL);
                         while (rs.next())
                         {
                             fajr_jamaat_time =       rs.getTime("fajr_jamaat");
@@ -2538,8 +2601,8 @@ public void update_labels() throws Exception{
                 {
                     try {
                         c = DBConnect.connect();
-                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
-                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        rs = c.createStatement().executeQuery(SQL);
                         while (rs.next())
                         {
                             asr_jamaat_time =       rs.getTime("asr_jamaat");
@@ -2579,8 +2642,8 @@ public void update_labels() throws Exception{
                 {
                     try {
                         c = DBConnect.connect();
-                        String SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
-                        ResultSet rs = c.createStatement().executeQuery(SQL);
+                        SQL = "select * from prayertimes where DATE(date) = DATE(NOW()) + 1";
+                        rs = c.createStatement().executeQuery(SQL);
                         while (rs.next())
                         {
                             isha_jamaat_time =       rs.getTime("isha_jamaat");
@@ -3511,28 +3574,28 @@ public void update_labels() throws Exception{
         TextFlow textFlow3 = new TextFlow();
         Text text1 = new Text("                       Get prayer time notifications and daily hadith on your mobile by following us on ");
         text1.setFont(Font.font("Tahoma", size));
-        text1.setFill(Color.GRAY);
+        text1.setFill(Color.WHITE);
         ImageView facebook_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/facebook.png")));
         facebook_image.setTranslateY(15);
         Text text5 = new Text("  or  ");
         text5.setFont(Font.font("Tahoma", size));
-        text5.setFill(Color.GRAY);
+        text5.setFill(Color.WHITE);
         ImageView twitter_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/twitter.png")));
         Text text6 = new Text("                                             Twitter: ");
         text6.setFont(Font.font("Tahoma", size));
-        text6.setFill(Color.GRAY);
+        text6.setFill(Color.WHITE);
         Text text7 = new Text("@Daar_Ibn_Abbas");
-        text7.setFont(Font.font("Tahoma", size));
+        text7.setFont(Font.font("Tahoma", FontWeight.BOLD, size));
         text7.setFill(Color.WHITE);
         Text text8 = new Text("           Facebook Page: ");
         text8.setFont(Font.font("Tahoma", size));
-        text8.setFill(Color.GRAY);
+        text8.setFill(Color.WHITE);
         Text text9 = new Text("Daar-Ibn-Abbas");
-        text9.setFont(Font.font("Tahoma", size));
+        text9.setFont(Font.font("Tahoma" , FontWeight.BOLD, size));
         text9.setFill(Color.WHITE);
         Text text10 = new Text("لا حول ولا قوة الا بالله العلي العظيم                                                                         ");
         text10.setFont(Font.font("Tahoma", size));
-        text10.setFill(Color.GRAY);
+        text10.setFill(Color.WHITE);
 //        
 //        
 //        ImageView twitter_code = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter.png"))); 

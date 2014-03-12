@@ -314,7 +314,7 @@ and open the template in the editor.
          -fx-background-color: rgba(0, 0, 0, 0.30); 
 	 -fx-border-color: black;
 	 -fx-border-radius: 20;
-	 -fx-padding: 30 30 30 30;
+	 -fx-padding: 10 10 10 10;
 	 -fx-background-radius: 20;
 	}        
     #prayertime_pane{
@@ -341,10 +341,10 @@ and open the template in the editor.
          -fx-border-color: black;
 	 /*-fx-border-color: rgba(0,0,0,0.15);*/
 	 -fx-border-radius: 7;
-	 -fx-padding: 7 7 7 7;
+	 -fx-padding: 5 5 5 5;
 	 -fx-background-radius: 7;
          
-         -fx-font-size: 50px;
+         -fx-font-size: 45px;
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/

@@ -11,7 +11,7 @@ debug = False
 
 radar_adc = 0
 pause_delay = 10
-resend_msg_delay = 50 #=======> change to 60 minimum
+resend_msg_delay = 15 #=======> change to 60 minimum
 initial = False
 start_time = time.time()
 light = False
@@ -84,14 +84,14 @@ while True:
 		pir_value = int(round((sum(r)/10.0) / 10.24))# round out decimal value, cast volume as integer
 		
 		if debug:
-			print 'Radar = {radar}%' .format(radar = pir_value)
+			print 'Radar = {radar}%' .format(radar = pir_value)			
 
-		if pir_value > 18 and not initial:
+		if pir_value > 15 and not initial:
 			GPIO.output(25,True)
 			initial = True
 			start_time = time.time()
 
-		elif pir_value < 18:
+		elif pir_value < 15:
 			GPIO.output(25,False)
 			initial = False
 			msg_resend = False
