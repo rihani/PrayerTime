@@ -169,6 +169,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean isha_jamaat_update_enable = true;
     private boolean  notification_Sent;
     private boolean  facebook_notification_enable = false;
+    private boolean  pir_sensor;
     private boolean arabic = true;
     private boolean english = false;
     private boolean moon_hadith_Label_visible = false;
@@ -185,7 +186,7 @@ import org.joda.time.format.DateTimeFormatter;
     private boolean maghrib_prayer_In_Progress_notification = false;
     private boolean isha_prayer_In_Progress_notification = false;
             
-    private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg;
+    private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg, device_name, device_location;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
     private String fajr_jamaat ,zuhr_jamaat ,asr_jamaat ,maghrib_jamaat ,isha_jamaat ;
     private String labeconv;
@@ -193,10 +194,14 @@ import org.joda.time.format.DateTimeFormatter;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
     private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url,old_facebook_Post_Url;
+    private String fb_Access_token; // = "CAAJRZCld8U30BALxHS3AsaZBcNq2SB27JeLRDj6K6NIzz09ciEkhamhvEAZCjvy7eN7DVER1UVIOUvl4HUIIaSS7gnwLSeR6jVvxWhNqCPWCVZBqFDdiUcgKiZCNCFMtXVHoiRaue5gvOu6BU3KXAtJpt6ZAsxBWOeZA1fEEuM46jdo6iRgkmKy2jTr5ZBpmZC0YZD";
+
+    String timeZone_ID ; // = timeZone_ID
     String SQL;
     ResultSet rs;
     
     private int id;
+    private int AsrJuristic,calcMethod;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
@@ -284,18 +289,7 @@ import org.joda.time.format.DateTimeFormatter;
         }));
         
         moonPhase = 200;
-//        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
-        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BALxHS3AsaZBcNq2SB27JeLRDj6K6NIzz09ciEkhamhvEAZCjvy7eN7DVER1UVIOUvl4HUIIaSS7gnwLSeR6jVvxWhNqCPWCVZBqFDdiUcgKiZCNCFMtXVHoiRaue5gvOu6BU3KXAtJpt6ZAsxBWOeZA1fEEuM46jdo6iRgkmKy2jTr5ZBpmZC0YZD");
-        
-// Pushover ==========================================================================        
-        
-        //https://github.com/nicatronTg/jPushover
-        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
-        try {p.sendMessage("Prayer Time Ibn Abass (Main Room) starting");} catch (IOException e){e.printStackTrace();}
-        
-        
-        
-        
+     
 // Get Parameter from database==========================================================
         
         try
@@ -305,19 +299,44 @@ import org.joda.time.format.DateTimeFormatter;
                 rs = c.createStatement().executeQuery(SQL);
                 while (rs.next()) 
                 {
-                    id =                rs.getInt("id");
-                    facebook_notification_enable = rs.getBoolean("facebook_notification_enable");  
-                    latitude = rs.getDouble("latitude");
-                    longitude = rs.getDouble("longitude");
-                    timezone = rs.getInt("timezone");
+                    id =                            rs.getInt("id");
+                    facebook_notification_enable =  rs.getBoolean("facebook_notification_enable");  
+                    latitude =                      rs.getDouble("latitude");
+                    longitude =                     rs.getDouble("longitude");
+                    timezone =                      rs.getInt("timezone");
+                    timeZone_ID =                   rs.getString("timeZone_ID");
+                    device_name =                   rs.getString("device_name");
+                    device_location =               rs.getString("device_location");
+                    pir_sensor =                    rs.getBoolean("pir_sensor");
+                    calcMethod =                    rs.getInt("calcMethod");
+                    AsrJuristic =                   rs.getInt("AsrJuristic");
+                    fb_Access_token =               rs.getString("fb_Access_token");
                 }
                 c.close();
-                System.out.format("%s, %s, %s, %s \n", facebook_notification_enable, latitude, longitude, timezone );
+                System.out.format("Face Book Notification Enabled: %s, Latitude: %s, Longitude: %s, Time Zone: %s, Calculation Method: %s , Asr Juristic: %s \n", facebook_notification_enable, latitude, longitude, timezone,calcMethod, AsrJuristic );
+                System.out.format("Device Name is:%s at %s \n", device_name, device_location);
+                System.out.format("Time Zone ID is:%s \n", timeZone_ID);
             }
         catch (Exception e){logger.warn("Unexpected error", e);}
 
         if (facebook_notification_enable){System.out.println("facebook notification is enabled" );}
         if (!facebook_notification_enable){System.out.println("facebook notification is not enabled" );}
+        if (pir_sensor){System.out.println("PIR sensor is enabled" );}
+        
+// facebook Client ==========================================================================        
+
+//        FacebookClient facebookClient = new DefaultFacebookClient("CAAJRZCld8U30BAMmPyEHDW2tlR07At1vTmtHEmD8iHtiFWx7D2ZBroCVWQfdhxQ7h2Eohv8ZBPRk85vs2r7XC0K4ibGdFNMTkh0mJU8vui9PEnpvENOSAFD2q7CQ7NJXjlyK1yITmcrvZBAZByy4qV7whiAb2a2SN7s23nYvDgMMG3RhdPIakZBLV39pkksjYZD");
+        FacebookClient facebookClient = new DefaultFacebookClient(fb_Access_token);        
+        
+// Pushover ==========================================================================        
+        
+        //https://github.com/nicatronTg/jPushover
+        Pushover p = new Pushover("WHq3q48zEFpTqU47Wxygr3VMqoodxc", "skhELgtWRXslAUrYx9yp1s0Os89JTF");
+        String temp_msg = device_name + " at "+ device_location + " is starting";
+        try {p.sendMessage(temp_msg);} catch (IOException e){e.printStackTrace();}
+        
+        
+
         
 //Load random Background image on strtup ===============================================        
         images = new ArrayList<String>();
@@ -570,19 +589,19 @@ import org.joda.time.format.DateTimeFormatter;
                         int dayofweek_int = cal.get(Calendar.DAY_OF_WEEK);
                         String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                         PrayTime getprayertime = new PrayTime();
-
+                        
                         getprayertime.setTimeFormat(0);
-                        getprayertime.setCalcMethod(4);
-                        getprayertime.setAsrJuristic(1);
+                        getprayertime.setCalcMethod(calcMethod);
+                        getprayertime.setAsrJuristic(AsrJuristic);
                         getprayertime.setAdjustHighLats(0);
                         int[] offsets = {0, 0, 0, 0, 0, 0, 0}; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
                         getprayertime.tune(offsets);
                         
                         Date time = cal.getTime();
-                        System.out.println(" daylight saving? " + TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time ));
+                        System.out.println(" daylight saving? " + TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time ));
                         
 //                        The following calculate the next daylight saving date
-                        DateTimeZone zone = DateTimeZone.forID("Australia/Sydney");        
+                        DateTimeZone zone = DateTimeZone.forID(timeZone_ID);        
                         DateTimeFormatter format = DateTimeFormat.mediumDateTime();
 
 //                        long current = System.currentTimeMillis();
@@ -619,7 +638,7 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         Date fajr_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + new Time(formatter.parse(prayerTimes.get(0)).getTime()));
                         cal.setTime(fajr_temp);
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
+                        if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
                         Date fajr = cal.getTime();
                         fajr_cal = Calendar.getInstance();
                         fajr_cal.setTime(fajr);
@@ -628,7 +647,7 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         Date sunrise_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + new Time(formatter.parse(prayerTimes.get(1)).getTime()));
                         cal.setTime(sunrise_temp);
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
+                        if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
                         Date sunrise = cal.getTime();
                         sunrise_cal = Calendar.getInstance();
                         sunrise_cal.setTime(sunrise);
@@ -647,7 +666,7 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         Date zuhr_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + new Time(formatter.parse(prayerTimes.get(2)).getTime()));
                         cal.setTime(zuhr_temp);
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
+                        if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
                         Date zuhr = cal.getTime();
                         zuhr_cal = Calendar.getInstance();
                         zuhr_cal.setTime(zuhr);
@@ -656,7 +675,7 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         Date asr_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + new Time(formatter.parse(prayerTimes.get(3)).getTime()));
                         cal.setTime(asr_temp);
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
+                        if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
                         Date asr = cal.getTime();
                         asr_cal = Calendar.getInstance();
                         asr_cal.setTime(asr);
@@ -665,7 +684,7 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         Date maghrib_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + new Time(formatter.parse(prayerTimes.get(5)).getTime()));
                         cal.setTime(maghrib_temp);
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
+                        if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
                         Date maghrib = cal.getTime();
                         maghrib_cal = Calendar.getInstance();
                         maghrib_cal.setTime(maghrib);
@@ -677,7 +696,7 @@ import org.joda.time.format.DateTimeFormatter;
                         
                         Date isha_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + new Time(formatter.parse(prayerTimes.get(6)).getTime()));
                         cal.setTime(isha_temp);
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
+                        if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){cal.add(Calendar.MINUTE, 60);}
                         Date isha = cal.getTime();
                         isha_cal = Calendar.getInstance();
                         isha_cal.setTime(isha);
@@ -685,7 +704,7 @@ import org.joda.time.format.DateTimeFormatter;
                         System.out.println(" isha time " + isha_begins_time);
                         
 //                        set friday prayer here
-                        if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){friday_jamaat = "01:30";}
+                        if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){friday_jamaat = "01:30";}
                         else{friday_jamaat = "12:30";}
            
                         update_prayer_labels = true;
@@ -732,7 +751,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 }
                                 c.close();
                                 fajr_jamaat = fajr_jamaat_time.toString();
-                                if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){zuhr_jamaat = "01:30";} else{zuhr_jamaat = "12:30";}
+                                if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){zuhr_jamaat = "01:30";} else{zuhr_jamaat = "12:30";}
                                 asr_jamaat = asr_jamaat_time.toString();
                                 isha_jamaat = isha_jamaat_time.toString();
                                 // print the results
@@ -1066,6 +1085,7 @@ import org.joda.time.format.DateTimeFormatter;
                                     getHadith = true; 
                                     moon_hadith_Label_visible = false;
                                     hadith_Label_visible = true;
+                                    System.out.println("moon else" );
                                 }
                             }
                             
@@ -1125,7 +1145,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             if(Calendar_now.compareTo(nextTransitionCal)==0 )
                             {
-                                if (TimeZone.getTimeZone( "Australia/Sydney").inDaylightTime( time )){future_zuhr_jamaat_time = "13:30";}
+                                if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){future_zuhr_jamaat_time = "13:30";}
                                 else{future_zuhr_jamaat_time = "12:30";}  
                                 en_notification_Msg = en_notification_Msg + "Duhr & Friday: " + future_zuhr_jamaat_time +"    ";
                                 ar_notification_Msg = ar_notification_Msg + "الظهر و الجمعة: " + future_zuhr_jamaat_time +"    ";
@@ -1299,7 +1319,7 @@ import org.joda.time.format.DateTimeFormatter;
                                             facebook_post =facebook_post.replace("\n\n", "\n");
                                             out.println(facebook_post);
                                         }   
-                                        facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
+                                        facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZone_ID));    
                                         facebook_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
 //                                        out.print("Comment posted on:"); out.println(facebook_created_time_calendar.getTime());
                                         if(facebook_post.contains("tonight") || facebook_post.contains("today") && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(facebook_created_time_calendar)).getDays() != 0)
@@ -1354,7 +1374,7 @@ import org.joda.time.format.DateTimeFormatter;
                                     facebook_Post_Url = queryResults.get(0).getJsonObject("attachment").getJsonArray("media").getJsonObject(0).getJsonObject("photo").getJsonArray("images").getJsonObject(1).getString("src");
 //                                    out.println(facebook_Post_Url);
 
-                                    facebook_photo_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone("Australia/Sydney"));    
+                                    facebook_photo_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZone_ID));    
                                     facebook_photo_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
                                     out.print("Comment posted on:"); out.println(facebook_photo_created_time_calendar.getTime());
                                     
@@ -1631,7 +1651,7 @@ import org.joda.time.format.DateTimeFormatter;
                         String received = new String(packet.getData(), 0, packet.getLength());
                         System.out.println("UDP Packet received: " + received);
                         proximity_lastTimerCall = System.nanoTime();
-                        if(received.equals("Prayer in progress")) 
+                        if(received.equals("Prayer in progress") && pir_sensor) 
                         {
                             ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
                             try 
@@ -3671,7 +3691,7 @@ public void update_labels() throws Exception{
 //
 //                        Locale locale = Locale.getDefault();
 //        TimeZone localTimeZone = TimeZone.getDefault(); 
-//        //TimeZone localTimeZone = TimeZone.getTimeZone("Australia/Sydney");
+//        //TimeZone localTimeZone = TimeZone.getTimeZone(timeZone_ID);
 //        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, locale);
 //        dateFormat.setTimeZone(localTimeZone);
 //        Date rightNow = new Date();
