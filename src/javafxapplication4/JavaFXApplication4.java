@@ -168,6 +168,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Boolean maghrib_jamaat_update_enable = true;
     private Boolean isha_jamaat_update_enable = true;
     private boolean  notification_Sent;
+    private boolean  facebook_Receive = false;
     private boolean  facebook_notification_enable = false;
     private boolean  pir_sensor;
     private boolean arabic = true;
@@ -195,7 +196,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String en_message_String, ar_message_String; 
     private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url,old_facebook_Post_Url;
     private String fb_Access_token; // = "CAAJRZCld8U30BALxHS3AsaZBcNq2SB27JeLRDj6K6NIzz09ciEkhamhvEAZCjvy7eN7DVER1UVIOUvl4HUIIaSS7gnwLSeR6jVvxWhNqCPWCVZBqFDdiUcgKiZCNCFMtXVHoiRaue5gvOu6BU3KXAtJpt6ZAsxBWOeZA1fEEuM46jdo6iRgkmKy2jTr5ZBpmZC0YZD";
-
+    private String page_ID;
     String timeZone_ID ; // = timeZone_ID
     String SQL;
     ResultSet rs;
@@ -301,6 +302,7 @@ import org.joda.time.format.DateTimeFormatter;
                 {
                     id =                            rs.getInt("id");
                     facebook_notification_enable =  rs.getBoolean("facebook_notification_enable");  
+                    facebook_Receive             =  rs.getBoolean("facebook_Receive"); 
                     latitude =                      rs.getDouble("latitude");
                     longitude =                     rs.getDouble("longitude");
                     timezone =                      rs.getInt("timezone");
@@ -311,9 +313,11 @@ import org.joda.time.format.DateTimeFormatter;
                     calcMethod =                    rs.getInt("calcMethod");
                     AsrJuristic =                   rs.getInt("AsrJuristic");
                     fb_Access_token =               rs.getString("fb_Access_token");
+                    page_ID =                       rs.getString("page_ID");
+                    
                 }
                 c.close();
-                System.out.format("Face Book Notification Enabled: %s, Latitude: %s, Longitude: %s, Time Zone: %s, Calculation Method: %s , Asr Juristic: %s \n", facebook_notification_enable, latitude, longitude, timezone,calcMethod, AsrJuristic );
+                System.out.format(" Face Book Notification Enabled: %s \n Face Book Receive posts: %s \n Facebook page ID: %s \n Latitude: %s \n Longitude: %s \n Time Zone: %s \n Calculation Method: %s  \n Asr Juristic: %s \n", facebook_notification_enable, facebook_Receive, page_ID, latitude, longitude, timezone,calcMethod, AsrJuristic );
                 System.out.format("Device Name is:%s at %s \n", device_name, device_location);
                 System.out.format("Time Zone ID is:%s \n", timeZone_ID);
             }
@@ -336,14 +340,23 @@ import org.joda.time.format.DateTimeFormatter;
         try {p.sendMessage(temp_msg);} catch (IOException e){e.printStackTrace();}
         
         
+//        test
+//        try 
+//                                            {
+//                                                String pageID = page_ID +"/feed";
+//                                                String temporary_msg = " This is an Automated test message";
+//                                                facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", temporary_msg));
+//                                                
+//                                            }
+//                                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
 
         
 //Load random Background image on strtup ===============================================        
         images = new ArrayList<String>();
         //change on osx
-//        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
+        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
         //change on Pi
-        directory = new File("/home/pi/prayertime/Images/");
+//        directory = new File("/home/pi/prayertime/Images/");
         
         File[] files = directory.listFiles();
         for(File f : files) 
@@ -976,7 +989,11 @@ import org.joda.time.format.DateTimeFormatter;
                                     ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
                                     en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
                                     facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
-//                                    try{facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));}
+//                                    try
+//                                    {
+//                                        String pageID = page_ID +"/feed";
+//                                        facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+//                                    }
 //                                    catch (FacebookException e){logger.warn("Unexpected error", e);}                           
 //                                    System.out.println("Full Moon Notification Sent to Facebook:" );
 //                                    System.out.println(facebook_moon_notification_Msg);
@@ -998,7 +1015,8 @@ import org.joda.time.format.DateTimeFormatter;
                                         {
                                             try 
                                             {
-                                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+                                                String pageID = page_ID +"/feed";
+                                                facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
                                                 System.out.println("Full Moon Notification Sent to Facebook:" );
                                                 System.out.println(facebook_moon_notification_Msg);
                                             }
@@ -1048,7 +1066,8 @@ import org.joda.time.format.DateTimeFormatter;
                                         {
                                             try 
                                             {
-                                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+                                                String pageID = page_ID +"/feed";
+                                                facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
                                                 System.out.println("Full Moon Notification Sent to Facebook:" );
                                                 System.out.println(facebook_moon_notification_Msg);
                                             }
@@ -1071,7 +1090,8 @@ import org.joda.time.format.DateTimeFormatter;
                                         {
                                             try 
                                             {
-                                                facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+                                                String pageID = page_ID +"/feed";
+                                                facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
                                                 System.out.println("Full Moon Notification Sent to Facebook:" );
                                                 System.out.println(facebook_moon_notification_Msg);
                                             }
@@ -1195,7 +1215,11 @@ import org.joda.time.format.DateTimeFormatter;
                             System.out.println("Notification Sent to Facebook" );
                             if (facebook_notification_enable)
                             {
-                                try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", notification_Msg));}
+                                try 
+                                {
+                                    String pageID = page_ID +"/feed";
+                                    facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", notification_Msg));
+                                }
                                 catch (Exception e){logger.warn("Unexpected error", e);}
                             }
                             
@@ -1260,7 +1284,11 @@ import org.joda.time.format.DateTimeFormatter;
 
                                         if (facebook_notification_enable)
                                         {
-                                            try {facebookClient.publish("187050104663230/feed", FacebookType.class, Parameter.with("message", facebook_hadith));}
+                                            try 
+                                            {
+                                                String pageID = page_ID +"/feed";
+                                                facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_hadith));
+                                            }
                                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                                         }
 
@@ -1281,7 +1309,7 @@ import org.joda.time.format.DateTimeFormatter;
                         }
 
 // Get Facebook Latest Post =================================================================================
-                        if (getFacebook)
+                        if (getFacebook && facebook_Receive)
                         {
                             getFacebook = false;
                             facebook_Text_Post = false;
@@ -1295,8 +1323,8 @@ import org.joda.time.format.DateTimeFormatter;
                             facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -6);
                             long facebook_check_post_Unix_Time = facebook_check_post_date.getTimeInMillis() / 1000;
 //                            out.println(facebook_check_post_Unix_Time);
-                            String query = "SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
-//                            String query = "{\"messages\":\"SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = 187050104663230 AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \'prayer time(s)\') < 0 AND strpos(message, \'White days\') < 0 AND strpos(message, \'Hadith of the Day:\') < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1\" ,  \"count\": \"SELECT fan_count FROM page WHERE page_id = 187050104663230\"}";
+                            String query = "SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = " + page_ID + " AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
+//                            String query = "{\"messages\":\"SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = " + page_ID + " AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \'prayer time(s)\') < 0 AND strpos(message, \'White days\') < 0 AND strpos(message, \'Hadith of the Day:\') < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1\" ,  \"count\": \"SELECT fan_count FROM page WHERE page_id = " + page_ID + "\"}";
 //                            out.println(query);
                             try 
                             {
@@ -1351,7 +1379,7 @@ import org.joda.time.format.DateTimeFormatter;
                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                             catch (Exception e){logger.warn("Unexpected error", e);} 
 
-                            query = "SELECT fan_count FROM page WHERE page_id = 187050104663230";
+                            query = "SELECT fan_count FROM page WHERE page_id = " + page_ID ;
                             try 
                             {
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
@@ -1362,7 +1390,7 @@ import org.joda.time.format.DateTimeFormatter;
                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                             catch (Exception e){logger.warn("Unexpected error", e);}  
    
-                            query = "SELECT attachment.media.photo.images.src, created_time   FROM stream WHERE source_id = 187050104663230  AND type = 247 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
+                            query = "SELECT attachment.media.photo.images.src, created_time   FROM stream WHERE source_id = " + page_ID + "  AND type = 247 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
                             try 
                             {
                                 List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
