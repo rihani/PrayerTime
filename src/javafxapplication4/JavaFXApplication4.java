@@ -93,6 +93,7 @@ import java.text.Format;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import javafx.application.Platform;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.text.FontWeight;
 //import static javafx.scene.input.DataFormat.URL;
@@ -195,7 +196,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
     private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url,old_facebook_Post_Url;
-    private String fb_Access_token; // = "CAAJRZCld8U30BALxHS3AsaZBcNq2SB27JeLRDj6K6NIzz09ciEkhamhvEAZCjvy7eN7DVER1UVIOUvl4HUIIaSS7gnwLSeR6jVvxWhNqCPWCVZBqFDdiUcgKiZCNCFMtXVHoiRaue5gvOu6BU3KXAtJpt6ZAsxBWOeZA1fEEuM46jdo6iRgkmKy2jTr5ZBpmZC0YZD";
+    private String fb_Access_token; 
     private String page_ID;
     String timeZone_ID ; // = timeZone_ID
     String SQL;
@@ -229,8 +230,11 @@ import org.joda.time.format.DateTimeFormatter;
     private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2, facebook_Label;
     
     private List<String> images;
-    File directory;
+    private File directory;
+    private File[] files;
     private String rand_Image_Path;
+    private int countImages;
+    private int imageNumber;
     
     
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall, proximity_lastTimerCall;
@@ -358,14 +362,14 @@ import org.joda.time.format.DateTimeFormatter;
         //change on Pi
 //        directory = new File("/home/pi/prayertime/Images/");
         
-        File[] files = directory.listFiles();
+        files = directory.listFiles();
         for(File f : files) 
         {
             images.add(f.getName());
         }   
         System.out.println(images);
-        int countImages = images.size();
-        int imageNumber = (int) (Math.random() * countImages);
+        countImages = images.size();
+        imageNumber = (int) (Math.random() * countImages);
         rand_Image_Path = directory + "/"+ images.get(imageNumber);
         System.out.println(rand_Image_Path);
 
@@ -410,7 +414,7 @@ import org.joda.time.format.DateTimeFormatter;
         Font.loadFont(JavaFXApplication4.class.getResource("Fonts/LateefRegOT.ttf").toExternalForm(),30);
         
         data = FXCollections.observableArrayList();
-        GridPane Mainpane = new GridPane();
+        Mainpane = new GridPane();
         
         footer_Label = new Label();
         like_Label = new Label();
@@ -1128,8 +1132,16 @@ import org.joda.time.format.DateTimeFormatter;
                         if (notification)
                         {
                             ar_notification_Msg_Lines = null;
-                            Calendar_now.setTime(future_prayer_date);
-                            int day = Calendar_now.get(Calendar.DAY_OF_MONTH);
+//                            Calendar_now.setTime(future_prayer_date);
+                            
+                            Calendar prayertime_Change_Due_Date = null; 
+                            prayertime_Change_Due_Date = Calendar.getInstance();
+                            prayertime_Change_Due_Date.setTime(future_prayer_date);
+                            
+                            
+                            
+                            System.out.println ("Calendar_now: " + Calendar_now.getTime());
+                            int day = prayertime_Change_Due_Date.get(Calendar.DAY_OF_MONTH);
                             String dayStr = day + suffixes[day];
                             String en_notification_date = new SimpleDateFormat("EEEE").format(future_prayer_date);
                             String en_notification_date1 = new SimpleDateFormat("' of ' MMMM").format(future_prayer_date);
@@ -1162,6 +1174,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 ar_notification_Msg = ar_notification_Msg + "الفجر: " + future_fajr_jamaat_time_mod +"    ";
                                 fajr_jamma_time_change = false;
                             }           
+                            
                             
                             if(Calendar_now.compareTo(nextTransitionCal)==0 )
                             {
@@ -1271,7 +1284,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 hadith_notification_Date_cal.set(Calendar.SECOND, 0);
 
 //                                System.out.println(hadith_notification_Date_cal.getTime());
-//                                System.out.println(Calendar_now.getTime());
+                                System.out.println(Calendar_now.getTime());
                                 if (Calendar_now.compareTo(hadith_notification_Date_cal) == 0 )  
                                 {
                                     System.out.println("hadith has already been posted today to Facebook");
@@ -1679,6 +1692,7 @@ import org.joda.time.format.DateTimeFormatter;
                         String received = new String(packet.getData(), 0, packet.getLength());
                         System.out.println("UDP Packet received: " + received);
                         proximity_lastTimerCall = System.nanoTime();
+                        
                         if(received.equals("Prayer in progress") && pir_sensor) 
                         {
                             ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
@@ -1698,6 +1712,36 @@ import org.joda.time.format.DateTimeFormatter;
                             catch (IOException e) {logger.warn("Unexpected error", e);}
                             
                         }
+                        
+                        else if(received.equals("Change image")) 
+                        {
+                            
+                            System.out.println("yasso");
+                            images = new ArrayList<String>();
+                            //change on osx
+                            directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
+                            //change on Pi
+                    //        directory = new File("/home/pi/prayertime/Images/");
+
+                            files = directory.listFiles();
+                            for(File f : files) 
+                            {
+                                images.add(f.getName());
+                            }   
+                            System.out.println(images);
+                            countImages = images.size();
+                            imageNumber = (int) (Math.random() * countImages);
+                            rand_Image_Path = directory + "/"+ images.get(imageNumber);
+                            System.out.println(rand_Image_Path);
+                            
+                            String image = new File(rand_Image_Path).toURI().toURL().toString();
+                            System.out.println("image string: " + image);
+
+                            Mainpane = new GridPane();  
+                            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;"); 
+
+                        }
+                        
                     }
                 }
 
@@ -1730,7 +1774,8 @@ import org.joda.time.format.DateTimeFormatter;
         System.out.println("image string: " + image);
 //        String image = JavaFXApplication4.class.getResource(rand_Image_Path).toExternalForm();
 //        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: repeat; ");  
-        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");        
+        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");  
+        
         }
         catch (IOException e) {logger.warn("Unexpected error", e);}
         
