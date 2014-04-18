@@ -358,10 +358,10 @@ import org.joda.time.format.DateTimeFormatter;
 //Load random Background image on strtup ===============================================        
         images = new ArrayList<String>();
         //change on osx
-        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
+//        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
         //change on Pi
-//        directory = new File("/home/pi/prayertime/Images/");
-        
+        directory = new File("/home/pi/prayertime/Images/");
+//nothing
         files = directory.listFiles();
         for(File f : files) 
         {
@@ -779,7 +779,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
                             cal.setTime(fajr_jamaat_temp);
-                            cal.add(Calendar.MINUTE, 15);
+                            cal.add(Calendar.MINUTE, 5);
                             Date fajr_jamaat = cal.getTime();
                             fajr_jamaat_update_cal = Calendar.getInstance();
                             fajr_jamaat_update_cal.setTime(fajr_jamaat);
@@ -787,7 +787,7 @@ import org.joda.time.format.DateTimeFormatter;
                             fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
                             
                             fajr_jamaat_cal = (Calendar)fajr_jamaat_update_cal.clone();
-                            fajr_jamaat_cal.add(Calendar.MINUTE, -15);
+                            fajr_jamaat_cal.add(Calendar.MINUTE, -5);
 //                            System.out.println("fajr Jamaat update scheduled at:" + fajr_jamaat_update_cal.getTime());
                             
                             Date zuhr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + zuhr_jamaat);
@@ -803,7 +803,7 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_jamaat);
                             cal.setTime(asr_jamaat_temp);
-                            cal.add(Calendar.MINUTE, 15);
+                            cal.add(Calendar.MINUTE, 5);
                             Date asr_jamaat = cal.getTime();
                             asr_jamaat_update_cal = Calendar.getInstance();
                             asr_jamaat_update_cal.setTime(asr_jamaat);
@@ -811,11 +811,11 @@ import org.joda.time.format.DateTimeFormatter;
                             asr_jamaat_update_cal.set(Calendar.SECOND, 0);
 //                            System.out.println("asr Jamaat update scheduled at:" + asr_jamaat_update_cal.getTime());
                             asr_jamaat_cal = (Calendar)asr_jamaat_update_cal.clone();
-                            asr_jamaat_cal.add(Calendar.MINUTE, -15);
+                            asr_jamaat_cal.add(Calendar.MINUTE, -5);
 
                             Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
                             cal.setTime(isha_jamaat_temp);
-                            cal.add(Calendar.MINUTE, 15);
+                            cal.add(Calendar.MINUTE, 5);
                             Date isha_jamaat = cal.getTime();
                             isha_jamaat_update_cal = Calendar.getInstance();
                             isha_jamaat_update_cal.setTime(isha_jamaat);
@@ -823,7 +823,7 @@ import org.joda.time.format.DateTimeFormatter;
                             isha_jamaat_update_cal.set(Calendar.SECOND, 0);
 //                            System.out.println("Isha Jamaat update scheduled at:" + isha_jamaat_update_cal.getTime());
                             isha_jamaat_cal = (Calendar)isha_jamaat_update_cal.clone();
-                            isha_jamaat_cal.add(Calendar.MINUTE, -15);
+                            isha_jamaat_cal.add(Calendar.MINUTE, -5);
 
                             
 //==============Prayer time change notification logic + 7days
@@ -1178,8 +1178,8 @@ import org.joda.time.format.DateTimeFormatter;
                             
                             if(Calendar_now.compareTo(nextTransitionCal)==0 )
                             {
-                                if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){future_zuhr_jamaat_time = "13:30";}
-                                else{future_zuhr_jamaat_time = "12:30";}  
+                                if (TimeZone.getTimeZone( timeZone_ID).inDaylightTime( time )){future_zuhr_jamaat_time = "12:30";}
+                                else{future_zuhr_jamaat_time = "13:30";}  
                                 en_notification_Msg = en_notification_Msg + "Duhr & Friday: " + future_zuhr_jamaat_time +"    ";
                                 ar_notification_Msg = ar_notification_Msg + "الظهر و الجمعة: " + future_zuhr_jamaat_time +"    ";
                             }
@@ -2661,6 +2661,8 @@ public void update_labels() throws Exception{
                         c.close();
                         fajr_jamaat = fajr_jamaat_time.toString();
                         System.out.println("fajr jamaat time updated:" + fajr_jamaat);
+                        
+                        
                         Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
                         cal.setTime(fajr_jamaat_temp);
                         cal.add(Calendar.MINUTE, 15);
@@ -2671,10 +2673,18 @@ public void update_labels() throws Exception{
                         fajr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                         fajr_jamaat_update_cal.set(Calendar.SECOND, 0);
     //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        
+                        fajr_jamaat_cal = (Calendar)fajr_jamaat_update_cal.clone();
+                        fajr_jamaat_cal.add(Calendar.MINUTE, -15);
+                        
                         System.out.println("next update is on:" + fajr_jamaat_update_cal.getTime());
                         TimeUnit.MINUTES.sleep(1);
                         fajr_jamaat_update_enable = true;
                         update_prayer_labels = true;
+                        
+                        
+                        
+                        
 
                     } 
                     catch (SQLException e) {logger.warn("Unexpected error", e);} 
@@ -2713,6 +2723,10 @@ public void update_labels() throws Exception{
                         asr_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                         asr_jamaat_update_cal.set(Calendar.SECOND, 0);
     //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        
+                        asr_jamaat_cal = (Calendar)asr_jamaat_update_cal.clone();
+                        asr_jamaat_cal.add(Calendar.MINUTE, -15);
+                        
                         System.out.println("next update is on:" + asr_jamaat_update_cal.getTime());
                         TimeUnit.MINUTES.sleep(1);
                         asr_jamaat_update_enable = true;
@@ -2754,6 +2768,10 @@ public void update_labels() throws Exception{
                         isha_jamaat_update_cal.set(Calendar.MILLISECOND, 0);
                         isha_jamaat_update_cal.set(Calendar.SECOND, 0);
     //                            System.out.println(fajr_jamaat_update_cal.getTime());
+                        
+                        isha_jamaat_cal = (Calendar)isha_jamaat_update_cal.clone();
+                        isha_jamaat_cal.add(Calendar.MINUTE, -15);
+                        
                         System.out.println("next update is on:" + isha_jamaat_update_cal.getTime());
                         TimeUnit.MINUTES.sleep(1);
                         isha_jamaat_update_enable = true;
