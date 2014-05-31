@@ -106,6 +106,7 @@ import org.apache.log4j.Logger;
 //import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeZone;
+import org.joda.time.chrono.IslamicChronology;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 //import org.json.simple.JSONArray;
@@ -196,13 +197,13 @@ import org.joda.time.format.DateTimeFormatter;
     private String future_fajr_jamaat ,future_zuhr_jamaat ,future_asr_jamaat ,future_maghrib_jamaat ,future_isha_jamaat ;
     private String en_message_String, ar_message_String; 
     private String facebook_post, facebook_post_visibility, facebook_hadith, facebook_Fan_Count, facebook_Post_Url,old_facebook_Post_Url;
-    private String fb_Access_token; 
+    private String fb_Access_token, platform; 
     private String page_ID;
     String timeZone_ID ; // = timeZone_ID
     String SQL;
     ResultSet rs;
     
-    private int id;
+    private int id, maghrib_adj;
     private int AsrJuristic,calcMethod;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
@@ -284,6 +285,8 @@ import org.joda.time.format.DateTimeFormatter;
 //            logger.warn("Unexpected error", e);
 //        }
 //        System.out.println("Successfully updated the status to [" + status.getText() + "].");
+
+ 
         
         logger.info("Starting application....");
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() 
@@ -305,6 +308,7 @@ import org.joda.time.format.DateTimeFormatter;
                 while (rs.next()) 
                 {
                     id =                            rs.getInt("id");
+                    platform =                      rs.getString("platform");
                     facebook_notification_enable =  rs.getBoolean("facebook_notification_enable");  
                     facebook_Receive             =  rs.getBoolean("facebook_Receive"); 
                     latitude =                      rs.getDouble("latitude");
@@ -318,9 +322,11 @@ import org.joda.time.format.DateTimeFormatter;
                     AsrJuristic =                   rs.getInt("AsrJuristic");
                     fb_Access_token =               rs.getString("fb_Access_token");
                     page_ID =                       rs.getString("page_ID");
+                    maghrib_adj =                   rs.getInt("maghrib_adj");
                     
                 }
                 c.close();
+                System.out.format("Prayertime server running on %s platform\n", platform);
                 System.out.format(" Face Book Notification Enabled: %s \n Face Book Receive posts: %s \n Facebook page ID: %s \n Latitude: %s \n Longitude: %s \n Time Zone: %s \n Calculation Method: %s  \n Asr Juristic: %s \n", facebook_notification_enable, facebook_Receive, page_ID, latitude, longitude, timezone,calcMethod, AsrJuristic );
                 System.out.format("Device Name is:%s at %s \n", device_name, device_location);
                 System.out.format("Time Zone ID is:%s \n", timeZone_ID);
@@ -358,10 +364,12 @@ import org.joda.time.format.DateTimeFormatter;
 //Load random Background image on strtup ===============================================        
         images = new ArrayList<String>();
         //change on osx
-//        directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
+        if (platform.equals("osx"))
+        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
         //change on Pi
-        directory = new File("/home/pi/prayertime/Images/");
-//nothing
+        if (platform.equals("pi"))
+        {directory = new File("/home/pi/prayertime/Images/");}
+        
         files = directory.listFiles();
         for(File f : files) 
         {
@@ -735,7 +743,12 @@ import org.joda.time.format.DateTimeFormatter;
                         Calendar_now.set(Calendar.MINUTE, 0);
                         Calendar_now.set(Calendar.HOUR_OF_DAY, 0);
 
-                        
+                        DateTimeZone tzSAUDI_ARABIA = DateTimeZone.forID("Asia/Riyadh");
+                        DateTime dtIslamic = DateTime_now.withChronology(IslamicChronology.getInstance(tzSAUDI_ARABIA, IslamicChronology.LEAP_YEAR_15_BASED));
+                        System.out.println(dtIslamic.getMonthOfYear());
+
+                        if (dtIslamic.getMonthOfYear()==9){System.out.println("==========Ramadan Moubarik==========");}
+        
                         //enable athan play time
                         if (dayofweek_int != olddayofweek_int)
                         {    
@@ -812,6 +825,11 @@ import org.joda.time.format.DateTimeFormatter;
 //                            System.out.println("asr Jamaat update scheduled at:" + asr_jamaat_update_cal.getTime());
                             asr_jamaat_cal = (Calendar)asr_jamaat_update_cal.clone();
                             asr_jamaat_cal.add(Calendar.MINUTE, -5);
+
+
+                            maghrib_jamaat_cal = (Calendar)maghrib_cal.clone();
+                            maghrib_jamaat_cal.add(Calendar.MINUTE, maghrib_adj);
+                            
 
                             Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
                             cal.setTime(isha_jamaat_temp);
@@ -955,7 +973,7 @@ import org.joda.time.format.DateTimeFormatter;
                             int days_Between_Now_Fullmoon = d.getDays();
                             System.out.format("Days left to full moon: %s\n", days_Between_Now_Fullmoon );
                             
-                            if ( days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2 )
+                            if ( days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2 && dtIslamic.getMonthOfYear()!=9)
                             {                                
                                 //hide hadith label boolean
                                 getHadith = false;
@@ -2876,7 +2894,8 @@ public void update_labels() throws Exception{
             asr_jamma_minLeft.setText(formattedDateTime.substring(3, 4));
             asr_jamma_minRight.setText(formattedDateTime.substring(4, 5));
             
-            maghribjamaatdate = maghrib_cal.getTime();
+//            maghribjamaatdate = maghrib_cal.getTime();
+            maghribjamaatdate = maghrib_jamaat_cal.getTime();
             formattedDateTime = dateFormat.format(maghribjamaatdate);
             maghrib_jamma_hourLeft.setText(formattedDateTime.substring(0, 1));
             maghrib_jamma_hourRight.setText(formattedDateTime.substring(1, 2));
