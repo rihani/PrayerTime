@@ -365,7 +365,8 @@ import org.joda.time.format.DateTimeFormatter;
         images = new ArrayList<String>();
         //change on osx
         if (platform.equals("osx"))
-        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
+//        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
+        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
         //change on Pi
         if (platform.equals("pi"))
         {directory = new File("/home/pi/prayertime/Images/");}
@@ -597,12 +598,12 @@ import org.joda.time.format.DateTimeFormatter;
             {
                 try {
                         
-                        Moon m = new Moon();
-                        moonPhase = m.illuminatedPercentage();
-                        isWaning = m.isWaning();
-                        update_moon_image = true;
-                        System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
-                    
+//                        Moon m = new Moon();
+//                        moonPhase = m.illuminatedPercentage();
+//                        isWaning = m.isWaning();
+//                        update_moon_image = true;
+//                        System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
+//                    
                     
                         Locale.setDefault(new Locale("en", "AU"));
                         Date now = new Date();
@@ -751,7 +752,13 @@ import org.joda.time.format.DateTimeFormatter;
         
                         //enable athan play time
                         if (dayofweek_int != olddayofweek_int)
-                        {    
+                        {   
+                            Moon m = new Moon();
+                            moonPhase = m.illuminatedPercentage();
+                            isWaning = m.isWaning();
+                            update_moon_image = true;
+                            System.out.println("The moon is " + moonPhase + "% full and " + (isWaning ? "waning" : "waxing"));
+                    
 //                            old_today = Calendar.getInstance();
                             olddayofweek_int = dayofweek_int;                         
 //                            System.out.println("current day of the week " + dayofweek_int ); 
@@ -1500,7 +1507,7 @@ import org.joda.time.format.DateTimeFormatter;
 //        translate_lastTimerCall = System.nanoTime();
         translate_timer = new AnimationTimer() {
             @Override public void handle(long now) {
-                if (now > translate_lastTimerCall + 30000_000_000l) 
+                if (now > translate_lastTimerCall + 40000_000_000l) 
                 {
                     try {update_labels();} 
                     catch (Exception e) {logger.warn("Unexpected error", e);}
