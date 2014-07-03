@@ -1,0 +1,706 @@
+raspi-config
+sudo raspi-config
+sudo apt-get install samba samba-common-bin
+leafpad
+sudo leafpad /etc/samba/smb.conf & 
+sudo nano /etc/samba/smb.conf  
+smbpasswd -a pi 
+smbpasswd -a pi raspberry
+smbpasswd -a pi raspberry raspberry
+sudo smbpasswd -a pi
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+ls
+cd ..
+ls
+cd home
+ls
+cd pi
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+sudo nano /etc/samba/smb.conf  
+sudo /etc/init.d/samba restart
+clear
+raspi-config
+sudo raspi-config
+sudo apt-get install avahi-daemon
+wget http://afterthoughtsoftware.com/files/linux-image-3.6.11-atsw-rtc_1.1_armhf.deb
+sudo dpkg -i linux-image-3.6.11-atsw-rtc_1.1_armhf.deb
+sudo cp /boot/vmlinuz-3.6.11-atsw-rtc+ /boot/kernel.img
+Sudo nano /etc/modules
+sudo nano /etc/modules
+sudo nano /etc/rc.local
+sudo reboot
+hwclock -w
+sudo hwclock -w
+sudo hwclock -r
+sudo raspi-config
+date
+tzselect
+date
+sudo dpkg-reconfigure tzdata
+date
+apt-get install ntpdate
+sudo apt-get install ntpdate
+date
+sudo halt
+date
+sudo hwclock -r
+ntpq -p
+date
+ls
+sudo dpkg -i libcec_1.9.0-1_armhf.deb
+sudo apt-get install libcec
+sudo apt-get install libpcrecpp0
+sudo apt-get install liblockdev1
+sudo dpkg -i libcec_1.9.0-1_armhf.deb
+sudo echo "as" | cec-client -s
+sudo apt-get install mysql-server
+sudo  apt-get update
+sudo apt-get install mysql-server
+echo "standby 0000" | cec-client -d 1 -s "standby 0" RPI
+mysqld_safe --skip-grant-tables
+sudo mysqld_safe --skip-grant-tables
+mysql
+sudo mysql
+sudo mysql -u root
+sudo mysql --password=soumaya
+reboot
+sudo reboot
+sudo mysql --password=soumaya
+sudo nano my.cnf
+cd /etc/mysql
+sudo nano my.cnf
+sudo mysql --password=soumaya
+sudo service mysql restart
+sudo nano my.cnf
+sudo service mysql restart
+sudo nano my.cnf
+sudo service mysql restart
+sudo nano my.cnf
+sudo service mysql restart
+sudo nano my.cnf
+sudo service mysql restart
+sudo mysql --password=soumaya
+sudo service mysql restart
+sudo mysql --password=soumaya
+sudo mysql --password=soumay
+sudo mysql --password=soumaya
+sudo mysql -u root
+sudo mysql -u root -p'soumaya'
+sudo mysql -u root -p'soumaya' password soumaya
+sudo mysql -u root -p'soumaya' password
+sudo mysql -u root -p'soumaya' password 'soumaya'
+mysql -u root -p'soumaya' -e 'show databases;'
+sudo service mysql stop
+sudo mysqld_safe --skip-grant-tables
+sudo mysqld_safe --skip-grant-tables&
+mysql
+sudo service mysql stop
+sudo service mysql restart
+sudo mysqld_safe --skip-grant-tables&
+sudo service mysql stop
+sudo mysqld_safe --skip-grant-tables&
+sudo service mysql stop
+sudo service mysql restart
+mysql -u root -p'soumaya' -e 'show databases;'
+sudo mysql -u root -p'soumaya'
+sudo service mysql stop
+sudo mysqld_safe --skip-grant-tables&
+mysql
+sudo service mysql stop
+sudo service mysql restart
+sudo mysql -u root -p'soumaya'
+sudo halt
+cd ~
+git clone git://github.com/doceme/py-spidev
+cd py-spidev/
+sudo python setup.py install
+sudo apt-get install python-dev
+sudo pip install spidev
+sudo apt-get install python-pip
+sudo pip install spidev
+sudo modprobe spi_bcm2708
+sudo chown `id -u`.`id -g` /dev/spidev0.*
+ls
+cd ..
+ls
+python prayer_detection.py 
+sudo python prayer_detection.py 
+python
+wget http://raspberry-gpio-python.googlecode.com/files/RPi.GPIO-0.4.1a.tar.gz
+tar zxvf RPi.GPIO-0.4.1a.tar.gz
+cd RPi.GPIO-0.4.1a
+sudo python setup.py install
+cd ..
+ls
+sudo python prayer_detection.py 
+lsmod | grep snd_bcm2835
+sudo apt-get -y install mpg321
+wget http://www.freespecialeffects.co.uk/soundfx/household/bubbling_water_1.mp3
+mpg321 bubbling_water_1.mp3
+cec-client -h
+echo 'pow 0' | cec-client -t p -p 1 -d 1 -s | tail -n1 | grep 'power' | awk '{print $3}'
+cec-client -d 1 -s "standby 0" RPI
+sudo apt-get install libio-socket-ssl-perl
+sudo apt-get install ddclient
+sudo nano /etc/ddclient.conf
+sudo nano /boot/config.txt
+sudo crontab -e
+ls
+sudo tar zxvf  available commands
+pi@prayertime ~ $ echo 'pow 0' | cec-client -t p -p 1 -d 1 -s | tail -n1 | grep 'power' | awk '{print $3}'
+unknown
+pi@prayertime ~ $ cec-client -d 1 -s "standby 0" RPI
+log level set to 1
+opening a connection to the CEC adapter...
+ERROR:   [              11]     RegisterLogicalAddress - vc_cec_set_logical_address(E) returned invalid arg (8)
+ERROR:   [              13]     Open - vc_cec could not be initialised
+ERROR:   [              19]     RegisterLogicalAddress - vc_cec_set_logical_address(1) returned invalid arg (8)
+pi@prayertime ~ $ sudo apt-get install libio-socket-ssl-perl
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+libio-socket-ssl-perl is already the newest version.
+libio-socket-ssl-perl set to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 30 not upgraded.
+pi@prayertime ~ $ sudo apt-get install ddclient
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following NEW packages will be installed:
+0 upgraded, 1 newly installed, 0 to remove and 30 not upgraded.
+Need to get 76.5 kB of archives.
+After this operation, 316 kB of additional disk space will be used.
+Get:1 http://mirrordirector.raspbian.org/raspbian/ wheezy/main ddclient all 3.8.0-11.5 [76.5 kB]
+Fetched 76.5 kB in 1s (65.0 kB/s)
+Preconfiguring packages ...
+Selecting previously unselected package ddclient.
+(Reading database ... 74174 files and directories currently installed.)
+Unpacking ddclient (from .../ddclient_3.8.0-11.5_all.deb) ...
+Processing triggers for man-db ...
+Setting up ddclient (3.8.0-11.5) ...
+insserv: warning: script 'mathkernel' missing LSB tags and overrides
+pi@prayertime ~ $ sudo nano /etc/ddclient.conf
+pi@prayertime ~ $
+pi@prayertime ~ $ sudo nano /boot/config.txt
+pi@prayertime ~ $ sudo crontab -e
+no crontab for root - using an empty one
+crontab: installing new crontab
+pi@prayertime ~ $ ls
+bubbling_water_1.mp3                                   libcec_1.9.0-1_armhf.deb                   prayer_detection.py  RPi.GPIO-0.4.1a
+Desktop                                                linux-image-3.6.11-atsw-rtc_1.1_armhf.deb  py-spidev            RPi.GPIO-0.4.1a.tar.gz
+jdk-8u20-ea-b05-linux-arm-vfp-hflt-11_mar_2014.tar.gz  ocr
+sudo tar jdk-8u20-ea-b05-linux-arm-vfp-hflt-11_mar_2014.tar.gz -C /opt
+sudo tar zxvf jdk-8u20-ea-b05-linux-arm-vfp-hflt-11_mar_2014.tar.gz -C /opt
+/opt/jdk1.8.0/bin/java -version
+ls
+/opt/jdk1.8.0/bin/java --version
+cd /opt
+ls
+/opt/jdk1.8.0_20/bin/java --version
+/opt/jdk1.8.0_20/bin/java -version
+ls
+rn
+ren
+rename
+rename jdk1.8.0_20 jdk1.8.0
+ls
+mv jdk1.8.0_20 jdk1.8.0
+sudo mv jdk1.8.0_20 jdk1.8.0
+ls
+/opt/jdk1.8.0/bin/java -version
+cd 
+ls
+cd javafx/
+cd Working\ Libraries/
+ls
+sudo cp *.*  /opt/jdk1.8.0/jre/lib/ext
+cd
+sudo halt
+sudo nano /boot/config.txt
+sudo halt
+sudo nano /boot/config.txt
+sudo halt
+cec-client -d 1 -s "standby 0" RPI
+echo 'pow 0' | cec-client -t p -p 1 -d 1 -s | tail -n1 | grep 'power' | awk '{print $3}'
+clear
+cec-client -d 1 -s "standby 0" RPI
+sudo halt
+sudo pip install picamera
+python
+sudo python
+sudo raspi
+-
+sudo raspi-config
+raspistill
+-
+v
+-
+raspistill - v - o test.jpg
+raspistill -v -o test.jpg
+sudo reboot
+raspistill -v -o test.jpg
+ls
+raspistill -p -v -o test.jpg
+sudo python
+hwclock -r
+hwclock - r
+sudo hwclock - r
+hwclock --r
+cec-client -d 1 -s "standby 0" RPI
+history
+sudo hwclock -r
+sudo python
+ls
+cd python/
+sudo python camera.py 
+sudo nano /boot/cmdline.txt
+sudo nano /etc/inittab
+minicom
+sudo apt‑get install minicom
+sudo apt-get install minicom
+minicom -b 9600 -o -D /dev/ttyAMA0
+minicom
+echo "hello" > /dev/ttyAMA0 
+sudo echo "hello" > /dev/ttyAMA0 
+sudo reboot
+minicom -b 9600 -o -D /dev/ttyAMA0
+cd python/
+sudo python camera.py 
+minicom -b 9600 -o -D /dev/ttyAMA0
+cd python/
+sudo python camera.py 
+minicom -b 9600 -o -D /dev/ttyAMA0
+cd python/
+sudo python camera.py 
+sudo pip install serial
+sudo python camera.py 
+sudo pip install pyserial
+sudo python camera.py 
+minicom -b 9600 -o -D /dev/ttyAMA0
+cd python/
+sudo python camera.py 
+raspistill -p -v -o test.jpg
+sudo python camera.py 
+minicom -b 9600 -o -D /dev/ttyAMA0
+sudo python camera.py 
+sudo halt
+cd python/
+sudo python camera.py 
+sudo nano /etc/sysctl.conf
+sudo nano /var/log/everything.log
+cd /var/log
+ls
+sudo nano faillog
+sudo nano syslog
+\
+tail -20 syslog
+tail -200 syslog
+history
+sudo hwclock -r
+sudo hwclock -w
+sudo hwclock -r
+sudo hwclock -w
+sudo hwclock -r
+datr
+date
+sudo hwclock -r
+sudo hwclock -w
+sudo reboot
+sudo rpi-update
+sudo raspi-config
+sudo hwclock -r
+cd python/
+sudo python camera.py 
+cd python/
+sudo python camera.py 
+clear
+sudo python camera.py 
+clear
+sudo python camera.py 
+lsusb
+alsamixer
+arecord -l
+arecord -D plughw:1 --duration=10 -f cd -vv ~/rectest.wav
+alsamixer
+arecord -l
+alsamixer
+arecord -D plughw:1 --duration=10 -f cd -vv ~/rectest.wav
+alsamixer
+sudo alsactl store 1
+alsamixer
+sudo alsactl store 1
+arecord -D plughw:1 --duration=10 -f cd -vv ~/rectest.wav
+sudo pip install alsaaudio
+sudo pip install python-alsaaudio
+sudo apt-get install python-alsaaudio python-aubio
+cd python/
+python audio.py
+sudo pip install audioop
+python
+python audio.py
+python
+python audio.py
+alsamixer
+python audio.py
+alsamixer
+python audio.py
+python
+python audio.py
+python
+python audio.py
+python
+alsamixer
+python audio.py
+python
+amixer
+amixer --card 1 contents
+sudo alsactl store 1
+amixer
+arecord -l
+python audio.py
+python
+python audio.py
+aplay -L
+python audio.py
+arecord -L
+nano ~/.asoundrc
+arecord -L
+nano ~/.asoundrc
+python audio.py
+sudo nano ~/.asoundrc
+sudo halt
+sudo modprobe snd_bcm2835
+sudo nano /etc/modprobe.d/alsa-base.conf
+ls
+sudo nano /etc/asound.conf
+sudo reboot
+cd python
+python audio.py
+alsamixer
+sudo alsactl store 1
+python audio.py
+clear
+python audio.py
+sudo halt
+cd python
+python audio.py
+cd python
+python audio.py
+ls
+cd ..
+ls
+wget http://afterthoughtsoftware.com/files/linux-image-3.6.11-atsw-rtc_1.1_armhf.deb
+sudo dpkg -i linux-image-3.6.11-atsw-rtc_1.1_armhf.deb
+sudo nano /etc/modules
+sudo nano /etc/rc.local
+hwclock -w
+sudo hwclock -w
+sudo hwclock -r
+sudo -s
+sudo hwclock -r
+sudo apt-get install python-smbus
+sudo nano /etc/modprobe.d/raspi-blacklist.conf
+sudo hwclock -r
+sudo reboot
+sudo hwclock -r
+sudo nano /etc/modprobe.d/raspi-blacklist.conf
+sudo apt-get install i2c-tools
+sudo i2cdetect -y 1
+sudo hwclock -r
+sudo hwclock -s
+sudo hwclock -w
+sudo modprobe rtc-ds1307
+sudo hwclock -r --debug
+sudo reboot
+sudo hwclock -r --debug
+ls /dev
+modprobe i2c-bcm2708
+echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-1/new_device
+sudo echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-1/new_device
+sudo bash
+history
+sudo hwclock -w
+cd python
+sudo python camera.py 
+python radar.py 
+sudo python radar.py 
+sudo python
+apt-get remove python-rpi.gpio
+sudo apt-get remove python-rpi.gpio
+sudo pip install --upgrade RPi.GPIO
+sudo python radar.py 
+sudo python camera.py 
+sudo python radar.py 
+import RPi.GPIO as GPIO
+sudo python
+sudo python radar.py 
+python radar.py 
+sudo python radar.py 
+sudo python camera.py 
+cd python
+sudo python camera.py 
+sudo nano /etc/modules
+sudo i2cdetect -y 1
+sudo hwclock -r
+sudo crontab -e
+cd python
+sudo python camera.py 
+cd python
+sudo python camera.py 
+ps aux
+sudo reboot
+cd python
+sudo python camera.py 
+ps aux
+sudo kill 8700
+ps aux
+sudo kill -9 8700
+ps aux
+raspistill -p -v -o test.jpg
+cd python
+sudo python camera.py 
+cd python/
+cd cd quick2wire-python-api/
+ls
+cd quick2wire-python-api/
+ls
+sudo python3 accel.py 
+cd python
+sudo python camera.py 
+history
+minicom -b 9600 -o -D /dev/ttyAMA0
+sudo python camera.py 
+minicom -b 9600 -o -D /dev/ttyAMA0
+sudo python camera.py 
+minicom -b 9600 -o -D /dev/ttyAMA0
+sudo hwclock
+minicom -b 9600 -o -D /dev/ttyAMA0
+sudo python camera.py 
+sudo i2cdetect -y 1
+sudo pip install i2clibraries
+git clone https://github.com/quick2wire/quick2wire-python-api.git
+export QUICK2WIRE_API_HOME=~/myproject/quick2wire-python-api
+export PYTHONPATH=$PYTHONPATH:$QUICK2WIRE_API_HOME
+sudo nano quick2wire.env
+. ./quick2wire.env
+git clone https://bitbucket.org/thinkbowl/i2clibraries.git
+sudo apt-get install python3
+python3
+sudo apt-get install quick2wire-gpio-admin
+gpg --list-keys
+curl -L  https://q2wi.re/swkey | sudo apt-key add -
+sudo python camera.py 
+raspistill -p -v -o test.jpg
+sudo python camera.py 
+python accel.py 
+git clone https://github.com/quick2wire/quick2wire-python-api.git
+export QUICK2WIRE_API_HOME=~/myproject/quick2wire-python-api
+export PYTHONPATH=$PYTHONPATH:$QUICK2WIRE_API_HOME
+python accel.py 
+env | grep quick2wire
+export QUICK2WIRE_API_HOME=~/python/quick2wire-python-api
+env | grep quick2wire
+export PYTHONPATH=$PYTHONPATH:$QUICK2WIRE_API_HOME
+env | grep quick2wire
+python accel.py 
+python3 accel.py 
+sudo python3 accel.py 
+git clone https://github.com/quick2wire/quick2wire-python-api.git
+cd quick2wire-python-api/
+git clone https://github.com/quick2wire/quick2wire-python-api.git
+sudo python3 accel.py 
+export QUICK2WIRE_API_HOME=~/python/quick2wire-python-api
+export PYTHONPATH=$PYTHONPATH:$QUICK2WIRE_API_HOME
+sudo python3 accel.py 
+sudo i2cdetect -y 1
+sudo python3 accel.py 
+sudo apt-get install python3-picamera
+sudo python3 accel.py 
+cd 
+ls
+mkdir /home/pi/mynetworkdrive
+ls
+sudo nano /etc/fstab
+sudo mount /home/pi/mynetworkdrive
+cd mynetworkdrive/
+ls
+sudo reboot
+ls
+cd mynetworkdrive/
+ls
+cd
+cd pycd python/
+cd python/
+ls
+cd quick2wire-python-api/
+sudo python3 accel.py 
+sudo reboot
+cd python/
+cd quick2wire-python-api/
+sudo python3 accel.py 
+sudo reboot
+cd python/
+ls
+sudo python audio.py
+sudo apt-get install python-mysqldb
+sudo python audio.py
+cd
+ls
+sudo dpkg -i  mysql-connector-python_1.1.6-1debian6.0_all.deb 
+cd python/
+sudo python audio.py
+cd
+ls
+gunzip mysql-connector-python-1.1.6.tar.gz 
+tar xf mysql-connector-python-1.1.6.tar 
+cd mysql-connector-python
+cd mysql-connector-python-1.1.6/
+sudo python setup.py install
+cd
+cd python/
+sudo python audio.py
+ls
+cd quick2wire-python-api/
+ls
+sudo python3 accel.py 
+sudo apt-get install python3-picamera
+sudo python3 accel.py 
+cd
+cd python/
+sudo python camera.py 
+history
+sudo raspistill 
+raspistill -t 1000 -o mypicture.jpg
+cd quick2wire-python-api/
+sudo python3 accel.py 
+sudo reboot
+cd python/
+sudo python camera.py 
+cd quick2wire-python-api/
+sudo python3 accel.py 
+sudo pip install mysql-connector-python
+python3
+cd /usr/local/lib/python2.7/dist-packages
+ls
+sudo cd mysql_connector_python-1.1.6.egg-info /usr/lib/python3/dist-packages
+sudo cp mysql_connector_python-1.1.6.egg-info /usr/lib/python3/dist-packages
+sudo cp mysql /usr/lib/python3/dist-packages
+sudo cp -r mysql /usr/lib/python3/dist-packages
+sudo python3 accel.py 
+python3
+sudo pip install PyMySQL
+sudo python3
+cd quick2wire-python-api/
+cd
+cd quick2wire-python-api/
+cd python/
+cd quick2wire-python-api/
+sudo python3
+sudo python3 accel.py 
+sudo python3
+python3
+cd ~/python/quick2wire-python-api
+cd /usr/local/lib/python2.7/dist-packages
+python3
+ls
+sudo cp -r pymysql /usr/lib/python3/dist-packages
+sudo cp PyMySQL-0.6.1-py2.7.egg-info /usr/lib/python3/dist-packages
+sudo cp -r PyMySQL-0.6.1-py2.7.egg-info /usr/lib/python3/dist-packages
+cd ~/python/quick2wire-python-api
+python3
+sudo python3 accel.py 
+python3
+sudo python3 accel.py 
+cd /usr/local/lib/python2.7/dist-packages
+ls
+sudp pip3 install
+sudo pip3 install
+history
+sudo apt-get install python3-alsaaudio
+sudo apt-get install python3-module-alsaaudio
+cd
+ls
+wget http://downloads.sourceforge.net/project/pyalsaaudio/pyalsaaudio-0.7.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fpyalsaaudio%2Ffiles%2F&ts=1397972261&use_mirror=aarnet
+ls
+sudo rm pyalsaaudio-0.7.tar.gz\?r\=http\:%2F%2Fsourceforge.net%2Fprojects%2Fpyalsaaudio%2Ffiles%2F 
+ls
+cd pyalsaaudio-0.7/
+
+python3 setup.py build
+sudo python3 setup.py build
+sudo python3 setup.py install
+sudo apt-get install python-dev
+sudo apt-get install libevent-dev
+sudo apt-get install python3-dev
+sudo python3 setup.py build
+sudo apt-get install libfreetype6-dev
+sudo python3 setup.py install
+sudo pip install alsaaudio
+sudo python3 setup.py install
+sudo python3 setup.py build
+sudo shutdown
+sudo halt
+history
+cec-client -d 1 -s "standby 0" RPI
+historyecho 'pow 0' | cec-client -t p -p 1 -d 1 -s | tail -n1 | grep 'power' | awk '{print $3}'
+echo 'pow 0' | cec-client -t p -p 1 -d 1 -s | tail -n1 | grep 'power' | awk '{print $3}'
+cec-client -d 1 -s "standby 0" RPI
+echo "standby 0000" | cec-client -d 1 -s "standby 0" RPI
+echo "as" | cec-client -d 1 -s "standby 0" RPI
+echo "standby 0000" | cec-client -d 1 -s "standby 0" RPI
+echo "as" | cec-client -d 1 -s "standby 0" RPI
+echo "standby 0000" | cec-client -d 1 -s "standby 0" RPI
+echo "on 0" | cec-client -d 1 -s
+echo "on 1" | cec-client -d 1 -s
+reboot
+suo reboot
+sudo reboot
+echo "standby 0000" | cec-client -d 1 -s "standby 0" RPI
+echo "as" | cec-client -d 1 -s "standby 0" RPI
+echo "standby 0000" | cec-client -d 1 -s "standby 0" RPI
+echo "as" | cec-client -d 1 -s "standby 0" RPI
+echo "standby 0000" | cec-client -d 1 -s "standby 0" RPI
+echo "as" | cec-client -d 1 -s "standby 0" RPI
+history
+sudo nano /etc/modules
+sudo nano /etc/rc.local
+hwclock -w
+sudo hwclock -w
+sudo hwclock -w --debug
+sudo nano /etc/rc.local
+echo pcf2127a 0x51 > /sys/class/i2c-adapter/i2c-1/new_device
+sudo echo pcf2127a 0x51 > /sys/class/i2c-adapter/i2c-1/new_device
+history
+wget http://afterthoughtsoftware.com/files/linux-image-3.6.11-atsw-rtc_1.1_armhf.deb
+sudo dpkg -i linux-image-3.6.11-atsw-rtc_1.1_armhf.deb
+sudo cp /boot/vmlinuz-3.6.11-atsw-rtc+ /boot/kernel.img
+sudo hwclock -w
+sudo nano /etc/modules
+sudo reboot
+sudo hwclock -w
+sudo hwclock -r
+date
+apt-get remove fake-hwclock
+sudo apt-get remove fake-hwclock
+rm /etc/cron.hourly/fake-hwclock
+sudo rm /etc/cron.hourly/fake-hwclock
+sudo update-rc.d -f fake-hwclock remove
+sudo rm /etc/init.d/fake-hwclock
+sudo reboot
