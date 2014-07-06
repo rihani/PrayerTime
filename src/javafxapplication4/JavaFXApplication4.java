@@ -205,6 +205,7 @@ import org.joda.time.format.DateTimeFormatter;
     
     private int id, maghrib_adj;
     private int AsrJuristic,calcMethod;
+    private int max_ar_hadith_len, max_en_hadith_len;
     int olddayofweek_int;
     private Date prayer_date,future_prayer_date;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
@@ -219,6 +220,11 @@ import org.joda.time.format.DateTimeFormatter;
     private Date fullMoon_plus1;
     Date ishadate, maghribdate, asrdate, zuhrdate, fajrdate; 
     Date fajrjamaatdate, zuhrjamaatdate, asrjamaatdate, maghribjamaatdate, ishajamaatdate;
+    
+    DateTimeZone tzSAUDI_ARABIA;
+    DateTime dtIslamic;
+    DateTime DateTime_now;    
+    Calendar Calendar_now;
     
     private Label fajr_hourLeft, fajr_hourRight, fajr_minLeft, fajr_minRight, fajr_jamma_hourLeft, fajr_jamma_hourRight, fajr_jamma_minLeft, fajr_jamma_minRight, footer_Label, like_Label;
     private Label sunrise_hourLeft, sunrise_hourRight, sunrise_minLeft, sunrise_minRight;
@@ -236,6 +242,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String rand_Image_Path;
     private int countImages;
     private int imageNumber;
+    int dayofweek_int;
     
     
     private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall, proximity_lastTimerCall;
@@ -289,11 +296,18 @@ import org.joda.time.format.DateTimeFormatter;
  
         
         logger.info("Starting application....");
+        
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() 
         {            
             @Override
             public void run() 
-            {logger.info("Exiting application....");}
+            {
+                logger.info("Exiting application....");
+                ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
+                try {Process process2 = processBuilder2.start();}
+                catch (IOException e) {logger.warn("Unexpected error", e);}
+            
+            }
         }));
         
         moonPhase = 200;
@@ -323,6 +337,9 @@ import org.joda.time.format.DateTimeFormatter;
                     fb_Access_token =               rs.getString("fb_Access_token");
                     page_ID =                       rs.getString("page_ID");
                     maghrib_adj =                   rs.getInt("maghrib_adj");
+                    max_ar_hadith_len =             rs.getInt("max_ar_hadith_len");
+                    max_en_hadith_len =             rs.getInt("max_en_hadith_len");
+                    
                     
                 }
                 c.close();
@@ -612,7 +629,7 @@ import org.joda.time.format.DateTimeFormatter;
 //                        cal.add(Calendar.DAY_OF_MONTH, -3);
 //                        cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
                         cal.setFirstDayOfWeek(Calendar.MONDAY);
-                        int dayofweek_int = cal.get(Calendar.DAY_OF_WEEK);
+                        dayofweek_int = cal.get(Calendar.DAY_OF_WEEK);
                         String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                         PrayTime getprayertime = new PrayTime();
                         
@@ -736,16 +753,16 @@ import org.joda.time.format.DateTimeFormatter;
                         update_prayer_labels = true;
                         getFacebook = true;
                         
-                        DateTime DateTime_now = new DateTime();    
-                        Calendar Calendar_now = Calendar.getInstance();
+                        DateTime_now = new DateTime();    
+                        Calendar_now = Calendar.getInstance();
                         Calendar_now.setTime(new Date());
                         Calendar_now.set(Calendar.MILLISECOND, 0);
                         Calendar_now.set(Calendar.SECOND, 0);
                         Calendar_now.set(Calendar.MINUTE, 0);
                         Calendar_now.set(Calendar.HOUR_OF_DAY, 0);
 
-                        DateTimeZone tzSAUDI_ARABIA = DateTimeZone.forID("Asia/Riyadh");
-                        DateTime dtIslamic = DateTime_now.withChronology(IslamicChronology.getInstance(tzSAUDI_ARABIA, IslamicChronology.LEAP_YEAR_15_BASED));
+                        tzSAUDI_ARABIA = DateTimeZone.forID("Asia/Riyadh");
+                        dtIslamic = DateTime_now.withChronology(IslamicChronology.getInstance(tzSAUDI_ARABIA, IslamicChronology.LEAP_YEAR_15_BASED));
                         System.out.println(dtIslamic.getMonthOfYear());
 
                         if (dtIslamic.getMonthOfYear()==9){System.out.println("==========Ramadan Moubarik==========");}
@@ -980,7 +997,7 @@ import org.joda.time.format.DateTimeFormatter;
                             int days_Between_Now_Fullmoon = d.getDays();
                             System.out.format("Days left to full moon: %s\n", days_Between_Now_Fullmoon );
                             
-                            if ( days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2 && dtIslamic.getMonthOfYear()!=9)
+                            if ( dtIslamic.getMonthOfYear()!=9 && days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2 && dtIslamic.getMonthOfYear()!=9)
                             {                                
                                 //hide hadith label boolean
                                 getHadith = false;
@@ -1154,7 +1171,7 @@ import org.joda.time.format.DateTimeFormatter;
 // creates message to send to facebook
 // creates labels for notification
                         
-                        if (notification)
+                        if (notification )
                         {
                             ar_notification_Msg_Lines = null;
 //                            Calendar_now.setTime(future_prayer_date);
@@ -1266,85 +1283,6 @@ import org.joda.time.format.DateTimeFormatter;
                         }        
                                 
                         if (isStarting){isStarting = false;}
-
-// Get Daily Hadith =================================================================================
-                        if (getHadith)
-                        {
-                            getHadith = false;
-                            try
-                            {
-                                c = DBConnect.connect();
-                                if (dayofweek_int == 5 || dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' ORDER BY RAND( ) LIMIT 1";}
-                                else 
-                                {
-                                    SQL = "select * from hadith WHERE day = '0' order by rand() limit 1";
-//                                    SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
-                                }
-                                rs = c.createStatement().executeQuery(SQL);
-                                while (rs.next()) 
-                                {
-                                    hadith = rs.getString("hadith");
-                                    translated_hadith = rs.getString("translated_hadith");
-
-                                }
-                                c.close();
-//                                System.out.println("arabic hadith length" + hadith.length());
-//                                System.out.println(" english hadith length" + translated_hadith.length());
-                                // 528 length should be the max allowed for the hadith in english, generally arabic hadith  is smaller than english translation
-                                facebook_hadith = "Hadith of the Day:\n\n"+ hadith +"\n\n" + translated_hadith;
-                            
-                                // check if a notification has already been sent, to avoid flooding users with notifications, i.e during system restarts
-                                c = DBConnect.connect();
-                                SQL = "Select * from facebook_hadith_notification where id = (select max(id) from facebook_hadith_notification)";
-                                rs = c.createStatement().executeQuery(SQL);
-                                while (rs.next()) 
-                                {
-                                    id =                rs.getInt("id");
-                                    hadith_notification_Date = rs.getDate("notification_date");
-                                }
-                                c.close();
-                                hadith_notification_Date_cal = Calendar.getInstance();
-                                hadith_notification_Date_cal.setTime(hadith_notification_Date);
-                                hadith_notification_Date_cal.set(Calendar.MILLISECOND, 0);
-                                hadith_notification_Date_cal.set(Calendar.SECOND, 0);
-
-//                                System.out.println(hadith_notification_Date_cal.getTime());
-                                System.out.println(Calendar_now.getTime());
-                                if (Calendar_now.compareTo(hadith_notification_Date_cal) == 0 )  
-                                {
-                                    System.out.println("hadith has already been posted today to Facebook");
-                                }
-
-                                if (Calendar_now.compareTo(hadith_notification_Date_cal) != 0 )  
-                                {
-                                    try 
-                                    {
-
-                                        if (facebook_notification_enable)
-                                        {
-                                            try 
-                                            {
-                                                String pageID = page_ID +"/feed";
-                                                facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_hadith));
-                                            }
-                                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
-                                        }
-
-                                        c = DBConnect.connect();
-                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
-                                        java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
-                                        ps.setTimestamp(1, mysqldate);   
-                                        ps.executeUpdate(); 
-                                        c.close();
-                                        System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
-                                    }
-                                    catch (FacebookException e){logger.warn("Unexpected error", e);} 
-                                    catch (Exception e){logger.warn("Unexpected error", e);}
-                                }
-                            }
-                            catch (Exception e){logger.warn("Unexpected error", e);}
-
-                        }
 
 // Get Facebook Latest Post =================================================================================
                         if (getFacebook && facebook_Receive)
@@ -1479,14 +1417,100 @@ import org.joda.time.format.DateTimeFormatter;
                                 if (facebook_photo_created_time_calendar.before(facebook_created_time_calendar))
                                 {
                                     facebook_Post_Url = "";
+                                    
                                 }
                                 
                                 else
                                 {
                                     facebook_post = "";
+                                    
                                 }
                             }  
-                        }    
+                        }
+                        
+// Get Daily Hadith =================================================================================
+                        if (getHadith)
+                        {
+                            getHadith = false;
+                            try
+                            {
+                                c = DBConnect.connect();
+                                
+                                if (dtIslamic.getMonthOfYear()==9){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'fasting' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+//                                if (dtIslamic.getMonthOfYear()==9){SQL ="select hadith, translated_hadith from hadith WHERE ID = 2872";}
+                                
+                                else if(dtIslamic.getMonthOfYear()==12){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'Hajj (Pilgrimage)' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                                else if (dayofweek_int == 5 || dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                                else 
+                                {
+                                    SQL = "select * from hadith WHERE day = '0' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";
+//                                    SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
+                                }
+                                rs = c.createStatement().executeQuery(SQL);
+                                while (rs.next()) 
+                                {
+                                    hadith = rs.getString("hadith");
+                                    translated_hadith = rs.getString("translated_hadith");
+
+                                }
+                                c.close();
+                                System.out.println("arabic hadith length" + hadith.length());
+                                System.out.println(" english hadith length" + translated_hadith.length());
+                                // 528 length should be the max allowed for the hadith in english, generally arabic hadith  is smaller than english translation
+                                facebook_hadith = "Hadith of the Day:\n\n"+ hadith +"\n\n" + translated_hadith;
+                            
+                                // check if a notification has already been sent, to avoid flooding users with notifications, i.e during system restarts
+                                c = DBConnect.connect();
+                                SQL = "Select * from facebook_hadith_notification where id = (select max(id) from facebook_hadith_notification)";
+                                rs = c.createStatement().executeQuery(SQL);
+                                while (rs.next()) 
+                                {
+                                    id =                rs.getInt("id");
+                                    hadith_notification_Date = rs.getDate("notification_date");
+                                }
+                                c.close();
+                                hadith_notification_Date_cal = Calendar.getInstance();
+                                hadith_notification_Date_cal.setTime(hadith_notification_Date);
+                                hadith_notification_Date_cal.set(Calendar.MILLISECOND, 0);
+                                hadith_notification_Date_cal.set(Calendar.SECOND, 0);
+
+//                                System.out.println(hadith_notification_Date_cal.getTime());
+                                System.out.println(Calendar_now.getTime());
+                                if (Calendar_now.compareTo(hadith_notification_Date_cal) == 0 )  
+                                {
+                                    System.out.println("hadith has already been posted today to Facebook");
+                                }
+
+                                if (Calendar_now.compareTo(hadith_notification_Date_cal) != 0 )  
+                                {
+                                    try 
+                                    {
+
+                                        if (facebook_notification_enable)
+                                        {
+                                            try 
+                                            {
+                                                String pageID = page_ID +"/feed";
+                                                facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_hadith));
+                                            }
+                                            catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                        }
+
+                                        c = DBConnect.connect();
+                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
+                                        java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
+                                        ps.setTimestamp(1, mysqldate);   
+                                        ps.executeUpdate(); 
+                                        c.close();
+                                        System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
+                                    }
+                                    catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                    catch (Exception e){logger.warn("Unexpected error", e);}
+                                }
+                            }
+                            catch (Exception e){logger.warn("Unexpected error", e);}
+
+                        }
                      } 
 
                 catch(SQLException e)
@@ -1738,34 +1762,52 @@ import org.joda.time.format.DateTimeFormatter;
                             
                         }
                         
-                        else if(received.equals("Change image")) 
+                        else if(received.equals("refresh hadith")) 
                         {
                             
-                            System.out.println("yasso");
-                            images = new ArrayList<String>();
-                            //change on osx
-                            directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");  
-                            //change on Pi
-                    //        directory = new File("/home/pi/prayertime/Images/");
-
-                            files = directory.listFiles();
-                            for(File f : files) 
-                            {
-                                images.add(f.getName());
-                            }   
-                            System.out.println(images);
-                            countImages = images.size();
-                            imageNumber = (int) (Math.random() * countImages);
-                            rand_Image_Path = directory + "/"+ images.get(imageNumber);
-                            System.out.println(rand_Image_Path);
+                            System.out.println("Getting Hadith...");
                             
-                            String image = new File(rand_Image_Path).toURI().toURL().toString();
-                            System.out.println("image string: " + image);
+                            try
+                            {
+                                c = DBConnect.connect();
+                                
+                                if (dtIslamic.getMonthOfYear()==9){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'fasting' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+//                                if (dtIslamic.getMonthOfYear()==9){SQL ="select hadith, translated_hadith from hadith WHERE ID = 2872";}
+                                
+                                else if(dtIslamic.getMonthOfYear()==12){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'Hajj (Pilgrimage)' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                                else if (dayofweek_int == 5 || dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                                else 
+                                {
+                                    SQL = "select * from hadith WHERE day = '0' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";
+//                                    SQL = "select * from hadith where  length(translated_hadith)>527"; // the bigest Hadith
+                                }
+                                rs = c.createStatement().executeQuery(SQL);
+                                while (rs.next()) 
+                                {
+                                    hadith = rs.getString("hadith");
+                                    translated_hadith = rs.getString("translated_hadith");
 
-                            Mainpane = new GridPane();  
-                            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;"); 
-
+                                }
+                                c.close();
+                                System.out.println("arabic hadith length" + hadith.length());
+                                System.out.println(" english hadith length" + translated_hadith.length());
+                                
+                            }
+                            catch (Exception e){logger.warn("Unexpected error", e);}
+                            
                         }
+                        
+                        
+                        
+                        if(received.equals("prayer call")) 
+                        {
+                            ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/athan1.mp3");
+
+                            try {Process process = processBuilder_Athan.start();} 
+                            catch (IOException e) {logger.warn("Unexpected error", e);}
+                        }
+                        
+                        
                         
                     }
                 }
@@ -1848,9 +1890,14 @@ import org.joda.time.format.DateTimeFormatter;
                 RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
+                RowConstraintsBuilder.create().percentHeight(100/24.0).build(),
                 RowConstraintsBuilder.create().percentHeight(100/24.0).build()
         );
-        Mainpane.setGridLinesVisible(false);
+//        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
         GridPane prayertime_pane = prayertime_pane();    
         GridPane Moonpane =   moonpane();
@@ -1874,11 +1921,12 @@ import org.joda.time.format.DateTimeFormatter;
   //============================================
         Mainpane.add(clockPane, 1, 1);
         Mainpane.add(Moonpane, 7, 1);
-        Mainpane.add(prayertime_pane, 1, 4,11,8);  
-        Mainpane.add(hadithPane, 1, 14,11,9);
-        hadithPane.setTranslateY(-40);
+        Mainpane.add(prayertime_pane, 1, 5,11,7);  
+        Mainpane.add(hadithPane, 1, 15,11,13);
+        prayertime_pane.setTranslateY(30);
+//        hadithPane.setTranslateY(0);
         Mainpane.add(footerPane, 1, 20,11,1);
-        footerPane.setTranslateY(210);
+        footerPane.setTranslateY(514);
 //        Mainpane.setCache(true);
         scene.setRoot(Mainpane);
         stage.show();
@@ -1984,7 +2032,7 @@ public void update_labels() throws Exception{
                         System.out.println("facebook_post picture label set");
                         facebook_Label.setText("");
                         ImageView imageView = ImageViewBuilder.create().image(new Image(facebook_Post_Url)).build();  
-                        imageView.setFitHeight(235);
+                        imageView.setFitHeight(350);
                         imageView.setPreserveRatio(true);
                         facebook_Label.setGraphic(imageView);
                         facebook_Label.setAlignment(Pos.CENTER);
@@ -2050,9 +2098,9 @@ public void update_labels() throws Exception{
                 facebook_Label.setGraphic(null);
                 facebook_Label.setMinHeight(0);
                 athan_Change_Label_L1.setVisible(true);
-                athan_Change_Label_L1.setMaxHeight(70);
+                athan_Change_Label_L1.setMaxHeight(200);
                 athan_Change_Label_L2.setVisible(true);
-                athan_Change_Label_L2.setMaxHeight(70);
+                athan_Change_Label_L2.setMaxHeight(200);
                 divider1_Label.setVisible(true);
                 divider1_Label.setMaxHeight(40);
                 
@@ -2300,8 +2348,8 @@ public void update_labels() throws Exception{
             {
                 athan_Change_Label_L1.setVisible(true);
                 athan_Change_Label_L2.setVisible(true);
-                athan_Change_Label_L2.setMaxHeight(70);
-                athan_Change_Label_L2.setMaxHeight(70);
+                athan_Change_Label_L1.setMaxHeight(200);
+                athan_Change_Label_L2.setMaxHeight(200);
                 divider1_Label.setVisible(true);
                 divider1_Label.setMaxHeight(50);
                 athan_Change_Label_L1.setText(ar_notification_Msg_Lines[0]);
@@ -3250,7 +3298,7 @@ public void update_labels() throws Exception{
         prayertime_pane.setId("prayertime_pane");
         prayertime_pane.setCache(false);       
         prayertime_pane.setGridLinesVisible(false);
-        prayertime_pane.setPadding(new Insets(20, 0, 20, 20));
+        prayertime_pane.setPadding(new Insets(0, 0, 20, 20));
         prayertime_pane.setAlignment(Pos.BASELINE_CENTER);
 //        prayertime_pane.setVgap(20);
         prayertime_pane.setHgap(80);
@@ -3267,9 +3315,9 @@ public void update_labels() throws Exception{
 //=============================  
         HBox fajrBox = new HBox();
         fajrBox.setSpacing(0);
-        fajrBox.setMaxSize(200,70);
-        fajrBox.setMinSize(200,70);
-        fajrBox.setPrefSize(200,70);
+        fajrBox.setMaxSize(180,60);
+        fajrBox.setMinSize(180,60);
+        fajrBox.setPrefSize(180,60);
         
         fajr_hourLeft.setId("hourLeft");
         fajr_hourRight.setId("hourLeft");
@@ -3296,9 +3344,9 @@ public void update_labels() throws Exception{
 //============================= 
         HBox zuhrBox = new HBox();
         zuhrBox.setSpacing(0);
-        zuhrBox.setMaxSize(200,70);
-        zuhrBox.setMinSize(200,70);
-        zuhrBox.setPrefSize(200,70);
+        zuhrBox.setMaxSize(180,60);
+        zuhrBox.setMinSize(180,60);
+        zuhrBox.setPrefSize(180,60);
         zuhr_hourLeft.setId("hourLeft");
         zuhr_hourRight.setId("hourLeft");
         time_Separator3.setId("hourLeft");
@@ -3322,9 +3370,9 @@ public void update_labels() throws Exception{
 //============================= 
         HBox asrBox = new HBox();
         asrBox.setSpacing(0);
-        asrBox.setMaxSize(200,70);
-        asrBox.setMinSize(200,70);
-        asrBox.setPrefSize(200,70);
+        asrBox.setMaxSize(180,60);
+        asrBox.setMinSize(180,60);
+        asrBox.setPrefSize(180,60);
         asr_hourLeft.setId("hourLeft");
         asr_hourRight.setId("hourLeft");
         time_Separator4.setId("hourLeft");
@@ -3349,9 +3397,9 @@ public void update_labels() throws Exception{
         
         HBox maghribBox = new HBox();
         maghribBox.setSpacing(0);
-        maghribBox.setMaxSize(200,70);
-        maghribBox.setMinSize(200,70);
-        maghribBox.setPrefSize(200,70);
+        maghribBox.setMaxSize(180,60);
+        maghribBox.setMinSize(180,60);
+        maghribBox.setPrefSize(180,60);
         maghrib_hourLeft.setId("hourLeft");
         maghrib_hourRight.setId("hourLeft");
         time_Separator5.setId("hourLeft");
@@ -3376,9 +3424,9 @@ public void update_labels() throws Exception{
         
         HBox ishaBox = new HBox();
         ishaBox.setSpacing(0);
-        ishaBox.setMaxSize(200,70);
-        ishaBox.setMinSize(200,70);
-        ishaBox.setPrefSize(200,70);
+        ishaBox.setMaxSize(180,60);
+        ishaBox.setMinSize(180,60);
+        ishaBox.setPrefSize(180,60);
         isha_hourLeft.setId("hourLeft");
         isha_hourRight.setId("hourLeft");
         time_Separator6.setId("hourLeft");
@@ -3402,8 +3450,8 @@ public void update_labels() throws Exception{
  //=============================  
 //        HBox gapBox = new HBox();
 //        gapBox.setSpacing(0);
-//        gapBox.setMaxSize(200,70);
-//        gapBox.setMinSize(200,70);
+//        gapBox.setMaxSize(180,60);
+//        gapBox.setMinSize(180,60);
 //        gapBox.getChildren().addAll();
 //        prayertime_pane.setConstraints(gapBox, 0, 12);
 //        prayertime_pane.getChildren().add(gapBox);       
@@ -3411,9 +3459,9 @@ public void update_labels() throws Exception{
 //=============================  
 //        HBox sunriseBox = new HBox();
 //        sunriseBox.setSpacing(0);
-//        sunriseBox.setMaxSize(200,70);
-//        sunriseBox.setMinSize(200,70);
-//        sunriseBox.setPrefSize(200,70);
+//        sunriseBox.setMaxSize(180,60);
+//        sunriseBox.setMinSize(180,60);
+//        sunriseBox.setPrefSize(180,60);
 //        sunrise_hourLeft.setId("hourLeft");
 //        sunrise_hourRight.setId("hourLeft");
 //        time_Separator2.setId("hourLeft");
@@ -3436,9 +3484,9 @@ public void update_labels() throws Exception{
          
         HBox fridayBox = new HBox();
         fridayBox.setSpacing(0);
-        fridayBox.setMaxSize(200,70);
-        fridayBox.setMinSize(200,70);
-        fridayBox.setPrefSize(200,70);
+        fridayBox.setMaxSize(180,60);
+        fridayBox.setMinSize(180,60);
+        fridayBox.setPrefSize(180,60);
         friday_hourLeft.setId("hourLeft");
         friday_hourRight.setId("hourLeft");
         time_Separator8.setId("hourLeft");
@@ -3503,7 +3551,7 @@ public void update_labels() throws Exception{
 //=============================  
         HBox fajr_jamma_Box = new HBox();
         fajr_jamma_Box.setSpacing(0);
-        fajr_jamma_Box.setMaxSize(200,70);
+        fajr_jamma_Box.setMaxSize(180,60);
         fajr_jamma_hourLeft.setId("hourLeft");
         fajr_jamma_hourRight.setId("hourLeft");
         time_jamma_Separator1.setId("hourLeft");
@@ -3522,7 +3570,7 @@ public void update_labels() throws Exception{
 //============================= 
         HBox zuhr_jamma_Box = new HBox();
         zuhr_jamma_Box.setSpacing(0);
-        zuhr_jamma_Box.setMaxSize(200,70);
+        zuhr_jamma_Box.setMaxSize(180,60);
         zuhr_jamma_hourLeft.setId("hourLeft");
         zuhr_jamma_hourRight.setId("hourLeft");
         time_jamma_Separator2.setId("hourLeft");
@@ -3541,7 +3589,7 @@ public void update_labels() throws Exception{
 //============================= 
         HBox asr_jamma_Box = new HBox();
         asr_jamma_Box.setSpacing(0);
-        asr_jamma_Box.setMaxSize(200,70);
+        asr_jamma_Box.setMaxSize(180,60);
         asr_jamma_minRight.setId("hourLeft");
         asr_jamma_minLeft.setId("hourLeft");
         time_jamma_Separator3.setId("hourLeft");
@@ -3561,7 +3609,7 @@ public void update_labels() throws Exception{
         
         HBox maghrib_jamma_Box = new HBox();
         maghrib_jamma_Box.setSpacing(0);
-        maghrib_jamma_Box.setMaxSize(200,70);
+        maghrib_jamma_Box.setMaxSize(180,60);
         maghrib_jamma_minRight.setId("hourLeft");
         maghrib_jamma_minLeft.setId("hourLeft");
         time_jamma_Separator4.setId("hourLeft");
@@ -3580,7 +3628,7 @@ public void update_labels() throws Exception{
         
         HBox isha_jamma_Box = new HBox();
         isha_jamma_Box.setSpacing(0);
-        isha_jamma_Box.setMaxSize(200,70);
+        isha_jamma_Box.setMaxSize(180,60);
         isha_jamma_hourLeft.setId("hourLeft");
         isha_jamma_hourRight.setId("hourLeft");
         time_jamma_Separator5.setId("hourLeft");
@@ -3636,7 +3684,7 @@ public void update_labels() throws Exception{
     public GridPane hadithPane() {
       
         GridPane hadithPane = new GridPane();
-//        hadithPane.setGridLinesVisible(false);
+//        hadithPane.setGridLinesVisible(true);
         hadithPane.setId("hadithpane");
         hadithPane.setVgap(0);
 
@@ -3705,11 +3753,11 @@ public void update_labels() throws Exception{
       
         GridPane footerPane = new GridPane();
 //        hadithPane.setGridLinesVisible(false);  
-        double size = 15;
+        double size = 10;
         TextFlow textFlow1 = new TextFlow();
         TextFlow textFlow2 = new TextFlow();
         TextFlow textFlow3 = new TextFlow();
-        Text text1 = new Text("                       Get prayer time notifications and daily hadith on your mobile by following us on ");
+        Text text1 = new Text("                                           Get prayer time notifications and daily hadith on your mobile by following us on ");
         text1.setFont(Font.font("Tahoma", size));
         text1.setFill(Color.WHITE);
         ImageView facebook_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/facebook.png")));
@@ -3718,7 +3766,7 @@ public void update_labels() throws Exception{
         text5.setFont(Font.font("Tahoma", size));
         text5.setFill(Color.WHITE);
         ImageView twitter_image = new ImageView(new Image(getClass().getResourceAsStream("/Images/twitter.png")));
-        Text text6 = new Text("                                             Twitter: ");
+        Text text6 = new Text("                                                                 Twitter: ");
         text6.setFont(Font.font("Tahoma", size));
         text6.setFill(Color.WHITE);
         Text text7 = new Text("@Daar_Ibn_Abbas");
@@ -3730,9 +3778,9 @@ public void update_labels() throws Exception{
         Text text9 = new Text("Daar-Ibn-Abbas");
         text9.setFont(Font.font("Tahoma" , FontWeight.BOLD, size));
         text9.setFill(Color.WHITE);
-        Text text10 = new Text("لا حول ولا قوة الا بالله العلي العظيم                                                                         ");
+        Text text10 = new Text("لا حول ولا قوة الا بالله العلي العظيم                                                                                             ");
         text10.setFont(Font.font("Tahoma", size));
-        text10.setFill(Color.WHITE);
+        text10.setFill(Color.GOLDENROD);
 //        
 //        
 //        ImageView twitter_code = new ImageView(new Image(getClass().getResourceAsStream("/Images/QR_CODE_Twitter.png"))); 

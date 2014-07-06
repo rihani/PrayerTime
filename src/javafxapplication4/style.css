@@ -158,7 +158,7 @@ and open the template in the editor.
       
       #en_athan-change-text{
         
-        -fx-font-size: 32px;
+        -fx-font-size: 46px;
         /*-fx-font-family: 'B Majid Shadow';*/
 /*        -fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -173,7 +173,7 @@ and open the template in the editor.
    }
    #ar_athan-change-text{
         
-        -fx-font-size: 35px;
+        -fx-font-size: 50px;
         /*-fx-font-family: 'B Majid Shadow';*/
 /*        -fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -188,7 +188,7 @@ and open the template in the editor.
    }
    #en_athan-change-textL2{
         
-        -fx-font-size: 35px;
+        -fx-font-size: 46px;
         /*-fx-font-family: 'B Majid Shadow';*/
 /*        -fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -204,7 +204,7 @@ and open the template in the editor.
    
    #ar_athan-change-textL2{
         
-        -fx-font-size: 35px;
+        -fx-font-size: 50px;
         /*-fx-font-family: 'B Majid Shadow';*/
 /*        -fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -251,7 +251,7 @@ and open the template in the editor.
    
       #hadith-text-arabic{
         
-        -fx-font-size: 40px;
+        -fx-font-size: 50px;
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -272,7 +272,7 @@ and open the template in the editor.
    
    #hadith-text-english{
         
-        -fx-font-size: 34px;
+        -fx-font-size: 46px;
         /*-fx-font-family: 'B Majid Shadow';*/
         /*-fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
