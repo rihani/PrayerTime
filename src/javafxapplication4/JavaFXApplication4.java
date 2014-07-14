@@ -16,55 +16,7 @@ sudo service samba restart
 
 
 package javafxapplication4;
-import java.util.List;
-
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import javafx.animation.AnimationTimer;
-import javafx.application.Application;
-import static javafx.application.Application.launch;
-import javafx.collections.ObservableList;
-import javafx.geometry.HPos;
-import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.scene.text.Font;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
-import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraintsBuilder;
-import javafx.scene.layout.RowConstraintsBuilder;
-import java.util.Calendar;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
-import java.sql.Time;
-import java.text.ParseException;
-import java.util.Locale;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-//import java.io.BufferedReader;
-import java.io.IOException;
-//import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javafx.collections.FXCollections;
-import javafx.scene.layout.Pane;
-import me.shanked.nicatronTg.jPushover.Pushover;
-
-
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
@@ -80,32 +32,79 @@ import com.restfb.exception.FacebookException;
 import com.restfb.json.JsonObject;
 import com.restfb.types.FacebookType;
 import com.restfb.types.Post;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 
-//import java.io.InputStream;
-//import static java.lang.String.format;
-//import static java.lang.System.currentTimeMillis;
+import java.io.*;
+import java.io.IOException;
 import static java.lang.System.out;
-//import java.net.URL;
+import java.net.*;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.ColumnConstraintsBuilder;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.RowConstraintsBuilder;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-//import static javafx.scene.input.DataFormat.URL;
-//import javafx.scene.text.FontWeight;
-//import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-//import javafx.util.Duration;
+import javafx.stage.Stage;
+import javax.imageio.ImageIO;
+import me.shanked.nicatronTg.jPushover.Pushover;
 import org.apache.log4j.Logger;
-//import org.apache.log4j.PropertyConfigurator;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Days;
 import org.joda.time.chrono.IslamicChronology;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -278,6 +277,10 @@ import org.joda.time.format.DateTimeFormatter;
     InetAddress group;
     DatagramPacket packet1;
 
+    Scene scene;
+    File file = new File("/home/pi/prayertime/Images/");
+    
+    
     @Override public void init() throws IOException {
         
         
@@ -1807,7 +1810,169 @@ import org.joda.time.format.DateTimeFormatter;
                             catch (IOException e) {logger.warn("Unexpected error", e);}
                         }
                         
+                        if(received.equals("snapshot")) 
+                        {
+                            System.out.println("saving...");
+//                            WritableImage snapshot_prayertime_pane = prayertime_pane.getScene().snapshot(null);
+//                            WritableImage snapshot_full = scene.snapshot(null);
+//                            ImageIO.write(SwingFXUtils.fromFXImage(snapshot_full, null), "png", file);
+                            
+                            WritableImage image = new WritableImage(400, 400);
+                            scene.snapshot(image);
+                                File outputfile = new File("saved.png");
+                                ImageIO.write((RenderedImage) image, "png", outputfile);
+                            
+
+                            
+                            
+                            System.out.println("saved...");
+                        }
                         
+                        if(received.equals("refresh facebook")) 
+                        {
+                            if (facebook_Receive)
+                            {
+                                getFacebook = false;
+                                facebook_Text_Post = false;
+                                facebook_Picture_Post = false;
+                                facebook_post = "";
+    //                            facebook_Post_Url = "";
+                                facebook_Fan_Count = "";
+                                Calendar facebook_created_time_calendar = null;
+                                Calendar facebook_photo_created_time_calendar = null;
+                                Calendar facebook_check_post_date = Calendar.getInstance();
+                                facebook_check_post_date.add(Calendar.DAY_OF_MONTH, -6);
+                                long facebook_check_post_Unix_Time = facebook_check_post_date.getTimeInMillis() / 1000;
+    //                            out.println(facebook_check_post_Unix_Time);
+                                String query = "SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = " + page_ID + " AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \"prayer time(s)\") < 0 AND strpos(message, \"White days\") < 0 AND strpos(message, \"Hadith of the Day:\") < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
+    //                            String query = "{\"messages\":\"SELECT message,timeline_visibility, created_time   FROM stream WHERE source_id = " + page_ID + " AND message AND strlen(attachment.fb_object_type) < 1 AND type != 56 AND type = 46  AND strpos(message, \'prayer time(s)\') < 0 AND strpos(message, \'White days\') < 0 AND strpos(message, \'Hadith of the Day:\') < 0 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1\" ,  \"count\": \"SELECT fan_count FROM page WHERE page_id = " + page_ID + "\"}";
+    //                            out.println(query);
+                                try 
+                                {
+                                    List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
+
+                                    if(!queryResults.isEmpty()) 
+                                    {
+                                        JsonObject facebookPost_J = queryResults.get(0);
+                                        facebook_post = facebookPost_J.getString("message");
+
+    //                                    facebook_post = "Asalamualaikum,\n" + "We have been given a large printer/copier for administration at Daar Ibn\n Abbas. Is there any brothers available to pick it up from Lakemba? ";
+
+                                        String[] lines = facebook_post.split("\r\n|\r|\n");
+
+                                        if(null != facebook_post && !"".equals(facebook_post)) 
+                                        {
+                                            if(facebook_post.contains("\n\n"))
+                                            {
+                                                out.println("'/n/n' detected");
+                                                facebook_post =facebook_post.replace("\n\n", "\n");
+                                                out.println(facebook_post);
+                                            }   
+                                            facebook_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZone_ID));    
+                                            facebook_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
+    //                                        out.print("Comment posted on:"); out.println(facebook_created_time_calendar.getTime());
+                                            if(facebook_post.contains("tonight") || facebook_post.contains("today") && Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(facebook_created_time_calendar)).getDays() != 0)
+                                            {
+                                                out.println("Facebook post contains either  the word 'today' or 'tonight' and has not been posted today");
+                                                facebook_post = "";
+                                                facebook_Label_visible = false;
+                                            }
+
+                                            else if (facebook_post.length() > 390 || lines.length > 6)
+                                            {
+                                                System.out.println("Facebook post is too large, it will not be posted");
+                                                System.out.println("Facebook lines: " +lines.length);
+                                                System.out.println("Facebook string length: " + facebook_post.length());
+                                                facebook_post = "";
+                                                facebook_Label_visible = false;
+                                            }
+
+                                            else
+                                            {
+                                                facebook_Text_Post = true;
+                                                facebook_Label_visible = true; 
+                                                facebook_Label_visible_set_once = true;
+                                            }
+                                        }
+                                    }
+                                    else{out.println("Facebook post is empty");}
+                                }
+                                catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                catch (Exception e){logger.warn("Unexpected error", e);} 
+
+                                query = "SELECT fan_count FROM page WHERE page_id = " + page_ID ;
+                                try 
+                                {
+                                    List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
+                                    facebook_Fan_Count = queryResults.get(0).getString("fan_count");
+                                    out.println("Page Likes: " + facebook_Fan_Count);
+
+                                }
+                                catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                catch (Exception e){logger.warn("Unexpected error", e);}  
+
+                                query = "SELECT attachment.media.photo.images.src, created_time   FROM stream WHERE source_id = " + page_ID + "  AND type = 247 AND created_time > " + facebook_check_post_Unix_Time + " LIMIT 1";
+                                try 
+                                {
+                                    List<JsonObject> queryResults = facebookClient.executeFqlQuery(query, JsonObject.class);
+                                    if(!queryResults.isEmpty()) 
+                                    {
+                                        if(null != facebook_Post_Url && !"".equals(facebook_Post_Url)){ old_facebook_Post_Url = new String(facebook_Post_Url);}
+    //                                    out.println(old_facebook_Post_Url);
+
+                                        facebook_Post_Url = queryResults.get(0).getJsonObject("attachment").getJsonArray("media").getJsonObject(0).getJsonObject("photo").getJsonArray("images").getJsonObject(1).getString("src");
+    //                                    out.println(facebook_Post_Url);
+
+                                        facebook_photo_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZone_ID));    
+                                        facebook_photo_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
+                                        out.print("Comment posted on:"); out.println(facebook_photo_created_time_calendar.getTime());
+
+                                        if(null != facebook_Post_Url && !"".equals(facebook_Post_Url) )
+                                        {
+                                            if(null != old_facebook_Post_Url && !"".equals(old_facebook_Post_Url))
+                                            {
+                                                if(facebook_Post_Url.equals(old_facebook_Post_Url))
+                                                {out.print("Facebook photo post has not changed from previous fetch, nothing has been set");}
+
+                                                if(!facebook_Post_Url.equals(old_facebook_Post_Url))
+                                                {
+                                                    facebook_Picture_Post = true;
+                                                    facebook_Label_visible = true;
+                                                    facebook_Label_visible_set_once = true;
+                                                }
+                                            }
+
+                                            else
+                                            {
+                                                facebook_Picture_Post = true;
+                                                facebook_Label_visible = true;
+                                                facebook_Label_visible_set_once = true;
+                                            }
+                                        }   
+                                    }
+
+                                }
+                                catch (FacebookException e){logger.warn("Unexpected error", e);} 
+                                catch (Exception e){logger.warn("Unexpected error", e);} 
+
+                                //compare text and picture post dates, if facebook_Picture_Post && facebook_Text_Post are true, and dates are not null
+                                // which ever was posted last, clear facebook_post = ""; or facebook_Post_Url = "";
+                                if(facebook_Picture_Post && facebook_Text_Post)
+                                {
+                                    if (facebook_photo_created_time_calendar.before(facebook_created_time_calendar))
+                                    {
+                                        facebook_Post_Url = "";
+
+                                    }
+
+                                    else
+                                    {
+                                        facebook_post = "";
+
+                                    }
+                                }  
+                            }
+                        }
                         
                     }
                 }
@@ -1830,7 +1995,7 @@ import org.joda.time.format.DateTimeFormatter;
         Pane root = new Pane();
         // rotate tv screen to portrait mode
         // edit the /boot/config.txt file Copy stored in documentation folder (i.e. ramebuffer_width=1080   framebuffer_height=1920  display_rotate=1...)
-        Scene scene = new Scene(root, 1080, 1920);
+        scene = new Scene(root, 1080, 1920);
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         stage.setScene(scene);
                 
@@ -3846,8 +4011,13 @@ public void update_labels() throws Exception{
         clockPane.setConstraints(date_Label, 0, 1,2,1);
         clockPane.getChildren().add(date_Label);
         return clockPane;
-    }    
-}
+    }
+    
+    
+    
+    
+ }
+
 
 
                         
