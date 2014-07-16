@@ -2135,6 +2135,15 @@ public void update_labels() throws Exception{
         Calendar_now.setTime(new Date());
         Calendar_now.set(Calendar.MILLISECOND, 0);
         Calendar_now.set(Calendar.SECOND, 0);
+        
+//==Update Clock============================================================        
+        
+        String hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
+        hour_Label.setText(hour_in_hour_Label);
+        String minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
+        minute_Label.setText(minute_in_minute_Label);
+        String date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
+        date_Label.setText(date);
 
 //==Translate labels============================================================  
         
@@ -2276,12 +2285,7 @@ public void update_labels() throws Exception{
                 hadithPane.setHalignment(athan_Change_Label_L2,HPos.LEFT);
             }
                         
-            String hour = new SimpleDateFormat("hh").format(Calendar_now.getTime());
-            hour_Label.setText(hour);
-            String minute = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
-            minute_Label.setText(minute);
-            String date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
-            date_Label.setText(date);
+            
             
             if(newMoon != null && fullMoon != null)
             {
@@ -2876,7 +2880,7 @@ public void update_labels() throws Exception{
 // Jammat update=========================================================== 
         
         Date now = new Date();
-        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+//        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
 //        System.out.println(fajr_jamaat_update_cal.getTime());
@@ -2901,7 +2905,7 @@ public void update_labels() throws Exception{
                         System.out.println("fajr jamaat time updated:" + fajr_jamaat);
                         
                         
-                        Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + fajr_jamaat);
+                        Date fajr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(new SimpleDateFormat("dd/MM/yyyy").format(new Date()) + " " + fajr_jamaat);
                         cal.setTime(fajr_jamaat_temp);
                         cal.add(Calendar.MINUTE, 15);
                         cal.add(Calendar.DAY_OF_MONTH, 1);
@@ -2951,7 +2955,7 @@ public void update_labels() throws Exception{
                         c.close();
                         asr_jamaat = asr_jamaat_time.toString();
                         System.out.println("asr jamaat time updated:" + asr_jamaat);
-                        Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + asr_jamaat);
+                        Date asr_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(new SimpleDateFormat("dd/MM/yyyy").format(new Date()) + " " + asr_jamaat);
                         cal.setTime(asr_jamaat_temp);
                         cal.add(Calendar.MINUTE, 15);
                         cal.add(Calendar.DAY_OF_MONTH, 1);
@@ -2996,7 +3000,7 @@ public void update_labels() throws Exception{
                         c.close();
                         isha_jamaat = isha_jamaat_time.toString();
                         System.out.println("isha jamaat time updated:" + isha_jamaat);
-                        Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(date + " " + isha_jamaat);
+                        Date isha_jamaat_temp = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(new SimpleDateFormat("dd/MM/yyyy").format(new Date()) + " " + isha_jamaat);
                         cal.setTime(isha_jamaat_temp);
                         cal.add(Calendar.MINUTE, 15);
                         cal.add(Calendar.DAY_OF_MONTH, 1);
