@@ -172,6 +172,7 @@ import org.joda.time.format.DateTimeFormatter;
     private boolean  facebook_Receive = false;
     private boolean  facebook_notification_enable = false;
     private boolean  pir_sensor;
+    private boolean  pir_disactive_startup = true;
     private boolean arabic = true;
     private boolean english = false;
     private boolean moon_hadith_Label_visible = false;
@@ -792,6 +793,8 @@ import org.joda.time.format.DateTimeFormatter;
                             isha_athan_enable = true;
                             getHadith = true;
                             
+//==============JAMAA Prayer time 
+
                             try
                             {
                                 c = DBConnect.connect();
@@ -993,6 +996,7 @@ import org.joda.time.format.DateTimeFormatter;
                             System.out.println("The moon is new on " + newMoon );                       
                             if(newMoon.before(fullMoon)){System.out.println("New moon is before full moon");}
                             else {System.out.println("Full moon is before new moon" );}
+                            pir_disactive_startup = false;
                             
 // ======= Notification for full moon 5 days earlier, 2 days before fasting period
                             
@@ -1548,7 +1552,12 @@ import org.joda.time.format.DateTimeFormatter;
 // PIR sensor thread to turn on/Off TV screen to save energy ===============================================================        
         new Thread(() -> 
         {
-             final GpioController gpioSensor = GpioFactory.getInstance();
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException ex) {
+//                java.util.logging.Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+            final GpioController gpioSensor = GpioFactory.getInstance();
              sensor_lastTimerCall =  System.nanoTime(); 
              final GpioPinDigitalInput sensor = gpioSensor.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
              
@@ -1561,7 +1570,7 @@ import org.joda.time.format.DateTimeFormatter;
                      if (event.getState().isHigh()) 
                      {
                          sensor_lastTimerCall = System.nanoTime(); 
-                         if(!hdmiOn)
+                         if(!hdmiOn && !pir_disactive_startup)
                          {
                              if (!prayer_In_Progress)
                              {
