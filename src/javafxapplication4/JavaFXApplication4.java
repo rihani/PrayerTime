@@ -38,6 +38,7 @@ import java.awt.image.RenderedImage;
 
 import java.io.*;
 import java.io.IOException;
+import static java.lang.Math.abs;
 import static java.lang.System.out;
 import java.net.*;
 import java.sql.Connection;
@@ -47,6 +48,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -62,12 +64,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import static javafx.application.Application.launch;
-import static javafx.application.Application.launch;
-import static javafx.application.Application.launch;
-import static javafx.application.Application.launch;
-import static javafx.application.Application.launch;
-import static javafx.application.Application.launch;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -120,11 +116,13 @@ import org.joda.time.format.DateTimeFormatter;
    
     public class JavaFXApplication4 extends Application {
     
-    private Boolean debug    = true;  //  <<========================== Debuger  
-    private Logger logger = Logger.getLogger(JavaFXApplication4.class.getName());
+    private final Boolean debug    = true;  //  <<========================== Debuger  
+    private final Logger logger = Logger.getLogger(JavaFXApplication4.class.getName());
     private Date fullMoon= null; //  <<========================== might fix errors at startup
     private Date newMoon= null; //  <<========================== might fix errors at startup
-    
+    private Date date_now;
+    private long diff ;
+            
     private Process p;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
     
@@ -188,6 +186,8 @@ import org.joda.time.format.DateTimeFormatter;
     private boolean asr_prayer_In_Progress_notification = false;
     private boolean maghrib_prayer_In_Progress_notification = false;
     private boolean isha_prayer_In_Progress_notification = false;
+    private boolean count_down = false;
+    private boolean count_down_disable  = false;
             
     private String hadith, translated_hadith, ar_full_moon_hadith, en_full_moon_hadith, ar_moon_notification, en_moon_notification, announcement, en_notification_Msg, ar_notification_Msg, device_name, device_location;
     private String ar_notification_Msg_Lines[], en_notification_Msg_Lines[], notification_Msg, facebook_moon_notification_Msg;    
@@ -201,12 +201,18 @@ import org.joda.time.format.DateTimeFormatter;
     private String page_ID;
     String timeZone_ID ; // = timeZone_ID
     String SQL;
+    private String hour_in_hour_Label, minute_in_minute_Label, date;
+    private String formattedDateTime;
+    
     ResultSet rs;
     
     private int id, maghrib_adj;
     private int AsrJuristic,calcMethod;
     private int max_ar_hadith_len, max_en_hadith_len;
     int olddayofweek_int;
+    int clock_minute, old_clock_minute ;
+    int fajr_diffsec, maghrib_diffsec;
+    int fajr_diffsec_dec ,fajr_diffsec_sin, maghrib_diffsec_dec ,maghrib_diffsec_sin;
     private Date prayer_date,future_prayer_date;
     private Calendar fajr_cal, sunrise_cal, duha_cal, zuhr_cal, asr_cal, maghrib_cal, isha_cal,old_today;
     private Calendar fajr_jamaat_cal, duha_jamaat_cal, zuhr_jamaat_cal, asr_jamaat_cal, maghrib_jamaat_cal, isha_jamaat_cal;
@@ -245,15 +251,18 @@ import org.joda.time.format.DateTimeFormatter;
     int dayofweek_int;
     
     
-    private long moonPhase_lastTimerCall,translate_lastTimerCall,sensor_lastTimerCall, debug_lastTimerCall, proximity_lastTimerCall;
+    private long moonPhase_lastTimerCall,translate_lastTimerCall, clock_update_lastTimerCall ,sensor_lastTimerCall, debug_lastTimerCall, proximity_lastTimerCall;
     public long delay_turnOnTV_after_Prayers = 135000000000L; // 2.25 minute
 //    public long delay_turnOnTV_after_Prayers = 60000000000L; // 1 minute
     public long delay_turnOnTV_after_Prayers_nightmode = 420000000000L; // 7 minutes
     
     public long delay_turnOffTV_after_inactivity = 1500000000000L; // 25minutes
 //    public long delay_turnOffTV_after_inactivity = 280000000000L; // 1minutes
-    private AnimationTimer moonPhase_timer, translate_timer ,debug_timer ;
+    private AnimationTimer moonPhase_timer, translate_timer, clock_update_timer ,debug_timer ;
         
+    DateFormat dateFormat = new SimpleDateFormat("hh:mm");
+    
+    
     GridPane Mainpane, Moonpane, prayertime_pane, clockPane, hadithPane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     static String[] suffixes =
@@ -280,7 +289,6 @@ import org.joda.time.format.DateTimeFormatter;
 
     Scene scene;
     File file = new File("/home/pi/prayertime/Images/");
-    
     
     @Override public void init() throws IOException {
         
@@ -386,8 +394,8 @@ import org.joda.time.format.DateTimeFormatter;
         images = new ArrayList<String>();
         //change on osx
         if (platform.equals("osx"))
-//        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
-        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
+        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
+//        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
         //change on Pi
         if (platform.equals("pi"))
         {directory = new File("/home/pi/prayertime/Images/");}
@@ -1547,7 +1555,19 @@ import org.joda.time.format.DateTimeFormatter;
             }
         };
  
-       
+// Timer to update clock====================================================
+        
+//        translate_lastTimerCall = System.nanoTime();
+        clock_update_timer = new AnimationTimer() {
+            @Override public void handle(long now) {
+                if (now > clock_update_lastTimerCall + 1000_000_000l) 
+                {
+                    try {update_clock();} 
+                    catch (Exception e) {logger.warn("Unexpected error", e);}
+                    clock_update_lastTimerCall = now;
+                }
+            }
+        };       
 
 // PIR sensor thread to turn on/Off TV screen to save energy ===============================================================        
         new Thread(() -> 
@@ -2073,10 +2093,10 @@ import org.joda.time.format.DateTimeFormatter;
         );
 //        Mainpane.setGridLinesVisible(true);
         Mainpane.setId("Mainpane");
-        GridPane prayertime_pane = prayertime_pane();    
-        GridPane Moonpane =   moonpane();
-        GridPane hadithPane = hadithPane();
-        GridPane clockPane =   clockPane();
+        prayertime_pane = prayertime_pane();    
+        Moonpane =   moonpane();
+        hadithPane = hadithPane();
+        clockPane =   clockPane();
         GridPane footerPane =   footerPane();
          
   //============================================
@@ -2105,6 +2125,7 @@ import org.joda.time.format.DateTimeFormatter;
         scene.setRoot(Mainpane);
         stage.show();
         translate_timer.start(); 
+        clock_update_timer.start();
         
 //        For debuuging purposes only
 //                new Thread()
@@ -2132,27 +2153,243 @@ import org.joda.time.format.DateTimeFormatter;
 //        }.start();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-        System.exit(0);
-    }
+public static void main(String[] args) {
+    launch(args);
+    System.exit(0);
+}
 
+public void update_clock() throws Exception{  
+    
+    
+        DateTime_now = new DateTime();    
+        Calendar_now = Calendar.getInstance();
+        Calendar_now.setTime(new Date());
+        date_now = new Date();
+//        Calendar_now.set(Calendar.MILLISECOND, 0);
+//        Calendar_now.set(Calendar.SECOND, 0);
+        
+        hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
+        minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
+        clock_minute = Calendar_now.get(Calendar.MINUTE);
+        
+        if(clock_minute != old_clock_minute)
+        {
+            old_clock_minute = clock_minute;
+            hour_Label.setText(hour_in_hour_Label);
+            minute_Label.setText(minute_in_minute_Label);
+            date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
+            date_Label.setText(date);
+            
+        }
+        
+       SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+	String dateInString = "20-07-2014 18:31:56";
+	Date date2 = sdf.parse(dateInString);
+        
+        
+        fajr_diffsec = (int) ((fajr_begins_time.getTime() - date_now.getTime() ) / (1000));
+//        System.out.println("difference between seconds: " + fajr_diffsec); 
+
+        if(abs(fajr_diffsec) < 61) //fajr_begins_time
+        {
+            count_down = true;
+            fajr_diffsec_dec = fajr_diffsec/10;
+            fajr_diffsec_sin = fajr_diffsec - fajr_diffsec_dec*10;
+
+            fajr_hourLeft.setText("-");
+            fajr_hourRight.setText("0");
+            fajr_minLeft.setText(Integer.toString(fajr_diffsec_dec));
+            fajr_minRight.setText(Integer.toString(fajr_diffsec_sin));
+        }
+        if(abs(fajr_diffsec) > 61 && count_down) //fajr_begins_time
+        {
+            count_down = false;
+//            dateFormat = new SimpleDateFormat("hh:mm");
+            fajrdate = fajr_cal.getTime();
+            formattedDateTime = dateFormat.format(fajrdate);
+            
+            fajr_hourLeft.setText(formattedDateTime.substring(0, 1));
+            fajr_hourRight.setText(formattedDateTime.substring(1, 2));
+            fajr_minLeft.setText(formattedDateTime.substring(3, 4));
+            fajr_minRight.setText(formattedDateTime.substring(4, 5));
+        }
+        
+        maghrib_diffsec = (int) ((date2.getTime() - date_now.getTime() ) / (1000));
+//        System.out.println("difference between seconds: " + maghrib_diffsec); 
+
+        if(abs(maghrib_diffsec) < 61) //fajr_begins_time
+        {
+            count_down = true;
+            maghrib_diffsec_dec = maghrib_diffsec/10;
+            maghrib_diffsec_sin = maghrib_diffsec - maghrib_diffsec_dec*10;
+
+            maghrib_hourLeft.setText("-");
+            maghrib_hourRight.setText("0");
+            maghrib_minLeft.setText(Integer.toString(maghrib_diffsec_dec));
+            maghrib_minRight.setText(Integer.toString(maghrib_diffsec_sin));
+        }
+        
+        if(maghrib_diffsec < 0 && count_down) //fajr_begins_time
+        {
+            count_down = false;
+
+            maghribdate = maghrib_cal.getTime();
+            formattedDateTime = dateFormat.format(maghribdate);
+            
+            maghrib_hourLeft.setText(formattedDateTime.substring(0, 1));
+            maghrib_hourRight.setText(formattedDateTime.substring(1, 2));
+            maghrib_minLeft.setText(formattedDateTime.substring(3, 4));
+            maghrib_minRight.setText(formattedDateTime.substring(4, 5));
+        }
+        
+//        System.out.println("abs difference between seconds: " + abs(maghrib_diffsec));
+        
+        //==prayer alarms =================================================================================
+       
+//        URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
+//        AudioFormat adFormat = getAudioFormat();
+//        Clip clip = AudioSystem.getClip();
+//        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
+        
+        
+        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/athan1.mp3");
+        ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/duha.mp3");
+
+        
+//                            try {
+//                                Process process = processBuilder.start();                                
+//                            } catch (IOException ex) {
+//                                logger.warn("Unexpected error", e);
+//                            }
+                            
+        
+        
+//        URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
+//        AudioInputStream ais = AudioSystem.getAudioInputStream(url); 
+//        AudioFormat littleEndianFormat = getAudioFormat();
+//        AudioInputStream converted = AudioSystem.getAudioInputStream(littleEndianFormat, ais); 
+//        Clip clip = AudioSystem.getClip();
+        
+        ProcessBuilder processBuilder_Tvon = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
+//clip.open(converted);
+//            clip.start();
+        
+        if (duha_cal.equals(Calendar_now) && duha_athan_enable) 
+        {
+            duha_athan_enable = false;
+            System.out.println("Duha Time");
+//            String image = JavaFXApplication4.class.getResource("/Images/sunrise.png").toExternalForm();
+//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");
+//            sensor_lastTimerCall = System.nanoTime();
+//            sensorLow = true;
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Duha.start();} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+
+        }
+
+        else if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
+        {
+            fajr_prayer_In_Progress_notification = true;
+            fajr_athan_enable = false;
+            System.out.println("fajr Time");
+//            clip.open(converted);
+//            clip.start();
+            
+            sensor_lastTimerCall = System.nanoTime();
+            sensorLow = true;
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+  
+        }
+        
+        else if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
+        {
+            zuhr_prayer_In_Progress_notification = true;
+            zuhr_athan_enable = false;
+            System.out.println("zuhr Time");
+//            clip.open(converted);
+//            clip.start();
+            sensor_lastTimerCall = System.nanoTime();
+            sensorLow = true;
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+        }        
+
+        else if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
+        {
+            asr_prayer_In_Progress_notification = true;
+            asr_athan_enable = false;
+            System.out.println("asr Time");
+            sensor_lastTimerCall = System.nanoTime();
+            sensorLow = true;
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+        } 
+        
+        else if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
+        {
+            maghrib_prayer_In_Progress_notification = true;
+            maghrib_athan_enable = false;
+            System.out.println("maghrib Time");
+            sensor_lastTimerCall = System.nanoTime();
+            sensorLow = true;
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+//            String image = JavaFXApplication4.class.getResource("/Images/wallpaper_sunset.jpg").toExternalForm();
+//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");  
+        } 
+        
+        else if (isha_cal.equals(Calendar_now) && isha_athan_enable) 
+        {
+            isha_prayer_In_Progress_notification = true;
+            isha_athan_enable = false;
+            System.out.println("isha Time");
+            sensor_lastTimerCall = System.nanoTime();
+            sensorLow = true;
+            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+            TimeUnit.SECONDS.sleep(3);
+            try {Process process = processBuilder_Athan.start();} 
+            catch (IOException e) {logger.warn("Unexpected error", e);}
+        }      
+        
+        
+//move here athan player********************************************
+    
+    
+ }   
+    
 public void update_labels() throws Exception{
     
-        DateTime DateTime_now = new DateTime();    
-        Calendar Calendar_now = Calendar.getInstance();
+        DateTime_now = new DateTime();    
+        Calendar_now = Calendar.getInstance();
         Calendar_now.setTime(new Date());
         Calendar_now.set(Calendar.MILLISECOND, 0);
         Calendar_now.set(Calendar.SECOND, 0);
         
 //==Update Clock============================================================        
         
-        String hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
-        hour_Label.setText(hour_in_hour_Label);
-        String minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
-        minute_Label.setText(minute_in_minute_Label);
-        String date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
-        date_Label.setText(date);
+//        hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
+//        hour_Label.setText(hour_in_hour_Label);
+//        minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
+//        minute_Label.setText(minute_in_minute_Label);
+//        date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
+//        date_Label.setText(date);
 
 //==Translate labels============================================================  
         
@@ -2762,129 +2999,7 @@ public void update_labels() throws Exception{
 //==Days left to full moon============================================================        
  
 
-//==prayer alarms =================================================================================
-       
-//        URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
-//        AudioFormat adFormat = getAudioFormat();
-//        Clip clip = AudioSystem.getClip();
-//        AudioInputStream ais = AudioSystem.getAudioInputStream( url );
-        
-        
-        ProcessBuilder processBuilder_Athan = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/athan1.mp3");
-        ProcessBuilder processBuilder_Duha = new ProcessBuilder("bash", "-c", "mpg123 /home/pi/prayertime/Audio/duha.mp3");
-
-        
-//                            try {
-//                                Process process = processBuilder.start();                                
-//                            } catch (IOException ex) {
-//                                logger.warn("Unexpected error", e);
-//                            }
-                            
-        
-        
-//        URL url = this.getClass().getClassLoader().getResource("Audio/athan1.wav");
-//        AudioInputStream ais = AudioSystem.getAudioInputStream(url); 
-//        AudioFormat littleEndianFormat = getAudioFormat();
-//        AudioInputStream converted = AudioSystem.getAudioInputStream(littleEndianFormat, ais); 
-//        Clip clip = AudioSystem.getClip();
-        
-        ProcessBuilder processBuilder_Tvon = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
-//clip.open(converted);
-//            clip.start();
-        
-        if (duha_cal.equals(Calendar_now) && duha_athan_enable) 
-        {
-            duha_athan_enable = false;
-            System.out.println("Duha Time");
-//            String image = JavaFXApplication4.class.getResource("/Images/sunrise.png").toExternalForm();
-//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");
-//            sensor_lastTimerCall = System.nanoTime();
-//            sensorLow = true;
-            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-            TimeUnit.SECONDS.sleep(3);
-            try {Process process = processBuilder_Duha.start();} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-
-        }
-
-        else if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
-        {
-            fajr_prayer_In_Progress_notification = true;
-            fajr_athan_enable = false;
-            System.out.println("fajr Time");
-//            clip.open(converted);
-//            clip.start();
-            
-            sensor_lastTimerCall = System.nanoTime();
-            sensorLow = true;
-            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-            TimeUnit.SECONDS.sleep(3);
-            try {Process process = processBuilder_Athan.start();} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-  
-        }
-        
-        else if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
-        {
-            zuhr_prayer_In_Progress_notification = true;
-            zuhr_athan_enable = false;
-            System.out.println("zuhr Time");
-//            clip.open(converted);
-//            clip.start();
-            sensor_lastTimerCall = System.nanoTime();
-            sensorLow = true;
-            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-            TimeUnit.SECONDS.sleep(3);
-            try {Process process = processBuilder_Athan.start();} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-        }        
-
-        else if (asr_cal.equals(Calendar_now) && asr_athan_enable) 
-        {
-            asr_prayer_In_Progress_notification = true;
-            asr_athan_enable = false;
-            System.out.println("asr Time");
-            sensor_lastTimerCall = System.nanoTime();
-            sensorLow = true;
-            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-            TimeUnit.SECONDS.sleep(3);
-            try {Process process = processBuilder_Athan.start();} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-        } 
-        
-        else if (maghrib_cal.equals(Calendar_now) && maghrib_athan_enable) 
-        {
-            maghrib_prayer_In_Progress_notification = true;
-            maghrib_athan_enable = false;
-            System.out.println("maghrib Time");
-            sensor_lastTimerCall = System.nanoTime();
-            sensorLow = true;
-            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-            TimeUnit.SECONDS.sleep(3);
-            try {Process process = processBuilder_Athan.start();} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-//            String image = JavaFXApplication4.class.getResource("/Images/wallpaper_sunset.jpg").toExternalForm();
-//            Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");  
-        } 
-        
-        else if (isha_cal.equals(Calendar_now) && isha_athan_enable) 
-        {
-            isha_prayer_In_Progress_notification = true;
-            isha_athan_enable = false;
-            System.out.println("isha Time");
-            sensor_lastTimerCall = System.nanoTime();
-            sensorLow = true;
-            try {Process process = processBuilder_Tvon.start(); hdmiOn = true;} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-            TimeUnit.SECONDS.sleep(3);
-            try {Process process = processBuilder_Athan.start();} 
-            catch (IOException e) {logger.warn("Unexpected error", e);}
-        }                      
+                
         
 // Jammat update=========================================================== 
         
@@ -3044,13 +3159,12 @@ public void update_labels() throws Exception{
        
 //==Update Prayer time Labels==========================================================        
         
-        if (update_prayer_labels) 
+        if (update_prayer_labels && !count_down) 
         {
             update_prayer_labels = false;
 
-            DateFormat dateFormat = new SimpleDateFormat("hh:mm");
             fajrdate = fajr_cal.getTime();
-            String formattedDateTime = dateFormat.format(fajrdate);
+            formattedDateTime = dateFormat.format(fajrdate);
             
             fajr_hourLeft.setText(formattedDateTime.substring(0, 1));
             fajr_hourRight.setText(formattedDateTime.substring(1, 2));
