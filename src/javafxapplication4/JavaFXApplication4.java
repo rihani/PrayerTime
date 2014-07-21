@@ -2214,7 +2214,7 @@ public void update_clock() throws Exception{
             fajr_minRight.setText(formattedDateTime.substring(4, 5));
         }
         
-        maghrib_diffsec = (int) ((date2.getTime() - date_now.getTime() ) / (1000));
+        maghrib_diffsec = (int) ((maghrib_begins_time.getTime() - date_now.getTime() ) / (1000));
 //        System.out.println("difference between seconds: " + maghrib_diffsec); 
 
         if(abs(maghrib_diffsec) < 61) //fajr_begins_time
