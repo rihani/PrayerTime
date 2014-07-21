@@ -394,8 +394,8 @@ import org.joda.time.format.DateTimeFormatter;
         images = new ArrayList<String>();
         //change on osx
         if (platform.equals("osx"))
-        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
-//        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
+//        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
+        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
         //change on Pi
         if (platform.equals("pi"))
         {directory = new File("/home/pi/prayertime/Images/");}
@@ -1390,8 +1390,11 @@ import org.joda.time.format.DateTimeFormatter;
                                     if(null != facebook_Post_Url && !"".equals(facebook_Post_Url)){ old_facebook_Post_Url = new String(facebook_Post_Url);}
 //                                    out.println(old_facebook_Post_Url);
                                     
-                                    facebook_Post_Url = queryResults.get(0).getJsonObject("attachment").getJsonArray("media").getJsonObject(0).getJsonObject("photo").getJsonArray("images").getJsonObject(1).getString("src");
-//                                    out.println(facebook_Post_Url);
+                                    try 
+                                    {facebook_Post_Url = queryResults.get(0).getJsonObject("attachment").getJsonArray("media").getJsonObject(0).getJsonObject("photo").getJsonArray("images").getJsonObject(1).getString("src");}
+                                    catch (Exception e){logger.warn("facebook post url exception", e);} 
+                                    
+                                    out.println(facebook_Post_Url);
 
                                     facebook_photo_created_time_calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZone_ID));    
                                     facebook_photo_created_time_calendar.setTimeInMillis(queryResults.get(0).getLong("created_time")* 1000);
@@ -2165,8 +2168,8 @@ public void update_clock() throws Exception{
         Calendar_now = Calendar.getInstance();
         Calendar_now.setTime(new Date());
         date_now = new Date();
-        Calendar_now.set(Calendar.MILLISECOND, 0);
-        Calendar_now.set(Calendar.SECOND, 0);
+//        Calendar_now.set(Calendar.MILLISECOND, 0);
+//        Calendar_now.set(Calendar.SECOND, 0);
         
         hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
         minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
@@ -2183,11 +2186,13 @@ public void update_clock() throws Exception{
         }
         
 //       SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-//	String dateInString = "20-07-2014 18:31:56";
+//	String dateInString = "21-07-2014 22:05:56";
 //	Date date2 = sdf.parse(dateInString);
+//        fajr_diffsec = (int) ((date2.getTime() - date_now.getTime() ) / (1000));
         
         
         fajr_diffsec = (int) ((fajr_begins_time.getTime() - date_now.getTime() ) / (1000));
+        
 //        System.out.println("difference between seconds: " + fajr_diffsec); 
 
         if(abs(fajr_diffsec) < 61) //fajr_begins_time
@@ -2195,7 +2200,12 @@ public void update_clock() throws Exception{
             count_down = true;
             fajr_diffsec_dec = fajr_diffsec/10;
             fajr_diffsec_sin = fajr_diffsec - fajr_diffsec_dec*10;
-
+            
+            fajr_hourLeft.setId("hourLeft-countdown");
+            fajr_hourRight.setId("hourLeft-countdown");
+            fajr_minLeft.setId("hourLeft-countdown");
+            fajr_minRight.setId("hourLeft-countdown");
+            
             fajr_hourLeft.setText("-");
             fajr_hourRight.setText("0");
             fajr_minLeft.setText(Integer.toString(fajr_diffsec_dec));
@@ -2208,11 +2218,18 @@ public void update_clock() throws Exception{
             fajrdate = fajr_cal.getTime();
             formattedDateTime = dateFormat.format(fajrdate);
             
+            fajr_hourLeft.setId("hourLeft");
+            fajr_hourRight.setId("hourLeft");
+            fajr_minLeft.setId("hourLeft");
+            fajr_minRight.setId("hourLeft");
+            
             fajr_hourLeft.setText(formattedDateTime.substring(0, 1));
             fajr_hourRight.setText(formattedDateTime.substring(1, 2));
             fajr_minLeft.setText(formattedDateTime.substring(3, 4));
             fajr_minRight.setText(formattedDateTime.substring(4, 5));
         }
+        
+//        maghrib_diffsec = (int) ((date2.getTime() - date_now.getTime() ) / (1000));
         
         maghrib_diffsec = (int) ((maghrib_begins_time.getTime() - date_now.getTime() ) / (1000));
 //        System.out.println("difference between seconds: " + maghrib_diffsec); 
@@ -2223,6 +2240,11 @@ public void update_clock() throws Exception{
             maghrib_diffsec_dec = maghrib_diffsec/10;
             maghrib_diffsec_sin = maghrib_diffsec - maghrib_diffsec_dec*10;
 
+            maghrib_hourLeft.setId("hourLeft-countdown");
+            maghrib_hourRight.setId("hourLeft-countdown");
+            maghrib_minLeft.setId("hourLeft-countdown");
+            maghrib_minRight.setId("hourLeft-countdown");
+            
             maghrib_hourLeft.setText("-");
             maghrib_hourRight.setText("0");
             maghrib_minLeft.setText(Integer.toString(maghrib_diffsec_dec));
@@ -2236,6 +2258,11 @@ public void update_clock() throws Exception{
             maghribdate = maghrib_cal.getTime();
             formattedDateTime = dateFormat.format(maghribdate);
             
+            maghrib_hourLeft.setId("hourLeft");
+            maghrib_hourRight.setId("hourLeft");
+            maghrib_minLeft.setId("hourLeft");
+            maghrib_minRight.setId("hourLeft");
+                
             maghrib_hourLeft.setText(formattedDateTime.substring(0, 1));
             maghrib_hourRight.setText(formattedDateTime.substring(1, 2));
             maghrib_minLeft.setText(formattedDateTime.substring(3, 4));
@@ -2273,6 +2300,8 @@ public void update_clock() throws Exception{
         ProcessBuilder processBuilder_Tvon = new ProcessBuilder("bash", "-c", "echo \"as\" | cec-client -d 1 -s \"standby 0\" RPI");
 //clip.open(converted);
 //            clip.start();
+        Calendar_now.set(Calendar.MILLISECOND, 0);
+        Calendar_now.set(Calendar.SECOND, 0);
         
         if (duha_cal.equals(Calendar_now) && duha_athan_enable) 
         {
