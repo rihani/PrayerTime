@@ -2165,8 +2165,8 @@ public void update_clock() throws Exception{
         Calendar_now = Calendar.getInstance();
         Calendar_now.setTime(new Date());
         date_now = new Date();
-//        Calendar_now.set(Calendar.MILLISECOND, 0);
-//        Calendar_now.set(Calendar.SECOND, 0);
+        Calendar_now.set(Calendar.MILLISECOND, 0);
+        Calendar_now.set(Calendar.SECOND, 0);
         
         hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
         minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
@@ -2287,7 +2287,6 @@ public void update_clock() throws Exception{
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Duha.start();} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
-
         }
 
         else if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
@@ -2305,7 +2304,6 @@ public void update_clock() throws Exception{
             TimeUnit.SECONDS.sleep(3);
             try {Process process = processBuilder_Athan.start();} 
             catch (IOException e) {logger.warn("Unexpected error", e);}
-  
         }
         
         else if (zuhr_cal.equals(Calendar_now) && zuhr_athan_enable) 
