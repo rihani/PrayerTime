@@ -2182,9 +2182,9 @@ public void update_clock() throws Exception{
             
         }
         
-       SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-	String dateInString = "20-07-2014 18:31:56";
-	Date date2 = sdf.parse(dateInString);
+//       SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+//	String dateInString = "20-07-2014 18:31:56";
+//	Date date2 = sdf.parse(dateInString);
         
         
         fajr_diffsec = (int) ((fajr_begins_time.getTime() - date_now.getTime() ) / (1000));
@@ -2201,7 +2201,7 @@ public void update_clock() throws Exception{
             fajr_minLeft.setText(Integer.toString(fajr_diffsec_dec));
             fajr_minRight.setText(Integer.toString(fajr_diffsec_sin));
         }
-        if(abs(fajr_diffsec) > 61 && count_down) //fajr_begins_time
+        if(fajr_diffsec < 0 && count_down) //fajr_begins_time
         {
             count_down = false;
 //            dateFormat = new SimpleDateFormat("hh:mm");
