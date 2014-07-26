@@ -823,7 +823,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 asr_jamaat = asr_jamaat_time.toString();
                                 isha_jamaat = isha_jamaat_time.toString();
                                 // print the results
-                                System.out.format("%s,%s,%s,%s,%s \n", id, prayer_date, fajr_jamaat, asr_jamaat, isha_jamaat );
+//                                System.out.format("%s,%s,%s,%s,%s \n", id, prayer_date, fajr_jamaat, asr_jamaat, isha_jamaat );
                             }
                             catch (Exception e){ logger.warn("Unexpected error", e); }
                                                 
@@ -1457,7 +1457,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 if (dtIslamic.getMonthOfYear()==9 && dtIslamic.getDayOfMonth()<19){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'fasting' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
 //                                if (dtIslamic.getMonthOfYear()==9){SQL ="select hadith, translated_hadith from hadith WHERE ID = 2872";}
                                 else if (dtIslamic.getMonthOfYear()==9 && dtIslamic.getDayOfMonth()>19){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'Virtues of the Night of Qadr' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
-                                else if (dtIslamic.getMonthOfYear()==9 && dtIslamic.getDayOfMonth()>29){SQL ="select hadith, translated_hadith from hadith WHERE translated_hadith LIKE '%fitr %' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                                else if (dtIslamic.getMonthOfYear()==9 && dtIslamic.getDayOfMonth()>28){SQL ="select hadith, translated_hadith from hadith WHERE translated_hadith LIKE '%fitr %' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
                                 else if (dtIslamic.getMonthOfYear()==10 && dtIslamic.getDayOfMonth()==1){SQL ="select hadith, translated_hadith from hadith WHERE translated_hadith LIKE '%fitr %' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
                                 //SELECT * FROM hadith WHERE translated_hadith LIKE '%fitr %'
                                 else if(dtIslamic.getMonthOfYear()==12){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'Hajj (Pilgrimage)' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
