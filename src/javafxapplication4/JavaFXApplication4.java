@@ -1461,7 +1461,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 else if (dtIslamic.getMonthOfYear()==10 && dtIslamic.getDayOfMonth()==1){SQL ="select hadith, translated_hadith from hadith WHERE translated_hadith LIKE '%fitr %' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
                                 //SELECT * FROM hadith WHERE translated_hadith LIKE '%fitr %'
                                 else if(dtIslamic.getMonthOfYear()==12){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'Hajj (Pilgrimage)' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
-                                else if (dayofweek_int == 5 || dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                                else if (dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
                                 else 
                                 {
                                     SQL = "select * from hadith WHERE day = '0' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";
