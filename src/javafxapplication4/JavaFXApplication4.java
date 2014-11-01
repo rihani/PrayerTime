@@ -395,7 +395,8 @@ import org.joda.time.format.DateTimeFormatter;
         //change on osx
         if (platform.equals("osx"))
 //        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
-        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
+        {directory = new File("/Users/ossama/Dropbox/Projects/Pi/javafx/prayertime/background");}
+//        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
         //change on Pi
         if (platform.equals("pi"))
         {directory = new File("/home/pi/prayertime/Images/");}
@@ -410,20 +411,22 @@ import org.joda.time.format.DateTimeFormatter;
         imageNumber = (int) (Math.random() * countImages);
         rand_Image_Path = directory + "/"+ images.get(imageNumber);
         System.out.println(rand_Image_Path);
-
-        try
+        
+        if (!platform.equals("osx"))
         {
-            broadcast_msg = "Prayer Time Server Starting";
-            socket1 = new DatagramSocket(null);
-            socket1.setBroadcast(true);
-            buf1 = broadcast_msg.getBytes();
-            group = InetAddress.getByName("255.255.255.255");
-            packet1 = new DatagramPacket(buf1, buf1.length, group, 8888);
-            socket1.send(packet1);
-        
+            try
+            {
+                broadcast_msg = "Prayer Time Server Starting";
+                socket1 = new DatagramSocket(null);
+                socket1.setBroadcast(true);
+                buf1 = broadcast_msg.getBytes();
+                group = InetAddress.getByName("255.255.255.255");
+                packet1 = new DatagramPacket(buf1, buf1.length, group, 8888);
+                socket1.send(packet1);
+
+            }
+            catch(Exception e){System.err.println("Sending failed. " + e.getMessage());}
         }
-        catch(Exception e){System.err.println("Sending failed. " + e.getMessage());}
-        
         
         
         
@@ -1462,6 +1465,10 @@ import org.joda.time.format.DateTimeFormatter;
                                 //SELECT * FROM hadith WHERE translated_hadith LIKE '%fitr %'
                                 else if(dtIslamic.getMonthOfYear()==12){SQL ="select hadith, translated_hadith from hadith WHERE topic = 'Hajj (Pilgrimage)' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
                                 else if (dayofweek_int == 6){SQL = "select hadith, translated_hadith from hadith WHERE day = '5' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                                
+                                else if (dtIslamic.getMonthOfYear()==1 && dtIslamic.getDayOfMonth()>7 && dtIslamic.getDayOfMonth()<12 ){SQL = "select hadith, translated_hadith from hadith WHERE (translated_hadith LIKE '%Ashura%') and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";}
+                          
+                                
                                 else 
                                 {
                                     SQL = "select * from hadith WHERE day = '0' and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";
