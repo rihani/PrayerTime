@@ -7,13 +7,13 @@
 /*
 sudo cp  SimpleAstronomyLib-0.1.0.jar  /opt/jdk1.8.0/jre/lib/ext
 sudo service samba restart
-
+scp -P 2221 JavaFXApplication4.jar  pi@ibnabbas.dyndns.org:/home/pi/prayertime
 
 26/11/13 from windows XP: Uncomment Lines 227, 214 - 221, 891 - 892 to work on raspberry pi
 
 */
 
-
+//TODO change vpn setting to dns instead of ip, and setup my home to ossama.org for example
 
 package javafxapplication4;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
@@ -121,7 +121,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Date fullMoon= null; //  <<========================== might fix errors at startup
     private Date newMoon= null; //  <<========================== might fix errors at startup
     private Date date_now;
-    private long diff ;
+    private long diff;
             
     private Process p;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
@@ -130,6 +130,8 @@ import org.joda.time.format.DateTimeFormatter;
 //    double latitude = -33.9172891;
 //    double longitude = 151.035882;
 //    double timezone = 10;
+
+    
     
     double latitude;
     double longitude;
@@ -778,7 +780,10 @@ import org.joda.time.format.DateTimeFormatter;
 
                         tzSAUDI_ARABIA = DateTimeZone.forID("Asia/Riyadh");
                         dtIslamic = DateTime_now.withChronology(IslamicChronology.getInstance(tzSAUDI_ARABIA, IslamicChronology.LEAP_YEAR_15_BASED));
-                        System.out.println(dtIslamic.getMonthOfYear());
+                        System.out.print("Arabic Date:  ");
+                        System.out.print(dtIslamic.getMonthOfYear());
+                        System.out.print("/");
+                        System.out.println(dtIslamic.getDayOfMonth());
 
                         if (dtIslamic.getMonthOfYear()==9){System.out.println("==========Ramadan Moubarik==========");}
         
@@ -1009,13 +1014,94 @@ import org.joda.time.format.DateTimeFormatter;
                             else {System.out.println("Full moon is before new moon" );}
                             pir_disactive_startup = false;
                             
-// ======= Notification for full moon 5 days earlier, 2 days before fasting period
+// ======= Notification for ashura and full moon 5 days earlier, 2 days before fasting period
+
+                            
+//TODO Use moonsighting.info to get moon sighting observations
                             
                             Days d = Days.daysBetween(new DateMidnight(DateTime_now), new DateMidnight(fullMoon));
                             int days_Between_Now_Fullmoon = d.getDays();
                             System.out.format("Days left to full moon: %s\n", days_Between_Now_Fullmoon );
                             
-                            if ( dtIslamic.getMonthOfYear()!=9 && days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2 && dtIslamic.getMonthOfYear()!=9)
+                            fullMoon_plus1 = (Date)fullMoon.clone();
+                            Date ashura = (Date)fullMoon.clone();
+                            DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
+//                                System.out.println(days_Between_Now_Fullmoon);
+                            
+                            if (dtIslamic.getMonthOfYear()==1 &&  days_Between_Now_Fullmoon ==9 && comparator.compare(fullMoon, maghrib_cal)>0)
+                            {
+                                //hide hadith label boolean
+                                getHadith = false;
+//                                getFacebook = false;
+                                hadith_Label_visible = false;
+                                //show moon notification label boolean
+                                moon_hadith_Label_visible = true;
+                                
+                                // 15 - 9 = 6 Ashura = fullMoon_plus1.setTime(fullMoon.getTime() - 4 * 24 * 60 * 60 * 1000);
+                                
+                                                                
+                                
+                                
+                                try
+                                {
+                                    c = DBConnect.connect();
+
+                                    SQL = "select hadith, translated_hadith from hadith WHERE (translated_hadith LIKE '%Ashura%') and length(translated_hadith)<"+ max_en_hadith_len + " and length(hadith)<" + max_ar_hadith_len + " ORDER BY RAND( ) LIMIT 1";
+                                    rs = c.createStatement().executeQuery(SQL);
+                                    while (rs.next()) 
+                                    {
+                                        hadith = rs.getString("hadith");
+                                        translated_hadith = rs.getString("translated_hadith");
+
+                                    }
+                                    c.close();
+                                    System.out.println("Ashura arabic hadith length" + hadith.length());
+                                    System.out.println("Ashura english hadith length" + translated_hadith.length());
+                                
+                                }  
+                                catch (Exception e){logger.warn("Unexpected error", e);}
+                                ashura.setTime(fullMoon.getTime() - 4 * 24 * 60 * 60 * 1000);
+                                String Ashura_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(ashura);
+                                String Ashura_dow_en = new SimpleDateFormat("EEEE").format(ashura);
+                                String temp_ar_text1 = "نذكركم أيها الأحبة بصيام يوم عاشوراء يوم ";
+                                String temp_ar_text2 = "إن شاء الله ويوم قبله اوبعده. إن استطعت الصيام فصم و ذكر أحبابك";
+                                ar_moon_notification = temp_ar_text1 + Ashura_dow_ar + temp_ar_text2;
+                                en_moon_notification = "A reminder that the 10th of Muharram \"Ashura\" will fall on " + Ashura_dow_en + ", It is recommended to fast either the 9th & 10th of Muharram or the 10th & 11th ";
+                                facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
+                                if (facebook_notification_enable)
+                                {
+                                    try 
+                                    {
+                                        String pageID = page_ID +"/feed";
+                                        facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_moon_notification_Msg));
+                                        System.out.println("Full Moon Notification Sent to Facebook:" );
+                                        System.out.println(facebook_moon_notification_Msg);
+                                    }
+                                    catch (FacebookException e){logger.warn("Unexpected error", e);} 
+
+                                }
+                                
+                                
+                                
+                            }
+                            
+                            else if (dtIslamic.getMonthOfYear()==1 &&  days_Between_Now_Fullmoon ==9 )
+                            {
+                                //hide hadith label boolean
+                                getHadith = false;
+//                                getFacebook = false;
+                                hadith_Label_visible = false;
+                                //show moon notification label boolean
+                                moon_hadith_Label_visible = true;
+                                
+                                
+                                // 15 - 9 = 6 Ashura = fullMoon_plus1.setTime(fullMoon.getTime() - 5 * 24 * 60 * 60 * 1000);
+                                
+                                
+                            }
+                            
+                            
+                            if (dtIslamic.getMonthOfYear()!=9 && days_Between_Now_Fullmoon <= 5 && days_Between_Now_Fullmoon >= 2)
                             {                                
                                 //hide hadith label boolean
                                 getHadith = false;
@@ -1039,9 +1125,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 }
                                 catch (Exception e){logger.warn("Unexpected error", e);}
                                 
-                                fullMoon_plus1 = (Date)fullMoon.clone();
-                                DateTimeComparator comparator = DateTimeComparator.getTimeOnlyInstance();
-//                                System.out.println(days_Between_Now_Fullmoon);
+                                
                                 
                                 if ( days_Between_Now_Fullmoon == 5 && comparator.compare(fullMoon, maghrib_cal)<0)
                                 {
@@ -1049,9 +1133,9 @@ import org.joda.time.format.DateTimeFormatter;
                                     String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
                                     String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
                                     String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
-                                    String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                    String temp_ar_text2 = " إن استطعت الصيام فصم و ذكر أحبابك. يرجى ملاحظة أن هذا يقوم على حسابات التقويم لاعلى ملاحظات رؤية الهلال";
                                     ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
-                                    en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                    en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days. Pls note that this is based on calendar calculations not moon sighting observations";
                                     facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;
 //                                    try
 //                                    {
@@ -1071,9 +1155,9 @@ import org.joda.time.format.DateTimeFormatter;
                                         String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
                                         String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
-                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        String temp_ar_text2 = "إن استطعت الصيام فصم و ذكر أحبابك. يرجى ملاحظة أن هذا يقوم على حسابات التقويم لاعلى ملاحظات رؤية الهلال";
                                         ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
-                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days. Pls note that this is based on calendar calculations not moon sighting observations";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
                                         if (facebook_notification_enable)
                                         {
@@ -1096,9 +1180,9 @@ import org.joda.time.format.DateTimeFormatter;
                                         String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
                                         String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
-                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        String temp_ar_text2 = "إن استطعت الصيام فصم و ذكر أحبابك. يرجى ملاحظة أن هذا يقوم على حسابات التقويم لاعلى ملاحظات رؤية الهلال";
                                         ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
-                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days. Pls note that this is based on calendar calculations not moon sighting observations";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;                          
                                         System.out.println("Full Moon Notification:" );
                                         System.out.println(facebook_moon_notification_Msg);
@@ -1113,18 +1197,18 @@ import org.joda.time.format.DateTimeFormatter;
                                         String FullMoon_dow_ar = new SimpleDateFormat("' 'EEEE' '", new Locale("ar")).format(fullMoon_plus1);
                                         String FullMoon_dow_en = new SimpleDateFormat("EEEE").format(fullMoon_plus1);
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ يوم";
-                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        String temp_ar_text2 = "إن استطعت الصيام فصم و ذكر أحبابك. يرجى ملاحظة أن هذا يقوم على حسابات التقويم لاعلى ملاحظات رؤية الهلال";
                                         ar_moon_notification = temp_ar_text1 + FullMoon_dow_ar + temp_ar_text2;
-                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days";
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start this " + FullMoon_dow_en + ", it is recommended to fast these days. Pls note that this is based on calendar calculations not moon sighting observations";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
                                     }
                                     
                                     else
                                     {
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ غدا ";
-                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        String temp_ar_text2 = "إن استطعت الصيام فصم و ذكر أحبابك. يرجى ملاحظة أن هذا يقوم على حسابات التقويم لاعلى ملاحظات رؤية الهلال";
                                         ar_moon_notification = temp_ar_text1 +  temp_ar_text2;
-                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days. Pls note that this is based on calendar calculations not moon sighting observations";
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;   
                                         if (facebook_notification_enable)
                                         {
@@ -1144,10 +1228,10 @@ import org.joda.time.format.DateTimeFormatter;
                                 else if ( days_Between_Now_Fullmoon == 2 && comparator.compare(fullMoon, maghrib_cal)>0)
                                 {
                                         String temp_ar_text1 = "نذكركم و أنفسنا بفضل صيام الايام البيض من كل شهر التي تبدأ غدا ";
-                                        String temp_ar_text2 = "إن شاء الله إن استطعت الصيام فصم و ذكر أحبابك";
+                                        String temp_ar_text2 = "إن استطعت الصيام فصم و ذكر أحبابك. يرجى ملاحظة أن هذا يقوم على حسابات التقويم لاعلى ملاحظات رؤية الهلال";
                                         ar_moon_notification = temp_ar_text1 +  temp_ar_text2;
                                         System.out.println(ar_moon_notification);
-                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days";
+                                        en_moon_notification = "We would like to remind our dear brothers & sisters that this month's \"White days\" will start tomorrow, it is recommended to fast these days. Pls note that this is based on calendar calculations not moon sighting observations";
                                         System.out.println(en_moon_notification);
                                         facebook_moon_notification_Msg = ar_moon_notification + "\n\n" + en_moon_notification;    
                                         if (facebook_notification_enable)
@@ -1173,7 +1257,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 }
                             }
                             
-                            else 
+                            else if( days_Between_Now_Fullmoon > 5 || days_Between_Now_Fullmoon < 2 || dtIslamic.getMonthOfYear()!=1)
                             {
                                 getHadith = true; 
 //                                getFacebook = true;
@@ -3608,12 +3692,10 @@ public void update_labels() throws Exception{
 //                Object objData = urlConnect.getContent();
 //
 //            } catch (UnknownHostException e) {
-//                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //                return false;
 //            }
 //            catch (IOException e) {
-//                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //                return false;
 //            }
