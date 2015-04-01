@@ -7,13 +7,20 @@
 /*
 sudo cp  SimpleAstronomyLib-0.1.0.jar  /opt/jdk1.8.0/jre/lib/ext
 sudo service samba restart
-scp -P 2221 JavaFXApplication4.jar  pi@ibnabbas.dyndns.org:/home/pi/prayertime
+scp -P 2221 JavaFXApplication4.jar  pi@192.168.1.1:/home/pi/prayertime
+
+change the following files to customise:
+sudo nano /etc/ddclient.conf
+sudo nano /etc/ppp/peers/pptpconf
+sudo nano /etc/hosts
+sudo nano /etc/hostname
 
 26/11/13 from windows XP: Uncomment Lines 227, 214 - 221, 891 - 892 to work on raspberry pi
 
 */
 
 //TODO change vpn setting to dns instead of ip, and setup my home to ossama.org for example
+//TODO setup internet_able same as implemented in paramatta.
 
 package javafxapplication4;
 import com.bradsbrain.simpleastronomy.MoonPhaseFinder;
@@ -62,8 +69,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import static javafx.animation.Animation.INDEFINITE;
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
+import static javafx.application.Application.launch;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -93,6 +105,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javax.imageio.ImageIO;
 import me.shanked.nicatronTg.jPushover.Pushover;
 import org.apache.log4j.Logger;
@@ -108,6 +121,11 @@ import org.joda.time.format.DateTimeFormatter;
 //import org.json.simple.JSONObject;
 //import org.json.simple.parser.JSONParser;
 //import org.joda.time.chrono.JulianChronology;
+
+
+
+
+// test
 
 /**
  *
@@ -1038,10 +1056,7 @@ import org.joda.time.format.DateTimeFormatter;
                                 moon_hadith_Label_visible = true;
                                 
                                 // 15 - 9 = 6 Ashura = fullMoon_plus1.setTime(fullMoon.getTime() - 4 * 24 * 60 * 60 * 1000);
-                                
-                                                                
-                                
-                                
+
                                 try
                                 {
                                     c = DBConnect.connect();
@@ -1604,17 +1619,18 @@ import org.joda.time.format.DateTimeFormatter;
                                             {
                                                 String pageID = page_ID +"/feed";
                                                 facebookClient.publish(pageID, FacebookType.class, Parameter.with("message", facebook_hadith));
+                                                c = DBConnect.connect();
+                                                PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
+                                                java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
+                                                ps.setTimestamp(1, mysqldate);   
+                                                ps.executeUpdate(); 
+                                                c.close();
+                                                System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
                                             }
                                             catch (FacebookException e){logger.warn("Unexpected error", e);} 
                                         }
 
-                                        c = DBConnect.connect();
-                                        PreparedStatement ps = c.prepareStatement("INSERT INTO prayertime.facebook_hadith_notification (notification_date) VALUE (?)");                                      
-                                        java.sql.Timestamp mysqldate = new java.sql.Timestamp(new java.util.Date().getTime());
-                                        ps.setTimestamp(1, mysqldate);   
-                                        ps.executeUpdate(); 
-                                        c.close();
-                                        System.out.println("hadith posted to Facebook: \n" + facebook_hadith );
+                                        
                                     }
                                     catch (FacebookException e){logger.warn("Unexpected error", e);} 
                                     catch (Exception e){logger.warn("Unexpected error", e);}
@@ -1695,9 +1711,16 @@ import org.joda.time.format.DateTimeFormatter;
                                 hdmiOn = true;
                                 startup = false;
                                 System.out.println("Tv turned on");
-                                try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
-                                try {Process process1 = processBuilder1.start();}
-                                catch (IOException e) {logger.warn("Unexpected error", e);} 
+                                try 
+                                        {
+                                            Thread.sleep(2500);                 
+                                            processBuilder1.start();                                      
+                                            Thread.sleep(2500); 
+                                            processBuilder1.start();
+                                        }
+                                        catch (IOException e) {logger.warn("Unexpected error", e);} catch (InterruptedException ex) { 
+                                            java.util.logging.Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
 
                              }
 
@@ -1726,9 +1749,16 @@ import org.joda.time.format.DateTimeFormatter;
                                         hdmiOn = true;
                                         prayer_In_Progress = false;
                                         System.out.println("Tv turned on");
-                                        try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
-                                        try {Process process1 = processBuilder1.start();}
-                                        catch (IOException e) {logger.warn("Unexpected error", e);} 
+                                        try 
+                                        {
+                                            Thread.sleep(2500);                 
+                                            processBuilder1.start();                                      
+                                            Thread.sleep(2500); 
+                                            processBuilder1.start();
+                                        }
+                                        catch (IOException e) {logger.warn("Unexpected error", e);} catch (InterruptedException ex) { 
+                                            java.util.logging.Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                                        } 
                                     }
                                 }
                                 
@@ -1788,8 +1818,16 @@ import org.joda.time.format.DateTimeFormatter;
                                         hdmiOn = true;
                                         prayer_In_Progress = false;
                                         System.out.println("Tv turned on");
-                                        try {Thread.sleep(2500);} catch (InterruptedException e) {logger.warn("Unexpected error", e);}
-                                        try {Process process1 = processBuilder1.start();}catch (IOException e) {logger.warn("Unexpected error", e);}    
+                                        try 
+                                        {
+                                            Thread.sleep(2500);                 
+                                            processBuilder1.start();                                      
+                                            Thread.sleep(2500); 
+                                            processBuilder1.start();
+                                        }
+                                        catch (IOException e) {logger.warn("Unexpected error", e);} catch (InterruptedException ex) { 
+                                            java.util.logging.Logger.getLogger(JavaFXApplication4.class.getName()).log(Level.SEVERE, null, ex);
+                                        } 
                                     }
                                     
                                     if(send_Broadcast_msg)
@@ -2120,10 +2158,12 @@ import org.joda.time.format.DateTimeFormatter;
         
         Pane root = new Pane();
         // rotate tv screen to portrait mode
-        // edit the /boot/config.txt file Copy stored in documentation folder (i.e. ramebuffer_width=1080   framebuffer_height=1920  display_rotate=1...)
+        // edit the /boot/config.txt file Copy stored in documentation folder (i.e. framebuffer_width=1080   framebuffer_height=1920  display_rotate=1...)
         scene = new Scene(root, 1080, 1920);
+//        scene = new Scene(root);
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         stage.setScene(scene);
+//        stage.setFullScreen(true);
                 
         Mainpane = new GridPane();
         try
@@ -2517,22 +2557,106 @@ public void update_labels() throws Exception{
         if (arabic)
         {
             
-            athan_Label_ar.setVisible(false);
-            athan_Label_eng.setVisible(true);
-            jamaat_Label_ar.setVisible(false);
-            jamaat_Label_eng.setVisible(true);
-            friday_Label_ar.setVisible(false);
-            friday_Label_eng.setVisible(true);
-            fajr_Label_ar.setVisible(false);
-            fajr_Label_eng.setVisible(true);
-            zuhr_Label_ar.setVisible(false);
-            zuhr_Label_eng.setVisible(true);
-            asr_Label_ar.setVisible(false);
-            asr_Label_eng.setVisible(true);
-            maghrib_Label_ar.setVisible(false);
-            maghrib_Label_eng.setVisible(true);
-            isha_Label_ar.setVisible(false);
-            isha_Label_eng.setVisible(true);
+//            athan_Label_ar.setVisible(false);
+//            athan_Label_eng.setVisible(true);
+//            jamaat_Label_ar.setVisible(false);
+//            jamaat_Label_eng.setVisible(true);
+//            friday_Label_ar.setVisible(false);
+//            friday_Label_eng.setVisible(true);
+//            fajr_Label_ar.setVisible(false);
+//            fajr_Label_eng.setVisible(true);
+//            zuhr_Label_ar.setVisible(false);
+//            zuhr_Label_eng.setVisible(true);
+//            asr_Label_ar.setVisible(false);
+//            asr_Label_eng.setVisible(true);
+//            maghrib_Label_ar.setVisible(false);
+//            maghrib_Label_eng.setVisible(true);
+//            isha_Label_ar.setVisible(false);
+//            isha_Label_eng.setVisible(true);
+            
+            FadeTransition ft1 = new FadeTransition(Duration.millis(2000), fajr_Label_ar);
+            ft1.setFromValue(1);
+            ft1.setToValue(0);
+            ft1.play();
+            
+            FadeTransition ft2 = new FadeTransition(Duration.millis(2000), fajr_Label_eng);
+            ft2.setFromValue(0);
+            ft2.setToValue(1);
+            ft2.play();
+            
+            FadeTransition ft3 = new FadeTransition(Duration.millis(2000), zuhr_Label_ar);
+            ft3.setFromValue(1);
+            ft3.setToValue(0);
+            ft3.play();
+            
+            FadeTransition ft4 = new FadeTransition(Duration.millis(2000), zuhr_Label_eng);
+            ft4.setFromValue(0);
+            ft4.setToValue(1);
+            ft4.play();
+            
+            FadeTransition ft5 = new FadeTransition(Duration.millis(2000), asr_Label_ar);
+            ft5.setFromValue(1);
+            ft5.setToValue(0);
+            ft5.play();
+            
+            FadeTransition ft6 = new FadeTransition(Duration.millis(2000), asr_Label_eng);
+            ft6.setFromValue(0);
+            ft6.setToValue(1);
+            ft6.play();
+            
+            FadeTransition ft7 = new FadeTransition(Duration.millis(2000), maghrib_Label_ar);
+            ft7.setFromValue(1);
+            ft7.setToValue(0);
+            ft7.play();
+
+            
+            FadeTransition ft8 = new FadeTransition(Duration.millis(2000), maghrib_Label_eng);
+            ft8.setFromValue(0);
+            ft8.setToValue(1);
+            ft8.play();
+            
+            FadeTransition ft9 = new FadeTransition(Duration.millis(2000), isha_Label_ar);
+            ft9.setFromValue(1);
+            ft9.setToValue(0);
+            ft9.play();
+
+            
+            FadeTransition ft10 = new FadeTransition(Duration.millis(2000), isha_Label_eng);
+            ft10.setFromValue(0);
+            ft10.setToValue(1);
+            ft10.play();
+            
+            
+            FadeTransition ft11 = new FadeTransition(Duration.millis(2000), friday_Label_ar);
+            ft11.setFromValue(1);
+            ft11.setToValue(0);
+            ft11.play();
+            
+            FadeTransition ft12 = new FadeTransition(Duration.millis(2000), friday_Label_eng);
+            ft12.setFromValue(0);
+            ft12.setToValue(1);
+            ft12.play();
+
+            
+            FadeTransition ft13 = new FadeTransition(Duration.millis(2000), jamaat_Label_ar);
+            ft13.setFromValue(1);
+            ft13.setToValue(0);
+            ft13.play();
+            
+            FadeTransition ft14 = new FadeTransition(Duration.millis(2000), jamaat_Label_eng);
+            ft14.setFromValue(0);
+            ft14.setToValue(1);
+            ft14.play();
+            
+            FadeTransition ft15 = new FadeTransition(Duration.millis(2000), athan_Label_ar);
+            ft15.setFromValue(1);
+            ft15.setToValue(0);
+            ft15.play();
+            
+            FadeTransition ft16 = new FadeTransition(Duration.millis(2000), athan_Label_eng);
+            ft16.setFromValue(0);
+            ft16.setToValue(1);
+            ft16.play();
                                 
             if (hadith_Label_visible)
             {
@@ -2808,22 +2932,108 @@ public void update_labels() throws Exception{
         else
         { 
             
-            athan_Label_eng.setVisible(false);
-            athan_Label_ar.setVisible(true);
-            jamaat_Label_eng.setVisible(false);
-            jamaat_Label_ar.setVisible(true);
-            friday_Label_eng.setVisible(false);
-            friday_Label_ar.setVisible(true);
-            fajr_Label_ar.setVisible(true);
-            fajr_Label_eng.setVisible(false);
-            zuhr_Label_ar.setVisible(true);
-            zuhr_Label_eng.setVisible(false);
-            asr_Label_ar.setVisible(true);
-            asr_Label_eng.setVisible(false);
-            maghrib_Label_ar.setVisible(true);
-            maghrib_Label_eng.setVisible(false);
-            isha_Label_ar.setVisible(true);
-            isha_Label_eng.setVisible(false);
+//            athan_Label_eng.setVisible(false);
+//            athan_Label_ar.setVisible(true);
+//            jamaat_Label_eng.setVisible(false);
+//            jamaat_Label_ar.setVisible(true);
+//            friday_Label_eng.setVisible(false);
+//            friday_Label_ar.setVisible(true);
+//            fajr_Label_ar.setVisible(true);
+//            fajr_Label_eng.setVisible(false);
+//            zuhr_Label_ar.setVisible(true);
+//            zuhr_Label_eng.setVisible(false);
+//            asr_Label_ar.setVisible(true);
+//            asr_Label_eng.setVisible(false);
+//            maghrib_Label_ar.setVisible(true);
+//            maghrib_Label_eng.setVisible(false);
+//            isha_Label_ar.setVisible(true);
+//            isha_Label_eng.setVisible(false);
+            
+            FadeTransition ft1 = new FadeTransition(Duration.millis(2000), fajr_Label_eng);
+            ft1.setFromValue(1);
+            ft1.setToValue(0);
+            ft1.play();
+            
+            FadeTransition ft2 = new FadeTransition(Duration.millis(2000), fajr_Label_ar);
+            ft2.setFromValue(0);
+            ft2.setToValue(1);
+            ft2.play();
+            
+            FadeTransition ft3 = new FadeTransition(Duration.millis(2000), zuhr_Label_eng);
+            ft3.setFromValue(1);
+            ft3.setToValue(0);
+            ft3.play();
+            
+            FadeTransition ft4 = new FadeTransition(Duration.millis(2000), zuhr_Label_ar);
+            ft4.setFromValue(0);
+            ft4.setToValue(1);
+            ft4.play();
+            
+            FadeTransition ft5 = new FadeTransition(Duration.millis(2000), asr_Label_eng);
+            ft5.setFromValue(1);
+            ft5.setToValue(0);
+            ft5.play();
+            
+            FadeTransition ft6 = new FadeTransition(Duration.millis(2000), asr_Label_ar);
+            ft6.setFromValue(0);
+            ft6.setToValue(1);
+            ft6.play();
+            
+            FadeTransition ft7 = new FadeTransition(Duration.millis(2000), maghrib_Label_eng);
+            ft7.setFromValue(1);
+            ft7.setToValue(0);
+            ft7.play();
+
+            
+            FadeTransition ft8 = new FadeTransition(Duration.millis(2000), maghrib_Label_ar);
+            ft8.setFromValue(0);
+            ft8.setToValue(1);
+            ft8.play();
+            
+            FadeTransition ft9 = new FadeTransition(Duration.millis(2000), isha_Label_eng);
+            ft9.setFromValue(1);
+            ft9.setToValue(0);
+            ft9.play();
+
+            
+            FadeTransition ft10 = new FadeTransition(Duration.millis(2000), isha_Label_ar);
+            ft10.setFromValue(0);
+            ft10.setToValue(1);
+            ft10.play();
+            
+            
+            FadeTransition ft11 = new FadeTransition(Duration.millis(2000), friday_Label_eng);
+            ft11.setFromValue(1);
+            ft11.setToValue(0);
+            ft11.play();
+            
+            FadeTransition ft12 = new FadeTransition(Duration.millis(2000), friday_Label_ar);
+            ft12.setFromValue(0);
+            ft12.setToValue(1);
+            ft12.play();
+
+            
+            FadeTransition ft13 = new FadeTransition(Duration.millis(2000), jamaat_Label_eng);
+            ft13.setFromValue(1);
+            ft13.setToValue(0);
+            ft13.play();
+            
+            FadeTransition ft14 = new FadeTransition(Duration.millis(2000), jamaat_Label_ar);
+            ft14.setFromValue(0);
+            ft14.setToValue(1);
+            ft14.play();
+            
+            FadeTransition ft15 = new FadeTransition(Duration.millis(2000), athan_Label_eng);
+            ft15.setFromValue(1);
+            ft15.setToValue(0);
+            ft15.play();
+            
+            FadeTransition ft16 = new FadeTransition(Duration.millis(2000), athan_Label_ar);
+            ft16.setFromValue(0);
+            ft16.setToValue(1);
+            ft16.play();
+
+            
             
             hadithPane.setHalignment(athan_Change_Label_L1,HPos.RIGHT);
             

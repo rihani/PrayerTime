@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="dist/JavaFXApplication4.jar"/>
+	<classpathentry kind="lib" path="dist/lib/Enzo-0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="dist/lib/joda-time-2.3.jar"/>
+	<classpathentry kind="lib" path="dist/lib/json_simple-1.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="dist/lib/mysql-connector-java-5.1.26-bin.jar"/>
+	<classpathentry kind="lib" path="dist/lib/pi4j-core.jar"/>
+	<classpathentry kind="lib" path="dist/lib/Pushover.jar"/>
+	<classpathentry kind="lib" path="dist/lib/restfb-1.6.12.jar"/>
+	<classpathentry kind="lib" path="dist/lib/SimpleAstronomyLib-0.1.0.jar"/>
+	<classpathentry kind="lib" path="dist/lib/twitter4j-core-3.0.3.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/Enzo-0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/java-twitter-0.9-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/joda-time-2.3.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/json_simple-1.1.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/mysql-connector-java-5.1.26-bin.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/pi4j-core.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/Pushover.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/restfb-1.6.12.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/SimpleAstronomyLib-0.1.0.jar"/>
+	<classpathentry kind="lib" path="Working Libraries/twitter4j-core-3.0.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
