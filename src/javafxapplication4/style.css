@@ -119,6 +119,45 @@ and open the template in the editor.
         
    }
    
+   
+   
+   
+   
+   
+   
+   
+   #sunrise-text-english{
+        
+        -fx-font-size: 23px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+/*        -fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Arial Black';
+        /*-fx-fill: white;*/
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
+        -fx-text-alignment: left;
+        -fx-text-fill:whitesmoke;
+        
+   }
+
+      #sunrise-text-arabic{
+        
+        -fx-font-size: 30px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+        /*-fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Arial Bold';
+        /*-fx-fill: white;*/
+        /*-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.5) , 4, 0.0 , 0 , 2 );*/
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/ 
+        -fx-text-alignment: right;
+        -fx-text-fill:whitesmoke;
+        
+   }
+   
    #facebook-text{
         
         -fx-font-size: 32px;
@@ -398,7 +437,7 @@ and open the template in the editor.
 
         #hour {
         
-        -fx-font-size: 90px;
+        -fx-font-size: 95px;
         /*-fx-font-family: 'B Majid Shadow';*/
 /*        -fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/
@@ -408,7 +447,7 @@ and open the template in the editor.
         -fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.8) , 0,0,0,1 );*/ 
-        -fx-text-alignment: left;
+        -fx-text-alignment: center;
         
    }
    
@@ -424,12 +463,44 @@ and open the template in the editor.
         -fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );
         
         /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.8) , 0,0,0,1 );*/ 
+        -fx-text-alignment: center;
+        
+   }
+   
+   #second {
+        
+        -fx-font-size: 45px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+/*        -fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Pinstrip Limo';
+        /*-fx-font-family: 'WLM Carton';*/
+        -fx-text-fill:whitesmoke;
+        -fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.8) , 0,0,0,1 );*/ 
         -fx-text-alignment: left;
+        
+   }
+   
+   #clock_separator{
+        
+        -fx-font-size: 90px;
+        /*-fx-font-family: 'B Majid Shadow';*/
+/*        -fx-font-family: 'Old Antic Outline Shaded';*/
+        /*-fx-font-family: 'B Jadid';*/
+        -fx-font-family: 'Pinstrip Limo';
+        /*-fx-font-family: 'WLM Carton';*/
+        -fx-text-fill:whitesmoke;
+        -fx-effect: innershadow( three-pass-box , rgba(255,255,255,0.8) , 4, 0.0 , 0 , 2 );
+        
+        /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.8) , 0,0,0,1 );*/ 
+        -fx-text-alignment: center;
         
    }
    #date {
         
-        -fx-font-size: 24px;
+        -fx-font-size: 28px;
         /*-fx-font-family: 'B Majid Shadow';*/
 /*        -fx-font-family: 'Old Antic Outline Shaded';*/
         /*-fx-font-family: 'B Jadid';*/

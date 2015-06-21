@@ -44,6 +44,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
 import java.io.*;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import java.io.IOException;
 import static java.lang.Math.abs;
 import static java.lang.System.out;
@@ -55,10 +57,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -69,15 +71,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import static javafx.animation.Animation.INDEFINITE;
+import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import static javafx.application.Application.launch;
 import static javafx.application.Application.launch;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -133,6 +139,13 @@ import org.joda.time.format.DateTimeFormatter;
  */
    
     public class JavaFXApplication4 extends Application {
+    
+        
+    private StringProperty       hour = new SimpleStringProperty();
+    private StringProperty       minute = new SimpleStringProperty();
+    private StringProperty       second = new SimpleStringProperty();
+    private StringProperty       date = new SimpleStringProperty();
+    
     
     private final Boolean debug    = true;  //  <<========================== Debuger  
     private final Logger logger = Logger.getLogger(JavaFXApplication4.class.getName());
@@ -221,7 +234,7 @@ import org.joda.time.format.DateTimeFormatter;
     private String page_ID;
     String timeZone_ID ; // = timeZone_ID
     String SQL;
-    private String hour_in_hour_Label, minute_in_minute_Label, date;
+    private String hour_in_hour_Label, minute_in_minute_Label;
     private String formattedDateTime;
     
     ResultSet rs;
@@ -260,7 +273,7 @@ import org.joda.time.format.DateTimeFormatter;
     private Label maghrib_hourLeft, maghrib_hourRight, maghrib_minLeft, maghrib_minRight, maghrib_jamma_hourLeft, maghrib_jamma_hourRight, maghrib_jamma_minLeft, maghrib_jamma_minRight;
     private Label isha_hourLeft, isha_hourRight, isha_minLeft, isha_minRight, isha_jamma_hourLeft, isha_jamma_hourRight, isha_jamma_minLeft, isha_jamma_minRight;
     private Label friday_hourLeft, friday_hourRight, friday_minLeft, friday_minRight;
-    private Label Phase_Label, Moon_Date_Label, Moon_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label, minute_Label, date_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2, facebook_Label;
+    private Label Phase_Label, Moon_Date_Label, Sunrise_Date_Label, Moon_Image_Label, Sunrise_Image_Label, friday_Label_eng,friday_Label_ar,sunrise_Label_ar,sunrise_Label_eng, fajr_Label_ar, fajr_Label_eng, zuhr_Label_ar, zuhr_Label_eng, asr_Label_ar, asr_Label_eng, maghrib_Label_ar, maghrib_Label_eng, isha_Label_ar, isha_Label_eng, jamaat_Label_eng,jamaat_Label_ar, athan_Label_eng,athan_Label_ar, hadith_Label, announcement_Label,athan_Change_Label_L1, athan_Change_Label_L2, hour_Label,separator_Label, minute_Label, second_Label, date_Label, full_Time_Label, divider1_Label, divider2_Label, ar_moon_hadith_Label_L1, ar_moon_hadith_Label_L2, en_moon_hadith_Label_L1, en_moon_hadith_Label_L2, facebook_Label;
     
     private List<String> images;
     private File directory;
@@ -283,7 +296,7 @@ import org.joda.time.format.DateTimeFormatter;
     DateFormat dateFormat = new SimpleDateFormat("hh:mm");
     
     
-    GridPane Mainpane, Moonpane, prayertime_pane, clockPane, hadithPane;
+    GridPane Mainpane, Moonpane, Sunrisepane, prayertime_pane, clockPane, hadithPane;
     char[] arabicChars = {'٠','١','٢','٣','٤','٥','٦','٧','٨','٩'};
     static String[] suffixes =
     //    0     1     2     3     4     5     6     7     8     9
@@ -310,6 +323,7 @@ import org.joda.time.format.DateTimeFormatter;
     Scene scene;
     File file = new File("/home/pi/prayertime/Images/");
     
+    
     @Override public void init() throws IOException {
         
         
@@ -327,7 +341,7 @@ import org.joda.time.format.DateTimeFormatter;
 
  
         
-        logger.info("Starting application....");
+        logger.info("Starting prayer application....");
         
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() 
         {            
@@ -338,7 +352,9 @@ import org.joda.time.format.DateTimeFormatter;
                 ProcessBuilder processBuilder2 = new ProcessBuilder("bash", "-c", "echo \"standby 0000\" | cec-client -d 1 -s \"standby 0\" RPI");
                 try {Process process2 = processBuilder2.start();}
                 catch (IOException e) {logger.warn("Unexpected error", e);}
-            
+                
+                Platform.exit();
+
             }
         }));
         
@@ -480,8 +496,10 @@ import org.joda.time.format.DateTimeFormatter;
         footer_Label = new Label();
         like_Label = new Label();
         Moon_Image_Label = new Label();
+        Sunrise_Image_Label  = new Label();
         Phase_Label = new Label();
         Moon_Date_Label = new Label();
+        Sunrise_Date_Label = new Label();
         jamaat_Label_eng = new Label();
         jamaat_Label_ar = new Label();
         athan_Label_eng = new Label();
@@ -508,8 +526,13 @@ import org.joda.time.format.DateTimeFormatter;
         announcement_Label = new Label();
         athan_Change_Label_L1 = new Label();
         athan_Change_Label_L2 = new Label();
+        
+        
+        
         hour_Label = new Label();
         minute_Label = new Label();
+        second_Label = new Label();
+        separator_Label = new Label();
         date_Label = new Label();
         divider1_Label = new Label();
         divider2_Label = new Label();
@@ -574,6 +597,7 @@ import org.joda.time.format.DateTimeFormatter;
         friday_minLeft = new Label();
         friday_minRight = new Label();
         facebook_Label = new Label();
+        
         
     
         athan_Label_ar.setId("prayer-label-arabic");
@@ -1668,19 +1692,71 @@ import org.joda.time.format.DateTimeFormatter;
             }
         };
  
-// Timer to update clock====================================================
+// Timer to update clock===============================================================================================
         
 //        translate_lastTimerCall = System.nanoTime();
         clock_update_timer = new AnimationTimer() {
             @Override public void handle(long now) {
                 if (now > clock_update_lastTimerCall + 1000_000_000l) 
                 {
-                    try {update_clock();} 
+                    try {play_athan();} 
                     catch (Exception e) {logger.warn("Unexpected error", e);}
                     clock_update_lastTimerCall = now;
                 }
             }
-        };       
+        };  
+// ============================================================================================     
+        
+        
+        hour_Label.textProperty().bind(hour);
+        minute_Label.textProperty().bind(minute);
+        second_Label.textProperty().bind(second);
+        date_Label.textProperty().bind(date);
+//        new Thread(() -> 
+//        {
+//
+//             for (;;) 
+//             {                 
+//                try 
+//                { 
+//                    final SimpleDateFormat simpledate_hour = new SimpleDateFormat("h");
+//                    final SimpleDateFormat simpledate_minute = new SimpleDateFormat("mm");
+//                    final SimpleDateFormat simpledate_second = new SimpleDateFormat("s");
+//                    Platform.runLater(new Runnable() {
+//                        @Override public void run() 
+//                        {
+//                                hour.set(simpledate_hour.format(new Date()));
+//                                minute.set(simpledate_minute.format(new Date()));
+//                                second.set(simpledate_second.format(new Date()));
+// 
+//                        }
+//                    });
+//                    Thread.sleep(200);
+//                            
+//                }
+//                catch (Exception e){logger.warn("Unexpected error", e); Thread.currentThread().interrupt(); Platform.exit(); System.exit(0);}
+//                        
+//             }
+//
+//        }).start();
+        
+        
+        
+        Timeline clock = new Timeline(
+        new KeyFrame(Duration.seconds(0), evt -> {
+        LocalTime now = LocalTime.now();
+        hour.set(new SimpleDateFormat("h").format(new Date()));       
+        minute.set(String.format("%02d", now.getMinute()));            
+        second.set(String.format("%d", now.getSecond())); 
+        date.set(new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime()));
+        
+        }),
+        new KeyFrame(Duration.seconds(1))
+        );
+        clock.setCycleCount(Animation.INDEFINITE);
+        clock.play();
+
+        
 
 // PIR sensor thread to turn on/Off TV screen to save energy ===============================================================        
         new Thread(() -> 
@@ -1929,10 +2005,57 @@ import org.joda.time.format.DateTimeFormatter;
                             
                         }
                         
+                        
+                        else if(received.equals("refresh background")) 
+                        {
+                            
+                            try
+                            {
+                            System.out.println("Changing Background...");
+                            images = new ArrayList<String>();
+                            //change on osx
+                            if (platform.equals("osx"))
+                    //        {directory = new File("/Users/ossama/Projects/Pi/javafx/prayertime/background/");} 
+                            {directory = new File("/Users/ossama/Dropbox/Projects/Pi/javafx/prayertime/background");}
+                    //        {directory = new File("/Users/samia/NetBeansProjects/prayertime_files/background/");}
+                            //change on Pi
+                            if (platform.equals("pi"))
+                            {directory = new File("/home/pi/prayertime/Images/");}
+
+                            files = directory.listFiles();
+                            for(File f : files) 
+                            {
+                                images.add(f.getName());
+                            }   
+                            System.out.println(images);
+                            countImages = images.size();
+                            imageNumber = (int) (Math.random() * countImages);
+                            rand_Image_Path = directory + "/"+ images.get(imageNumber);
+                            System.out.println(rand_Image_Path);
+                            String image = new File(rand_Image_Path).toURI().toURL().toString();
+                            
+                            
+                            
+                            
+                            Platform.runLater(new Runnable() {
+                        @Override public void run() 
+                        {
+                                Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");  
+                       
+ 
+                        }
+                    });     }
+                            catch (IOException e) {logger.warn("Unexpected error", e);}
+                            
+                
+                        }
+                        
+                        
                         else if(received.equals("refresh hadith")) 
                         {
                             
                             System.out.println("Getting Hadith...");
+ 
                             
                             try
                             {
@@ -2156,6 +2279,7 @@ import org.joda.time.format.DateTimeFormatter;
     
     @Override public void start(Stage stage) {
         
+        Platform.setImplicitExit(false);
         Pane root = new Pane();
         // rotate tv screen to portrait mode
         // edit the /boot/config.txt file Copy stored in documentation folder (i.e. framebuffer_width=1080   framebuffer_height=1920  display_rotate=1...)
@@ -2173,6 +2297,7 @@ import org.joda.time.format.DateTimeFormatter;
 //        String image = JavaFXApplication4.class.getResource(rand_Image_Path).toExternalForm();
 //        Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-repeat: repeat; ");  
         Mainpane.setStyle("-fx-background-image: url('" + image + "'); -fx-background-image-repeat: repeat; -fx-background-size: 1080 1920;-fx-background-position: bottom left;");  
+        
         
         }
         catch (IOException e) {logger.warn("Unexpected error", e);}
@@ -2232,6 +2357,8 @@ import org.joda.time.format.DateTimeFormatter;
         Mainpane.setId("Mainpane");
         prayertime_pane = prayertime_pane();    
         Moonpane =   moonpane();
+        Sunrisepane =   sunrise();
+        Sunrisepane.setVisible(false);
         hadithPane = hadithPane();
         clockPane =   clockPane();
         GridPane footerPane =   footerPane();
@@ -2245,13 +2372,15 @@ import org.joda.time.format.DateTimeFormatter;
 
 //        clock.setEffect(ds);
         Moonpane.setEffect(ds);
+        Sunrisepane.setEffect(ds);
         prayertime_pane.setEffect(ds);
         hadithPane.setEffect(ds);
         clockPane.setEffect(ds);
         footerPane.setEffect(ds);
   //============================================
-        Mainpane.add(clockPane, 1, 1);
+        Mainpane.add(clockPane, 1, 1,5,1);
         Mainpane.add(Moonpane, 7, 1);
+        Mainpane.add(Sunrisepane, 7, 1);
         Mainpane.add(prayertime_pane, 1, 5,11,7);  
         Mainpane.add(hadithPane, 1, 15,11,13);
         prayertime_pane.setTranslateY(30);
@@ -2295,29 +2424,32 @@ public static void main(String[] args) {
     System.exit(0);
 }
 
-public void update_clock() throws Exception{  
+public void play_athan() throws Exception{  
     
-    
+        
+        
         DateTime_now = new DateTime();    
         Calendar_now = Calendar.getInstance();
         Calendar_now.setTime(new Date());
         date_now = new Date();
-//        Calendar_now.set(Calendar.MILLISECOND, 0);
-//        Calendar_now.set(Calendar.SECOND, 0);
+        Calendar_now.set(Calendar.MILLISECOND, 0);
+        Calendar_now.set(Calendar.SECOND, 0);
         
-        hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
-        minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
-        clock_minute = Calendar_now.get(Calendar.MINUTE);
         
-        if(clock_minute != old_clock_minute)
-        {
-            old_clock_minute = clock_minute;
-            hour_Label.setText(hour_in_hour_Label);
-            minute_Label.setText(minute_in_minute_Label);
-            date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
-            date_Label.setText(date);
-            
-        }
+        
+//        hour_in_hour_Label = new SimpleDateFormat("hh").format(Calendar_now.getTime());
+//        minute_in_minute_Label = new SimpleDateFormat(":mm").format(Calendar_now.getTime());
+//        clock_minute = Calendar_now.get(Calendar.MINUTE);
+//        
+//        if(clock_minute != old_clock_minute)
+//        {
+//            old_clock_minute = clock_minute;
+//            hour_Label.setText(hour_in_hour_Label);
+//            minute_Label.setText(minute_in_minute_Label);
+//            date = new SimpleDateFormat("EEEE, d MMMM").format(Calendar_now.getTime());
+//            date_Label.setText(date);
+//            
+//        }
         
 //       SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
 //	String dateInString = "21-07-2014 22:05:56";
@@ -2439,6 +2571,8 @@ public void update_clock() throws Exception{
         
         if (duha_cal.equals(Calendar_now) && duha_athan_enable) 
         {
+            Moonpane.setVisible(true);
+            Sunrisepane.setVisible(false);
             duha_athan_enable = false;
             System.out.println("Duha Time");
 //            String image = JavaFXApplication4.class.getResource("/Images/sunrise.png").toExternalForm();
@@ -2454,6 +2588,11 @@ public void update_clock() throws Exception{
 
         else if (fajr_cal.equals(Calendar_now) && fajr_athan_enable) 
         {
+            
+            
+            Moonpane.setVisible(false);
+            Sunrisepane.setVisible(true);
+            
             fajr_prayer_In_Progress_notification = true;
             fajr_athan_enable = false;
             System.out.println("fajr Time");
@@ -2557,106 +2696,114 @@ public void update_labels() throws Exception{
         if (arabic)
         {
             
-//            athan_Label_ar.setVisible(false);
-//            athan_Label_eng.setVisible(true);
-//            jamaat_Label_ar.setVisible(false);
-//            jamaat_Label_eng.setVisible(true);
-//            friday_Label_ar.setVisible(false);
-//            friday_Label_eng.setVisible(true);
-//            fajr_Label_ar.setVisible(false);
-//            fajr_Label_eng.setVisible(true);
-//            zuhr_Label_ar.setVisible(false);
-//            zuhr_Label_eng.setVisible(true);
-//            asr_Label_ar.setVisible(false);
-//            asr_Label_eng.setVisible(true);
-//            maghrib_Label_ar.setVisible(false);
-//            maghrib_Label_eng.setVisible(true);
-//            isha_Label_ar.setVisible(false);
-//            isha_Label_eng.setVisible(true);
+            athan_Label_ar.setVisible(false);
+            athan_Label_eng.setVisible(true);
+            jamaat_Label_ar.setVisible(false);
+            jamaat_Label_eng.setVisible(true);
+            friday_Label_ar.setVisible(false);
+            friday_Label_eng.setVisible(true);
+            fajr_Label_ar.setVisible(false);
+            fajr_Label_eng.setVisible(true);
+            zuhr_Label_ar.setVisible(false);
+            zuhr_Label_eng.setVisible(true);
+            asr_Label_ar.setVisible(false);
+            asr_Label_eng.setVisible(true);
+            maghrib_Label_ar.setVisible(false);
+            maghrib_Label_eng.setVisible(true);
+            isha_Label_ar.setVisible(false);
+            isha_Label_eng.setVisible(true);
             
-            FadeTransition ft1 = new FadeTransition(Duration.millis(2000), fajr_Label_ar);
-            ft1.setFromValue(1);
-            ft1.setToValue(0);
-            ft1.play();
-            
-            FadeTransition ft2 = new FadeTransition(Duration.millis(2000), fajr_Label_eng);
-            ft2.setFromValue(0);
-            ft2.setToValue(1);
-            ft2.play();
-            
-            FadeTransition ft3 = new FadeTransition(Duration.millis(2000), zuhr_Label_ar);
-            ft3.setFromValue(1);
-            ft3.setToValue(0);
-            ft3.play();
-            
-            FadeTransition ft4 = new FadeTransition(Duration.millis(2000), zuhr_Label_eng);
-            ft4.setFromValue(0);
-            ft4.setToValue(1);
-            ft4.play();
-            
-            FadeTransition ft5 = new FadeTransition(Duration.millis(2000), asr_Label_ar);
-            ft5.setFromValue(1);
-            ft5.setToValue(0);
-            ft5.play();
-            
-            FadeTransition ft6 = new FadeTransition(Duration.millis(2000), asr_Label_eng);
-            ft6.setFromValue(0);
-            ft6.setToValue(1);
-            ft6.play();
-            
-            FadeTransition ft7 = new FadeTransition(Duration.millis(2000), maghrib_Label_ar);
-            ft7.setFromValue(1);
-            ft7.setToValue(0);
-            ft7.play();
-
-            
-            FadeTransition ft8 = new FadeTransition(Duration.millis(2000), maghrib_Label_eng);
-            ft8.setFromValue(0);
-            ft8.setToValue(1);
-            ft8.play();
-            
-            FadeTransition ft9 = new FadeTransition(Duration.millis(2000), isha_Label_ar);
-            ft9.setFromValue(1);
-            ft9.setToValue(0);
-            ft9.play();
-
-            
-            FadeTransition ft10 = new FadeTransition(Duration.millis(2000), isha_Label_eng);
-            ft10.setFromValue(0);
-            ft10.setToValue(1);
-            ft10.play();
+            Sunrise_Date_Label.setId("sunrise-text-english");
+            Sunrise_Date_Label.setWrapText(true);
+            Sunrisepane.setHalignment(Sunrise_Date_Label,HPos.LEFT);
+            Sunrise_Date_Label.setText("Sunrise time:  " + String.format("%d", sunrise_time.getHours()) +  ":" + String.format("%02d", sunrise_time.getMinutes()));
+//            System.out.println("sunrise time: " + String.format("%d", sunrise_time.getHours()) +  ":" + String.format("%02d", sunrise_time.getMinutes()));
             
             
-            FadeTransition ft11 = new FadeTransition(Duration.millis(2000), friday_Label_ar);
-            ft11.setFromValue(1);
-            ft11.setToValue(0);
-            ft11.play();
             
-            FadeTransition ft12 = new FadeTransition(Duration.millis(2000), friday_Label_eng);
-            ft12.setFromValue(0);
-            ft12.setToValue(1);
-            ft12.play();
-
-            
-            FadeTransition ft13 = new FadeTransition(Duration.millis(2000), jamaat_Label_ar);
-            ft13.setFromValue(1);
-            ft13.setToValue(0);
-            ft13.play();
-            
-            FadeTransition ft14 = new FadeTransition(Duration.millis(2000), jamaat_Label_eng);
-            ft14.setFromValue(0);
-            ft14.setToValue(1);
-            ft14.play();
-            
-            FadeTransition ft15 = new FadeTransition(Duration.millis(2000), athan_Label_ar);
-            ft15.setFromValue(1);
-            ft15.setToValue(0);
-            ft15.play();
-            
-            FadeTransition ft16 = new FadeTransition(Duration.millis(2000), athan_Label_eng);
-            ft16.setFromValue(0);
-            ft16.setToValue(1);
-            ft16.play();
+//            FadeTransition ft1 = new FadeTransition(Duration.millis(2000), fajr_Label_ar);
+//            ft1.setFromValue(1);
+//            ft1.setToValue(0);
+//            ft1.play();
+//            
+//            FadeTransition ft2 = new FadeTransition(Duration.millis(2000), fajr_Label_eng);
+//            ft2.setFromValue(0);
+//            ft2.setToValue(1);
+//            ft2.play();
+//            
+//            FadeTransition ft3 = new FadeTransition(Duration.millis(2000), zuhr_Label_ar);
+//            ft3.setFromValue(1);
+//            ft3.setToValue(0);
+//            ft3.play();
+//            
+//            FadeTransition ft4 = new FadeTransition(Duration.millis(2000), zuhr_Label_eng);
+//            ft4.setFromValue(0);
+//            ft4.setToValue(1);
+//            ft4.play();
+//            
+//            FadeTransition ft5 = new FadeTransition(Duration.millis(2000), asr_Label_ar);
+//            ft5.setFromValue(1);
+//            ft5.setToValue(0);
+//            ft5.play();
+//            
+//            FadeTransition ft6 = new FadeTransition(Duration.millis(2000), asr_Label_eng);
+//            ft6.setFromValue(0);
+//            ft6.setToValue(1);
+//            ft6.play();
+//            
+//            FadeTransition ft7 = new FadeTransition(Duration.millis(2000), maghrib_Label_ar);
+//            ft7.setFromValue(1);
+//            ft7.setToValue(0);
+//            ft7.play();
+//
+//            
+//            FadeTransition ft8 = new FadeTransition(Duration.millis(2000), maghrib_Label_eng);
+//            ft8.setFromValue(0);
+//            ft8.setToValue(1);
+//            ft8.play();
+//            
+//            FadeTransition ft9 = new FadeTransition(Duration.millis(2000), isha_Label_ar);
+//            ft9.setFromValue(1);
+//            ft9.setToValue(0);
+//            ft9.play();
+//
+//            
+//            FadeTransition ft10 = new FadeTransition(Duration.millis(2000), isha_Label_eng);
+//            ft10.setFromValue(0);
+//            ft10.setToValue(1);
+//            ft10.play();
+//            
+//            
+//            FadeTransition ft11 = new FadeTransition(Duration.millis(2000), friday_Label_ar);
+//            ft11.setFromValue(1);
+//            ft11.setToValue(0);
+//            ft11.play();
+//            
+//            FadeTransition ft12 = new FadeTransition(Duration.millis(2000), friday_Label_eng);
+//            ft12.setFromValue(0);
+//            ft12.setToValue(1);
+//            ft12.play();
+//
+//            
+//            FadeTransition ft13 = new FadeTransition(Duration.millis(2000), jamaat_Label_ar);
+//            ft13.setFromValue(1);
+//            ft13.setToValue(0);
+//            ft13.play();
+//            
+//            FadeTransition ft14 = new FadeTransition(Duration.millis(2000), jamaat_Label_eng);
+//            ft14.setFromValue(0);
+//            ft14.setToValue(1);
+//            ft14.play();
+//            
+//            FadeTransition ft15 = new FadeTransition(Duration.millis(2000), athan_Label_ar);
+//            ft15.setFromValue(1);
+//            ft15.setToValue(0);
+//            ft15.play();
+//            
+//            FadeTransition ft16 = new FadeTransition(Duration.millis(2000), athan_Label_eng);
+//            ft16.setFromValue(0);
+//            ft16.setToValue(1);
+//            ft16.play();
                                 
             if (hadith_Label_visible)
             {
@@ -2776,6 +2923,8 @@ public void update_labels() throws Exception{
                 hadithPane.setHalignment(athan_Change_Label_L2,HPos.LEFT);
             }
                         
+            
+            
             
             
             if(newMoon != null && fullMoon != null)
@@ -2932,106 +3081,113 @@ public void update_labels() throws Exception{
         else
         { 
             
-//            athan_Label_eng.setVisible(false);
-//            athan_Label_ar.setVisible(true);
-//            jamaat_Label_eng.setVisible(false);
-//            jamaat_Label_ar.setVisible(true);
-//            friday_Label_eng.setVisible(false);
-//            friday_Label_ar.setVisible(true);
-//            fajr_Label_ar.setVisible(true);
-//            fajr_Label_eng.setVisible(false);
-//            zuhr_Label_ar.setVisible(true);
-//            zuhr_Label_eng.setVisible(false);
-//            asr_Label_ar.setVisible(true);
-//            asr_Label_eng.setVisible(false);
-//            maghrib_Label_ar.setVisible(true);
-//            maghrib_Label_eng.setVisible(false);
-//            isha_Label_ar.setVisible(true);
-//            isha_Label_eng.setVisible(false);
+            athan_Label_eng.setVisible(false);
+            athan_Label_ar.setVisible(true);
+            jamaat_Label_eng.setVisible(false);
+            jamaat_Label_ar.setVisible(true);
+            friday_Label_eng.setVisible(false);
+            friday_Label_ar.setVisible(true);
+            fajr_Label_ar.setVisible(true);
+            fajr_Label_eng.setVisible(false);
+            zuhr_Label_ar.setVisible(true);
+            zuhr_Label_eng.setVisible(false);
+            asr_Label_ar.setVisible(true);
+            asr_Label_eng.setVisible(false);
+            maghrib_Label_ar.setVisible(true);
+            maghrib_Label_eng.setVisible(false);
+            isha_Label_ar.setVisible(true);
+            isha_Label_eng.setVisible(false);
             
-            FadeTransition ft1 = new FadeTransition(Duration.millis(2000), fajr_Label_eng);
-            ft1.setFromValue(1);
-            ft1.setToValue(0);
-            ft1.play();
-            
-            FadeTransition ft2 = new FadeTransition(Duration.millis(2000), fajr_Label_ar);
-            ft2.setFromValue(0);
-            ft2.setToValue(1);
-            ft2.play();
-            
-            FadeTransition ft3 = new FadeTransition(Duration.millis(2000), zuhr_Label_eng);
-            ft3.setFromValue(1);
-            ft3.setToValue(0);
-            ft3.play();
-            
-            FadeTransition ft4 = new FadeTransition(Duration.millis(2000), zuhr_Label_ar);
-            ft4.setFromValue(0);
-            ft4.setToValue(1);
-            ft4.play();
-            
-            FadeTransition ft5 = new FadeTransition(Duration.millis(2000), asr_Label_eng);
-            ft5.setFromValue(1);
-            ft5.setToValue(0);
-            ft5.play();
-            
-            FadeTransition ft6 = new FadeTransition(Duration.millis(2000), asr_Label_ar);
-            ft6.setFromValue(0);
-            ft6.setToValue(1);
-            ft6.play();
-            
-            FadeTransition ft7 = new FadeTransition(Duration.millis(2000), maghrib_Label_eng);
-            ft7.setFromValue(1);
-            ft7.setToValue(0);
-            ft7.play();
+            Sunrise_Date_Label.setId("sunrise-text-arabic");
+            Sunrise_Date_Label.setWrapText(true);
+            Sunrisepane.setHalignment(Sunrise_Date_Label,HPos.RIGHT);
+            Sunrise_Date_Label.setText("وقت الشروق: " + "\n" + String.format("%d", sunrise_time.getHours()) +  ":" + String.format("%02d", sunrise_time.getMinutes()));
+//            System.out.println("sunrise time: " + String.format("%d", sunrise_time.getHours()) +  ":" + String.format("%02d", sunrise_time.getMinutes()));
 
             
-            FadeTransition ft8 = new FadeTransition(Duration.millis(2000), maghrib_Label_ar);
-            ft8.setFromValue(0);
-            ft8.setToValue(1);
-            ft8.play();
-            
-            FadeTransition ft9 = new FadeTransition(Duration.millis(2000), isha_Label_eng);
-            ft9.setFromValue(1);
-            ft9.setToValue(0);
-            ft9.play();
-
-            
-            FadeTransition ft10 = new FadeTransition(Duration.millis(2000), isha_Label_ar);
-            ft10.setFromValue(0);
-            ft10.setToValue(1);
-            ft10.play();
-            
-            
-            FadeTransition ft11 = new FadeTransition(Duration.millis(2000), friday_Label_eng);
-            ft11.setFromValue(1);
-            ft11.setToValue(0);
-            ft11.play();
-            
-            FadeTransition ft12 = new FadeTransition(Duration.millis(2000), friday_Label_ar);
-            ft12.setFromValue(0);
-            ft12.setToValue(1);
-            ft12.play();
-
-            
-            FadeTransition ft13 = new FadeTransition(Duration.millis(2000), jamaat_Label_eng);
-            ft13.setFromValue(1);
-            ft13.setToValue(0);
-            ft13.play();
-            
-            FadeTransition ft14 = new FadeTransition(Duration.millis(2000), jamaat_Label_ar);
-            ft14.setFromValue(0);
-            ft14.setToValue(1);
-            ft14.play();
-            
-            FadeTransition ft15 = new FadeTransition(Duration.millis(2000), athan_Label_eng);
-            ft15.setFromValue(1);
-            ft15.setToValue(0);
-            ft15.play();
-            
-            FadeTransition ft16 = new FadeTransition(Duration.millis(2000), athan_Label_ar);
-            ft16.setFromValue(0);
-            ft16.setToValue(1);
-            ft16.play();
+//            FadeTransition ft1 = new FadeTransition(Duration.millis(2000), fajr_Label_eng);
+//            ft1.setFromValue(1);
+//            ft1.setToValue(0);
+//            ft1.play();
+//            
+//            FadeTransition ft2 = new FadeTransition(Duration.millis(2000), fajr_Label_ar);
+//            ft2.setFromValue(0);
+//            ft2.setToValue(1);
+//            ft2.play();
+//            
+//            FadeTransition ft3 = new FadeTransition(Duration.millis(2000), zuhr_Label_eng);
+//            ft3.setFromValue(1);
+//            ft3.setToValue(0);
+//            ft3.play();
+//            
+//            FadeTransition ft4 = new FadeTransition(Duration.millis(2000), zuhr_Label_ar);
+//            ft4.setFromValue(0);
+//            ft4.setToValue(1);
+//            ft4.play();
+//            
+//            FadeTransition ft5 = new FadeTransition(Duration.millis(2000), asr_Label_eng);
+//            ft5.setFromValue(1);
+//            ft5.setToValue(0);
+//            ft5.play();
+//            
+//            FadeTransition ft6 = new FadeTransition(Duration.millis(2000), asr_Label_ar);
+//            ft6.setFromValue(0);
+//            ft6.setToValue(1);
+//            ft6.play();
+//            
+//            FadeTransition ft7 = new FadeTransition(Duration.millis(2000), maghrib_Label_eng);
+//            ft7.setFromValue(1);
+//            ft7.setToValue(0);
+//            ft7.play();
+//
+//            
+//            FadeTransition ft8 = new FadeTransition(Duration.millis(2000), maghrib_Label_ar);
+//            ft8.setFromValue(0);
+//            ft8.setToValue(1);
+//            ft8.play();
+//            
+//            FadeTransition ft9 = new FadeTransition(Duration.millis(2000), isha_Label_eng);
+//            ft9.setFromValue(1);
+//            ft9.setToValue(0);
+//            ft9.play();
+//
+//            
+//            FadeTransition ft10 = new FadeTransition(Duration.millis(2000), isha_Label_ar);
+//            ft10.setFromValue(0);
+//            ft10.setToValue(1);
+//            ft10.play();
+//            
+//            
+//            FadeTransition ft11 = new FadeTransition(Duration.millis(2000), friday_Label_eng);
+//            ft11.setFromValue(1);
+//            ft11.setToValue(0);
+//            ft11.play();
+//            
+//            FadeTransition ft12 = new FadeTransition(Duration.millis(2000), friday_Label_ar);
+//            ft12.setFromValue(0);
+//            ft12.setToValue(1);
+//            ft12.play();
+//
+//            
+//            FadeTransition ft13 = new FadeTransition(Duration.millis(2000), jamaat_Label_eng);
+//            ft13.setFromValue(1);
+//            ft13.setToValue(0);
+//            ft13.play();
+//            
+//            FadeTransition ft14 = new FadeTransition(Duration.millis(2000), jamaat_Label_ar);
+//            ft14.setFromValue(0);
+//            ft14.setToValue(1);
+//            ft14.play();
+//            
+//            FadeTransition ft15 = new FadeTransition(Duration.millis(2000), athan_Label_eng);
+//            ft15.setFromValue(1);
+//            ft15.setToValue(0);
+//            ft15.play();
+//            
+//            FadeTransition ft16 = new FadeTransition(Duration.millis(2000), athan_Label_ar);
+//            ft16.setFromValue(0);
+//            ft16.setToValue(1);
+//            ft16.play();
 
             
             
@@ -4301,6 +4457,39 @@ public void update_labels() throws Exception{
         return Moonpane;
     }
     
+    //===SUN RISE PANE==========================  
+    public GridPane sunrise() {
+      
+        GridPane Sunrise = new GridPane();
+        Sunrise.setId("moonpane");
+        Sunrise.getColumnConstraints().setAll(
+                ColumnConstraintsBuilder.create().prefWidth(220).minWidth(220).build(),
+                ColumnConstraintsBuilder.create().prefWidth(100).minWidth(100).build()     
+        );
+        Sunrise.setHgap(40);
+        Sunrise.setMaxHeight(50);
+//       Moonpane.setGridLinesVisible(false);
+
+        ImageView Sunrise_img = new ImageView(new Image(getClass().getResourceAsStream("/Images/Sun/Sun.png")));      
+        Sunrise_img.setFitWidth(160);
+        Sunrise_img.setFitHeight(160);
+//        Moon_img.setPreserveRatio(false);
+        Sunrise_img.setSmooth(true);
+        Sunrise_Image_Label.setGraphic(Sunrise_img);
+        Sunrise.setConstraints(Sunrise_Image_Label, 1, 0);
+        Sunrise.getChildren().add(Sunrise_Image_Label); 
+        Sunrise_Date_Label.setId("sunrise-text-english");
+        Sunrise_Date_Label.setWrapText(true);
+        Sunrise_Date_Label.setText("Loading......");
+        Sunrise.setConstraints(Sunrise_Date_Label, 0, 0);
+        Sunrise.getChildren().add(Sunrise_Date_Label);
+
+        return Sunrise;
+    }
+    
+    
+    
+    
     //===MOON PANE==========================  
     public GridPane hadithPane() {
       
@@ -4442,29 +4631,46 @@ public void update_labels() throws Exception{
 
         
         clockPane.getColumnConstraints().setAll(
-                ColumnConstraintsBuilder.create().minWidth(150).build(),
-                ColumnConstraintsBuilder.create().minWidth(150).build()     
+                ColumnConstraintsBuilder.create().minWidth(10).maxWidth(50).build(),
+                ColumnConstraintsBuilder.create().minWidth(120).maxWidth(300).build(),
+                ColumnConstraintsBuilder.create().minWidth(40).maxWidth(50).build(),
+                ColumnConstraintsBuilder.create().minWidth(120).maxWidth(160).build(),
+                ColumnConstraintsBuilder.create().minWidth(70).maxWidth(150).build()    
         );
         
         clockPane.setHgap(0);
-        clockPane.setGridLinesVisible(false);
+//        clockPane.setGridLinesVisible(true);
 //        clockPane.setMaxHeight(50);
         
         
         hour_Label.setId("hour");  
-        clockPane.setHalignment(hour_Label,HPos.CENTER);
-        clockPane.setConstraints(hour_Label, 0, 0);
+        clockPane.setHalignment(hour_Label,HPos.RIGHT);
+        clockPane.setConstraints(hour_Label, 1, 0);
         clockPane.getChildren().add(hour_Label);
         
+        separator_Label.setText(":");
+        separator_Label.setId("clock_separator");  
+        clockPane.setHalignment(separator_Label,HPos.CENTER);
+        clockPane.setConstraints(separator_Label, 2, 0);
+        clockPane.getChildren().add(separator_Label);
+        
         minute_Label.setId("minute");  
-        clockPane.setHalignment(minute_Label,HPos.LEFT);
+        clockPane.setHalignment(minute_Label,HPos.CENTER);
         clockPane.setValignment(minute_Label,VPos.CENTER);
-        clockPane.setConstraints(minute_Label, 1, 0);
+        clockPane.setConstraints(minute_Label, 3, 0);
         clockPane.getChildren().add(minute_Label);
+        
+
+        
+        second_Label.setId("second");  
+        clockPane.setHalignment(second_Label,HPos.CENTER);
+        clockPane.setValignment(second_Label,VPos.CENTER);
+        clockPane.setConstraints(second_Label, 4, 0);
+        clockPane.getChildren().add(second_Label);
         
         date_Label.setId("date");
         clockPane.setHalignment(date_Label,HPos.CENTER);
-        clockPane.setConstraints(date_Label, 0, 1,2,1);
+        clockPane.setConstraints(date_Label, 0, 1,5,1);
         clockPane.getChildren().add(date_Label);
         return clockPane;
     }
